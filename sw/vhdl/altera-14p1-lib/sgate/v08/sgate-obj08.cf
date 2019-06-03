@@ -1,0 +1,45 @@
+v 4
+file / "/home/r0h17/altera/14.1/quartus/eda/sim_lib/sgate.vhd" "9152fd83e7da1b4b96b1cb6d0bb399c66229fb43" "20181004130820.513":
+  entity oper_add at 17( 906) + 0 on 13;
+  architecture sim_arch of oper_add at 41( 1375) + 0 on 14;
+  entity oper_addsub at 114( 3709) + 0 on 15;
+  architecture sim_arch of oper_addsub at 137( 4167) + 0 on 16;
+  entity mux21 at 211( 6388) + 0 on 17;
+  architecture sim_arch of mux21 at 225( 6582) + 0 on 18;
+  entity io_buf_tri at 237( 6880) + 0 on 19;
+  architecture sim_arch of io_buf_tri at 250( 7051) + 0 on 20;
+  entity io_buf_opdrn at 261( 7342) + 0 on 21;
+  architecture sim_arch of io_buf_opdrn at 273( 7496) + 0 on 22;
+  entity tri_bus at 287( 7793) + 0 on 23;
+  architecture sim_arch of tri_bus at 305( 8087) + 0 on 24;
+  entity oper_mult at 333( 8930) + 0 on 25;
+  architecture sim_arch of oper_mult at 355( 9358) + 0 on 26;
+  entity oper_div at 412( 11050) + 0 on 27;
+  architecture sim_arch of oper_div at 436( 11487) + 0 on 28;
+  entity oper_mod at 501( 13292) + 0 on 29;
+  architecture sim_arch of oper_mod at 523( 13682) + 0 on 30;
+  entity oper_left_shift at 586( 15479) + 0 on 31;
+  architecture sim_arch of oper_left_shift at 608( 15964) + 0 on 32;
+  entity oper_right_shift at 666( 17808) + 0 on 33;
+  architecture sim_arch of oper_right_shift at 688( 18288) + 0 on 34;
+  entity oper_rotate_left at 754( 20199) + 0 on 35;
+  architecture sim_arch of oper_rotate_left at 776( 20626) + 0 on 36;
+  entity oper_rotate_right at 832( 22138) + 0 on 37;
+  architecture sim_arch of oper_rotate_right at 855( 22580) + 0 on 38;
+  entity oper_less_than at 911( 24092) + 0 on 39;
+  architecture sim_arch of oper_less_than at 932( 24469) + 0 on 40;
+  entity oper_mux at 995( 26070) + 0 on 41;
+  architecture sim_arch of oper_mux at 1016( 26402) + 0 on 42;
+  entity oper_selector at 1044( 27111) + 0 on 43;
+  architecture sim_arch of oper_selector at 1062( 27411) + 0 on 44;
+  entity oper_prio_selector at 1098( 28320) + 0 on 45;
+  architecture sim_arch of oper_prio_selector at 1119( 28705) + 0 on 46;
+  entity oper_decoder at 1131( 29059) + 0 on 47;
+  architecture sim_arch of oper_decoder at 1149( 29351) + 0 on 48;
+  entity oper_bus_mux at 1183( 30338) + 0 on 49;
+  architecture sim_arch of oper_bus_mux at 1204( 30696) + 0 on 50;
+  entity oper_latch at 1243( 31762) + 0 on 51;
+  architecture sim_arch of oper_latch at 1257( 32016) + 0 on 52;
+file / "/home/r0h17/altera/14.1/quartus/eda/sim_lib/sgate_pack.vhd" "3f45f6bf6bb17263a6bfca45ae1ce849689a7c2e" "20181004130820.456":
+  package sgate_pack at 17( 906) + 0 on 11 body;
+  package body sgate_pack at 317( 6465) + 0 on 12;

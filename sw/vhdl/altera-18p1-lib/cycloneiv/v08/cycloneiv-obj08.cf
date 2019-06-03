@@ -1,0 +1,4 @@
+v 4
+file / "/home/r0h17/altera/18.1/quartus/eda/sim_lib/cycloneiv_hssi_components.vhd" "1ea7061e13e83831eeef5e82a59d3d77b890ceee" "20190306075952.938":
+  package cycloneiv_hssi_components at 16( 780) + 0 on 11 body;
+  package body cycloneiv_hssi_components at 931( 66119) + 0 on 12;
