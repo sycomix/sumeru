@@ -17,7 +17,11 @@ architecture synth of timing_analysis_experiments is
 
         signal address_counter: std_logic_vector(7 downto 0);
         signal dout:            std_logic_vector(31 downto 0);
+        signal wdata:           std_logic_vector(31 downto 0);
+
 begin
+        wdata <= (others => (address_counter(0) and btn));
+        
         pll: entity work.pll 
                 port map(
                         inclk0 => clk_50m,
@@ -34,7 +38,7 @@ begin
                 port map(
                         clock => sys_clk,
                         address => address_counter,
-                        data => (others => btn),
+                        data => wdata,
                         wren => '1',
                         q => dout);
                        

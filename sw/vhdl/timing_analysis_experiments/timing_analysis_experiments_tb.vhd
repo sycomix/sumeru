@@ -29,24 +29,24 @@ begin
                 port map(
                         clk_50m => clk,
                         btn => btn,
-                        led => led,
+                        led => led
 
-                        uart0_rx => uart0_rx,
-                        spi0_miso => spi0_miso,
+                        -- uart0_rx => uart0_rx,
+                        -- spi0_miso => spi0_miso,
 
                         -- gpio
                         -- spio_*
 
-                        sdram_data => sdram_data,
-                        sdram_addr => sdram_addr,
-                        sdram_ba => sdram_ba,
-                        sdram_dqm => sdram_dqm,
-                        sdram_ras => sdram_ras,
-                        sdram_cas => sdram_cas,
-                        sdram_cke => sdram_cke,
-                        sdram_clk => sdram_clk,
-                        sdram_cs => sdram_cs,
-                        sdram_we => sdram_we
+                        -- sdram_data => sdram_data,
+                        -- sdram_addr => sdram_addr,
+                        -- sdram_ba => sdram_ba,
+                        -- sdram_dqm => sdram_dqm,
+                        -- sdram_ras => sdram_ras,
+                        -- sdram_cas => sdram_cas,
+                        -- sdram_cke => sdram_cke,
+                        -- sdram_clk => sdram_clk,
+                        -- sdram_cs => sdram_cs,
+                        -- sdram_we => sdram_we
                 );
                         
 end architecture;
