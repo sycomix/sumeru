@@ -2,10 +2,10 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
-entity timing_analysis_experiments_tb is
+entity timing_analysis_experiment_01_tb is
 end entity;
 
-architecture sim of timing_analysis_experiments_tb is
+architecture sim of timing_analysis_experiment_01_tb is
         constant half_period: time := 10 ns;
         constant period: time := 20 ns;
 
@@ -25,28 +25,28 @@ architecture sim of timing_analysis_experiments_tb is
 begin
         clk <= not clk after half_period;
 
-        timing_analysis_experiments: entity work.timing_analysis_experiments
+        timing_analysis_experiment_01: entity work.timing_analysis_experiment_01
                 port map(
                         clk_50m => clk,
                         btn => btn,
-                        led => led
+                        led => led,
 
-                        -- uart0_rx => uart0_rx,
-                        -- spi0_miso => spi0_miso,
+                        uart0_rx => uart0_rx,
+                        spi0_miso => spi0_miso,
 
                         -- gpio
                         -- spio_*
 
-                        -- sdram_data => sdram_data,
-                        -- sdram_addr => sdram_addr,
-                        -- sdram_ba => sdram_ba,
-                        -- sdram_dqm => sdram_dqm,
-                        -- sdram_ras => sdram_ras,
-                        -- sdram_cas => sdram_cas,
-                        -- sdram_cke => sdram_cke,
-                        -- sdram_clk => sdram_clk,
-                        -- sdram_cs => sdram_cs,
-                        -- sdram_we => sdram_we
+                        sdram_data => sdram_data,
+                        sdram_addr => sdram_addr,
+                        sdram_ba => sdram_ba,
+                        sdram_dqm => sdram_dqm,
+                        sdram_ras => sdram_ras,
+                        sdram_cas => sdram_cas,
+                        sdram_cke => sdram_cke,
+                        sdram_clk => sdram_clk,
+                        sdram_cs => sdram_cs,
+                        sdram_we => sdram_we
                 );
                         
 end architecture;

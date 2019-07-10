@@ -1,8 +1,6 @@
-TOPLEVEL = timing_analysis_experiments
+TOPLEVEL = timing_analysis_experiment_01
 
 SRCS = pll.vhd \
-        counter.vhd \
-        ram.vhd \
         ${TOPLEVEL}.vhd \
         ${TOPLEVEL}_tb.vhd
 
