@@ -7,7 +7,7 @@ then
 fi
 
 mkdir $1
-cp ${MERU_DIR}/sw/vhdl/SKEL/* $1
+cp ${SUMERU_DIR}/sw/vhdl/SKEL/* $1
 cd $1
 sed -i  -e "s/%%SKEL_PRJNAME%%/$1/g" *
 for fn in *
