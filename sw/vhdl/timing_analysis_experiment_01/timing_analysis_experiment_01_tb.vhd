@@ -9,11 +9,19 @@ architecture sim of timing_analysis_experiment_01_tb is
         constant half_period: time := 10 ns;
         constant period: time := 20 ns;
 
-        signal clk:                     std_logic := '0';
+        signal clk_50m:                 std_logic := '0';
+
         signal led:                     std_logic;
         signal btn:                     std_logic := '1';
+
+        signal uart0_tx:                std_logic := '1';
         signal uart0_rx:                std_logic := '1';
+
+        signal spi0_ss:                 std_logic := '0';
+        signal spi0_sck:                std_logic := '0';
+        signal spi0_mosi:               std_logic := '0';
         signal spi0_miso:               std_logic := '0';
+
 
         signal sdram_data:              std_logic_vector(15 downto 0);
         signal sdram_addr:              std_logic_vector(12 downto 0);
@@ -22,6 +30,8 @@ architecture sim of timing_analysis_experiment_01_tb is
         signal sdram_ras, sdram_cas:    std_logic;
         signal sdram_cke, sdram_clk:    std_logic;
         signal sdram_we, sdram_cs:      std_logic;
+
+
 begin
         clk <= not clk after half_period;
 
