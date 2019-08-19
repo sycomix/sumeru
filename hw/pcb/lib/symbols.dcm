@@ -1,0 +1,18 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP NJT4031N
+D TO-223 NPN Transistor
+K Audio High Voltage NPN Transistor
+$ENDCMP
+#
+$CMP PMOSFET_SOP8
+D SOP-8 P-Channel Mosfet
+K sop8 pmos p-channel p-mosfet mosfet
+$ENDCMP
+#
+$CMP Q_PMOS_GSD
+D Transistor P-MOSFET with substrate diode (general)
+K pmos p-mos p-mosfet transistor
+$ENDCMP
+#
+#End Doc Library

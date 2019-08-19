@@ -1,6 +1,8 @@
-library ieee;
+library ieee, lpm;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
+use lpm.lpm_components.lpm_ram_io;
+use lpm.lpm_components.lpm_counter;
 
 entity timing_analysis_experiment_01 is
 port(
@@ -28,8 +30,14 @@ end entity;
 
 architecture synth of timing_analysis_experiment_01 is
         signal sys_clk:         std_logic;
-        signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
+        signal reset:           std_logic;
+
+        signal ram_addr:         std_logic_vector(15 downto 0);
+        signal ram_data:         std_logic_vector(15 downto 0);
+        signal ram_we:           std_logic;
+        signal ram_enable:       std_logic;
+
 begin
         led <= '0';
         gpio <= (others => 'Z');
@@ -51,8 +59,32 @@ begin
                 port map(
                         inclk0 => clk_50m,
                         c0 => sys_clk,
-                        c1 => mem_clk,
                         locked => reset_n);
+
+        counter: lpm_counter
+                generic map(
+                        lpm_width => 16)
+                port map(
+                        clock => sys_clk,
+                        aclr => reset);
+
+        ram: lpm_ram_io
+                generic map(
+                        lpm_width => 16,
+                        lpm_widthad => 16,
+                        lpm_address_control => "UNREGISTERED",
+                        lpm_indata => "UNREGISTERED",
+                        lpm_outdata => "UNREGISTERED")
+                port map(
+                        address => ram_addr,
+                        dio => ram_data,
+                        we => ram_we,
+                        memenab => ram_enable);
+
+        ram_we <= '0';
+        ram_enable <= '0';
+
+
 end architecture;
 
 

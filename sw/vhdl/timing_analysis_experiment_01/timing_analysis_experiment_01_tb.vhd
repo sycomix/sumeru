@@ -9,7 +9,7 @@ architecture sim of timing_analysis_experiment_01_tb is
         constant half_period: time := 10 ns;
         constant period: time := 20 ns;
 
-        signal clk_50m:                 std_logic := '0';
+        signal clk:                     std_logic := '0';
 
         signal led:                     std_logic;
         signal btn:                     std_logic := '1';
@@ -30,7 +30,6 @@ architecture sim of timing_analysis_experiment_01_tb is
         signal sdram_ras, sdram_cas:    std_logic;
         signal sdram_cke, sdram_clk:    std_logic;
         signal sdram_we, sdram_cs:      std_logic;
-
 
 begin
         clk <= not clk after half_period;

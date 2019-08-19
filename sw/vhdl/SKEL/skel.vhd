@@ -4,7 +4,7 @@ use ieee.numeric_std.ALL;
 
 entity %%SKEL_PRJNAME%% is
 port(
-        clk_50m:                in std_logic;
+        clk:                    in std_logic;
         btn:                    in std_logic;
         led:                    out std_logic;
         gpio:                   inout std_logic_vector(7 downto 0);
