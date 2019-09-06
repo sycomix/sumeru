@@ -36,24 +36,65 @@ set_global_assignment -name VHDL_FILE pll.vhd
 set_global_assignment -name VHDL_FILE %%SKEL_PRJNAME%%.vhd
 set_global_assignment -name SDC_FILE %%SKEL_PRJNAME%%.sdc
 
+
+## Hardwired PCB track assignments
 set_location_assignment PIN_23 -to clk_50m
-set_location_assignment PIN_1 -to uart0_rx
-set_location_assignment PIN_2 -to uart0_tx
-set_location_assignment PIN_132 -to gpio[7]
-set_location_assignment PIN_128 -to gpio[6]
-set_location_assignment PIN_126 -to gpio[5]
-set_location_assignment PIN_124 -to gpio[4]
-set_location_assignment PIN_120 -to gpio[3]
-set_location_assignment PIN_115 -to gpio[2]
-set_location_assignment PIN_113 -to gpio[1]
-set_location_assignment PIN_111 -to gpio[0]
 set_location_assignment PIN_85 -to led
 set_location_assignment PIN_86 -to btn
+
+## Flash Wiring
 set_location_assignment PIN_13 -to spi_miso[0]
 set_location_assignment PIN_6 -to spi_mosi[0]
 set_location_assignment PIN_12 -to spi_sck[0]
 set_location_assignment PIN_8 -to spi_ss[0]
 
+#
+## 10 Pin IDC - Connector 3 - Pinout (in order 1-10)
+#
+## JTAG TDI - no alternate function
+## VEE Gnd
+## Not Connected
+## Not Connected
+## JTAG TMS -  no alternate function
+## Not Connected
+## JTAG TDO -  no alternate function
+## VCC 3.3v
+## JTAG TCK -  no alternate function
+## VEE Gnd
+##
+
+#
+## 10 Pin IDC - Connector 1 - Pinout (in order 1-10)
+##
+set_location_assignment PIN_3   -to     c1_unused_00
+set_location_assignment PIN_10  -to     c1_unused_01
+set_location_assignment PIN_2   -to     uart0_tx
+set_location_assignment PIN_11  -to     c1_unused_02
+set_location_assignment PIN_1   -to     uart0_rx
+set_location_assignment PIN_7   -to     c1_unused_03
+## VCC 3.3v
+set_location_assignment PIN_24  -to     c1_unused_04
+## VEE Gnd
+set_location_assignment PIN_25  -to     c1_unused_05
+
+
+#
+## 40 Pin IDC - Connector 4 - Pinout (in order 1-40)
+#
+## VCC 3.3v
+## VEE Gnd
+## ... TODO
+## set_location_assignment PIN_132 -to gpio[7]
+## set_location_assignment PIN_128 -to gpio[6]
+## set_location_assignment PIN_126 -to gpio[5]
+## set_location_assignment PIN_124 -to gpio[4]
+## set_location_assignment PIN_120 -to gpio[3]
+## set_location_assignment PIN_115 -to gpio[2]
+## set_location_assignment PIN_113 -to gpio[1]
+## set_location_assignment PIN_111 -to gpio[0]
+
+
+## SDRAM Wiring
 set_location_assignment PIN_28 -to sdram_addr[3]
 set_location_assignment PIN_30 -to sdram_addr[2]
 set_location_assignment PIN_31 -to sdram_addr[1]
@@ -152,6 +193,5 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[12]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[13]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[14]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[15]
-
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
