@@ -33,11 +33,11 @@ architecture sim of %%SKEL_PRJNAME%%_tb is
 
 
 begin
-        clk <= not clk after half_period;
+        clk_50m <= not clk_50m after half_period;
 
         %%SKEL_PRJNAME%%: entity work.%%SKEL_PRJNAME%%
                 port map(
-                        clk_50m => clk,
+                        clk_50m => clk_50m,
                         btn => btn,
                         led => led,
 
