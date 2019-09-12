@@ -5,7 +5,7 @@ SRCS = pll.vhd \
         ${TOPLEVEL}_tb.vhd
 
 SIM_PERIOD = 50us
-LIB_DIR = ../altera-lib
+LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
 
 compile:
 	for fn in $(SRCS); do \
