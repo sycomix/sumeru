@@ -7,9 +7,6 @@ port(
         clk_50m:                in std_logic;
         btn:                    in std_logic;
         led:                    out std_logic;
-        gpio:                   inout std_logic_vector(7 downto 0);
-        uart0_tx:               out std_logic;
-        uart0_rx:               in std_logic;
         spi0_sck:               out std_logic;
         spi0_ss:                out std_logic;
         spi0_mosi:              out std_logic;

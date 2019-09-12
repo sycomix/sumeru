@@ -40,26 +40,30 @@ set_global_assignment -name SDC_FILE %%SKEL_PRJNAME%%.sdc
 ## Hardwired PCB track assignments
 set_location_assignment PIN_23 -to clk_50m
 set_location_assignment PIN_85 -to led
+
+## Device-OE Pin used for input button in mark 2
+## XXX Change this in mark 3
 set_location_assignment PIN_86 -to btn
 
 ## Flash Wiring
-set_location_assignment PIN_13 -to spi_miso[0]
 set_location_assignment PIN_6 -to spi_mosi[0]
-set_location_assignment PIN_12 -to spi_sck[0]
 set_location_assignment PIN_8 -to spi_ss[0]
+set_location_assignment PIN_12 -to spi_sck[0]
+set_location_assignment PIN_13 -to spi_miso[0]
+
 
 #
 ## 10 Pin IDC - Connector 3 - Pinout (in order 1-10)
 #
-## JTAG TDI - no alternate function
+## JTAG TDI - no alternate function - PIN_15
 ## VEE Gnd
 ## Not Connected
 ## Not Connected
-## JTAG TMS -  no alternate function
+## JTAG TMS -  no alternate function - PIN_18
 ## Not Connected
-## JTAG TDO -  no alternate function
+## JTAG TDO -  no alternate function - PIN_20
 ## VCC 3.3v
-## JTAG TCK -  no alternate function
+## JTAG TCK -  no alternate function - PIN_16
 ## VEE Gnd
 ##
 
@@ -84,14 +88,6 @@ set_location_assignment PIN_25  -to     c1_unused_05
 ## VCC 3.3v
 ## VEE Gnd
 ## ... TODO
-## set_location_assignment PIN_132 -to gpio[7]
-## set_location_assignment PIN_128 -to gpio[6]
-## set_location_assignment PIN_126 -to gpio[5]
-## set_location_assignment PIN_124 -to gpio[4]
-## set_location_assignment PIN_120 -to gpio[3]
-## set_location_assignment PIN_115 -to gpio[2]
-## set_location_assignment PIN_113 -to gpio[1]
-## set_location_assignment PIN_111 -to gpio[0]
 
 
 ## SDRAM Wiring

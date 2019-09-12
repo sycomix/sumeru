@@ -14,9 +14,6 @@ architecture sim of %%SKEL_PRJNAME%%_tb is
         signal led:                     std_logic;
         signal btn:                     std_logic := '1';
 
-        signal uart0_tx:                std_logic := '1';
-        signal uart0_rx:                std_logic := '1';
-
         signal spi0_ss:                 std_logic := '0';
         signal spi0_sck:                std_logic := '0';
         signal spi0_mosi:               std_logic := '0';
@@ -41,11 +38,14 @@ begin
                         btn => btn,
                         led => led,
 
-                        uart0_rx => uart0_rx,
-                        spi0_miso => spi0_miso,
-
+                        -- uart
                         -- gpio
+
                         -- spio_*
+                        spi0_ss => spi0_ss,
+                        spi0_sck => spi0_sck,
+                        spi0_mosi => spi0_mosi,
+                        spi0_miso => spi0_miso,
 
                         sdram_data => sdram_data,
                         sdram_addr => sdram_addr,
