@@ -29,7 +29,6 @@ architecture synth of ram_propogation_test is
         signal reset_n:         std_logic;
         signal drv_data:        std_logic := '0';
 begin
-        led <= '0';
         spi0_sck <= '0';
         spi0_ss <= '0';
         spi0_mosi <= '0';
