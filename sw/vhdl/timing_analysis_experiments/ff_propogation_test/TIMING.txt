@@ -1,0 +1,999 @@
+TimeQuest Timing Analyzer report for ff_propogation_test
+Thu Sep 12 16:29:33 2019
+Quartus II 64-Bit Version 14.1.0 Build 186 12/03/2014 Patches 0.19 SJ Web Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. TimeQuest Timing Analyzer Summary
+  3. Parallel Compilation
+  4. SDC File List
+  5. Clocks
+  6. Slow 1200mV 85C Model Fmax Summary
+  7. Timing Closure Recommendations
+  8. Slow 1200mV 85C Model Setup Summary
+  9. Slow 1200mV 85C Model Hold Summary
+ 10. Slow 1200mV 85C Model Recovery Summary
+ 11. Slow 1200mV 85C Model Removal Summary
+ 12. Slow 1200mV 85C Model Minimum Pulse Width Summary
+ 13. Slow 1200mV 85C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 14. Slow 1200mV 85C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 15. Slow 1200mV 85C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 16. Slow 1200mV 85C Model Minimum Pulse Width: 'clk_50m'
+ 17. Setup Times
+ 18. Hold Times
+ 19. Clock to Output Times
+ 20. Minimum Clock to Output Times
+ 21. Slow 1200mV 85C Model Metastability Report
+ 22. Slow 1200mV 0C Model Fmax Summary
+ 23. Slow 1200mV 0C Model Setup Summary
+ 24. Slow 1200mV 0C Model Hold Summary
+ 25. Slow 1200mV 0C Model Recovery Summary
+ 26. Slow 1200mV 0C Model Removal Summary
+ 27. Slow 1200mV 0C Model Minimum Pulse Width Summary
+ 28. Slow 1200mV 0C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 29. Slow 1200mV 0C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 30. Slow 1200mV 0C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 31. Slow 1200mV 0C Model Minimum Pulse Width: 'clk_50m'
+ 32. Setup Times
+ 33. Hold Times
+ 34. Clock to Output Times
+ 35. Minimum Clock to Output Times
+ 36. Slow 1200mV 0C Model Metastability Report
+ 37. Fast 1200mV 0C Model Setup Summary
+ 38. Fast 1200mV 0C Model Hold Summary
+ 39. Fast 1200mV 0C Model Recovery Summary
+ 40. Fast 1200mV 0C Model Removal Summary
+ 41. Fast 1200mV 0C Model Minimum Pulse Width Summary
+ 42. Fast 1200mV 0C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 43. Fast 1200mV 0C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 44. Fast 1200mV 0C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'
+ 45. Fast 1200mV 0C Model Minimum Pulse Width: 'clk_50m'
+ 46. Setup Times
+ 47. Hold Times
+ 48. Clock to Output Times
+ 49. Minimum Clock to Output Times
+ 50. Fast 1200mV 0C Model Metastability Report
+ 51. Multicorner Timing Analysis Summary
+ 52. Setup Times
+ 53. Hold Times
+ 54. Clock to Output Times
+ 55. Minimum Clock to Output Times
+ 56. Board Trace Model Assignments
+ 57. Input Transition Times
+ 58. Signal Integrity Metrics (Slow 1200mv 0c Model)
+ 59. Signal Integrity Metrics (Slow 1200mv 85c Model)
+ 60. Signal Integrity Metrics (Fast 1200mv 0c Model)
+ 61. Setup Transfers
+ 62. Hold Transfers
+ 63. Report TCCS
+ 64. Report RSKM
+ 65. Unconstrained Paths
+ 66. TimeQuest Timing Analyzer Messages
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 1991-2014 Altera Corporation. All rights reserved.
+Your use of Altera Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Altera Program License 
+Subscription Agreement, the Altera Quartus II License Agreement,
+the Altera MegaCore Function License Agreement, or other 
+applicable license agreement, including, without limitation, 
+that your use is for the sole purpose of programming logic 
+devices manufactured by Altera and sold by Altera or its 
+authorized distributors.  Please refer to the applicable 
+agreement for further details.
+
+
+
++--------------------------------------------------------------------------------------+
+; TimeQuest Timing Analyzer Summary                                                    ;
++--------------------+-----------------------------------------------------------------+
+; Quartus II Version ; Version 14.1.0 Build 186 12/03/2014 Patches 0.19 SJ Web Edition ;
+; Revision Name      ; ff_propogation_test                                             ;
+; Device Family      ; Cyclone IV E                                                    ;
+; Device Name        ; EP4CE10E22C8                                                    ;
+; Timing Models      ; Final                                                           ;
+; Delay Model        ; Combined                                                        ;
+; Rise/Fall Delays   ; Enabled                                                         ;
++--------------------+-----------------------------------------------------------------+
+
+
+Parallel compilation was disabled, but you have multiple processors available. Enable parallel compilation to reduce compilation time.
++-------------------------------------+
+; Parallel Compilation                ;
++----------------------------+--------+
+; Processors                 ; Number ;
++----------------------------+--------+
+; Number detected on machine ; 4      ;
+; Maximum allowed            ; 1      ;
++----------------------------+--------+
+
+
++-------------------------------------------------------------+
+; SDC File List                                               ;
++-------------------------+--------+--------------------------+
+; SDC File Path           ; Status ; Read at                  ;
++-------------------------+--------+--------------------------+
+; ff_propogation_test.sdc ; OK     ; Thu Sep 12 16:29:32 2019 ;
++-------------------------+--------+--------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Clocks                                                                                                                                                                                                                                                                                                            ;
++-------------------------------------------------+-----------+--------+-----------+-------+--------+------------+-----------+-------------+-------+--------+-----------+------------+----------+---------+---------------------------------------------------+-----------------------------------------------------+
+; Clock Name                                      ; Type      ; Period ; Frequency ; Rise  ; Fall   ; Duty Cycle ; Divide by ; Multiply by ; Phase ; Offset ; Edge List ; Edge Shift ; Inverted ; Master  ; Source                                            ; Targets                                             ;
++-------------------------------------------------+-----------+--------+-----------+-------+--------+------------+-----------+-------------+-------+--------+-----------+------------+----------+---------+---------------------------------------------------+-----------------------------------------------------+
+; clk_50m                                         ; Base      ; 20.000 ; 50.0 MHz  ; 0.000 ; 10.000 ;            ;           ;             ;       ;        ;           ;            ;          ;         ;                                                   ; { clk_50m }                                         ;
+; pll|altpll_component|auto_generated|pll1|clk[0] ; Generated ; 2.500  ; 400.0 MHz ; 0.000 ; 1.250  ; 50.00      ; 1         ; 8           ;       ;        ;           ;            ; false    ; clk_50m ; pll|altpll_component|auto_generated|pll1|inclk[0] ; { pll|altpll_component|auto_generated|pll1|clk[0] } ;
++-------------------------------------------------+-----------+--------+-----------+-------+--------+------------+-----------+-------------+-------+--------+-----------+------------+----------+---------+---------------------------------------------------+-----------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Fmax Summary                                                                                               ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+; Fmax        ; Restricted Fmax ; Clock Name                                      ; Note                                           ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+; 1040.58 MHz ; 402.09 MHz      ; pll|altpll_component|auto_generated|pll1|clk[0] ; limit due to minimum period restriction (tmin) ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+
+----------------------------------
+; Timing Closure Recommendations ;
+----------------------------------
+HTML report is unavailable in plain text report export.
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Setup Summary                                     ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 1.539 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Hold Summary                                      ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.501 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
+------------------------------------------
+; Slow 1200mV 85C Model Recovery Summary ;
+------------------------------------------
+No paths to report.
+
+
+-----------------------------------------
+; Slow 1200mV 85C Model Removal Summary ;
+-----------------------------------------
+No paths to report.
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Minimum Pulse Width Summary                       ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.013 ; 0.000         ;
+; clk_50m                                         ; 9.891 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                            ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 1.539 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 2.500        ; -0.081     ; 0.881      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                             ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 0.501 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.000        ; 0.081      ; 0.794      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                                    ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; Slack ; Actual Width ; Required Width ; Type             ; Clock                                           ; Clock Edge ; Target                                                                ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; 0.013 ; 2.500        ; 2.487          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 0.013 ; 2.500        ; 2.487          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 0.971 ; 1.191        ; 0.220          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 0.971 ; 1.191        ; 0.220          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.118 ; 1.306        ; 0.188          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 1.118 ; 1.306        ; 0.188          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.217 ; 1.217        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.217 ; 1.217        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
+; 1.240 ; 1.240        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.240 ; 1.240        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
+; 1.258 ; 1.258        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.258 ; 1.258        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
+; 1.281 ; 1.281        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.281 ; 1.281        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 85C Model Minimum Pulse Width: 'clk_50m'                                                                                         ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; Slack  ; Actual Width ; Required Width ; Type             ; Clock   ; Clock Edge ; Target                                                    ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; 9.891  ; 9.891        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 9.901  ; 9.901        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 9.901  ; 9.901        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 9.914  ; 9.914        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 10.000 ; 10.000       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.000 ; 10.000       ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.085 ; 10.085       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 10.096 ; 10.096       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 10.096 ; 10.096       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 10.109 ; 10.109       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 16.000 ; 20.000       ; 4.000          ; Port Rate        ; clk_50m ; Rise       ; clk_50m                                                   ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------+
+; Setup Times                                                                                             ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise   ; Fall   ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; -0.791 ; -0.473 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Hold Times                                                                                            ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; 1.497 ; 1.204 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Clock to Output Times                                                                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 9.043 ; 8.932 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Minimum Clock to Output Times                                                                         ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 8.556 ; 8.444 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
+----------------------------------------------
+; Slow 1200mV 85C Model Metastability Report ;
+----------------------------------------------
+No synchronizer chains to report.
+
+
++----------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Fmax Summary                                                                                                ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+; Fmax        ; Restricted Fmax ; Clock Name                                      ; Note                                           ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+; 1156.07 MHz ; 402.09 MHz      ; pll|altpll_component|auto_generated|pll1|clk[0] ; limit due to minimum period restriction (tmin) ;
++-------------+-----------------+-------------------------------------------------+------------------------------------------------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Setup Summary                                      ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 1.635 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Hold Summary                                       ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.471 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
+-----------------------------------------
+; Slow 1200mV 0C Model Recovery Summary ;
+-----------------------------------------
+No paths to report.
+
+
+----------------------------------------
+; Slow 1200mV 0C Model Removal Summary ;
+----------------------------------------
+No paths to report.
+
+
++-------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Minimum Pulse Width Summary                        ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.013 ; 0.000         ;
+; clk_50m                                         ; 9.902 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                             ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 1.635 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 2.500        ; -0.072     ; 0.795      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                              ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 0.471 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.000        ; 0.072      ; 0.738      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                                     ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; Slack ; Actual Width ; Required Width ; Type             ; Clock                                           ; Clock Edge ; Target                                                                ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; 0.013 ; 2.500        ; 2.487          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 0.013 ; 2.500        ; 2.487          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 0.969 ; 1.185        ; 0.216          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 0.969 ; 1.185        ; 0.216          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.127 ; 1.311        ; 0.184          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 1.127 ; 1.311        ; 0.184          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.215 ; 1.215        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.215 ; 1.215        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
+; 1.239 ; 1.239        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.239 ; 1.239        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
+; 1.260 ; 1.260        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.260 ; 1.260        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
+; 1.283 ; 1.283        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.283 ; 1.283        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; Slow 1200mV 0C Model Minimum Pulse Width: 'clk_50m'                                                                                          ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; Slack  ; Actual Width ; Required Width ; Type             ; Clock   ; Clock Edge ; Target                                                    ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; 9.902  ; 9.902        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 9.902  ; 9.902        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 9.904  ; 9.904        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 9.921  ; 9.921        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 10.000 ; 10.000       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.000 ; 10.000       ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.079 ; 10.079       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 10.096 ; 10.096       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 10.096 ; 10.096       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 10.096 ; 10.096       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 16.000 ; 20.000       ; 4.000          ; Port Rate        ; clk_50m ; Rise       ; clk_50m                                                   ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+
+
++---------------------------------------------------------------------------------------------------------+
+; Setup Times                                                                                             ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise   ; Fall   ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; -0.738 ; -0.529 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+--------+--------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Hold Times                                                                                            ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; 1.363 ; 1.171 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Clock to Output Times                                                                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 8.122 ; 7.962 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Minimum Clock to Output Times                                                                         ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 7.674 ; 7.515 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
+---------------------------------------------
+; Slow 1200mV 0C Model Metastability Report ;
+---------------------------------------------
+No synchronizer chains to report.
+
+
++-------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Setup Summary                                      ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 2.079 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++-------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Hold Summary                                       ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.194 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
+-----------------------------------------
+; Fast 1200mV 0C Model Recovery Summary ;
+-----------------------------------------
+No paths to report.
+
+
+----------------------------------------
+; Fast 1200mV 0C Model Removal Summary ;
+----------------------------------------
+No paths to report.
+
+
++-------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Minimum Pulse Width Summary                        ;
++-------------------------------------------------+-------+---------------+
+; Clock                                           ; Slack ; End Point TNS ;
++-------------------------------------------------+-------+---------------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.500 ; 0.000         ;
+; clk_50m                                         ; 9.448 ; 0.000         ;
++-------------------------------------------------+-------+---------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Setup: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                             ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 2.079 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 2.500        ; -0.036     ; 0.372      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Hold: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                              ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; Slack ; From Node ; To Node  ; Launch Clock                                    ; Latch Clock                                     ; Relationship ; Clock Skew ; Data Delay ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+; 0.194 ; drv_data  ; led~reg0 ; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 0.000        ; 0.036      ; 0.314      ;
++-------+-----------+----------+-------------------------------------------------+-------------------------------------------------+--------------+------------+------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Minimum Pulse Width: 'pll|altpll_component|auto_generated|pll1|clk[0]'                                                                                                     ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; Slack ; Actual Width ; Required Width ; Type             ; Clock                                           ; Clock Edge ; Target                                                                ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+; 0.500 ; 2.500        ; 2.000          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 0.500 ; 2.500        ; 2.000          ; Min Period       ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.046 ; 1.230        ; 0.184          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 1.046 ; 1.230        ; 0.184          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.050 ; 1.266        ; 0.216          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data                                                              ;
+; 1.050 ; 1.266        ; 0.216          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0                                                              ;
+; 1.226 ; 1.226        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.226 ; 1.226        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
+; 1.249 ; 1.249        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.249 ; 1.249        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
+; 1.251 ; 1.251        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|inclk[0] ;
+; 1.251 ; 1.251        ; 0.000          ; Low Pulse Width  ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; pll|altpll_component|auto_generated|wire_pll1_clk[0]~clkctrl|outclk   ;
+; 1.272 ; 1.272        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; drv_data|clk                                                          ;
+; 1.272 ; 1.272        ; 0.000          ; High Pulse Width ; pll|altpll_component|auto_generated|pll1|clk[0] ; Rise       ; led~reg0|clk                                                          ;
++-------+--------------+----------------+------------------+-------------------------------------------------+------------+-----------------------------------------------------------------------+
+
+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; Fast 1200mV 0C Model Minimum Pulse Width: 'clk_50m'                                                                                          ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; Slack  ; Actual Width ; Required Width ; Type             ; Clock   ; Clock Edge ; Target                                                    ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+; 9.448  ; 9.448        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 9.450  ; 9.450        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 9.457  ; 9.457        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 9.457  ; 9.457        ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 10.000 ; 10.000       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.000 ; 10.000       ; 0.000          ; Low Pulse Width  ; clk_50m ; Rise       ; clk_50m~input|i                                           ;
+; 10.542 ; 10.542       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0]           ;
+; 10.542 ; 10.542       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|observablevcoout ;
+; 10.549 ; 10.549       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; pll|altpll_component|auto_generated|pll1|inclk[0]         ;
+; 10.552 ; 10.552       ; 0.000          ; High Pulse Width ; clk_50m ; Rise       ; clk_50m~input|o                                           ;
+; 16.000 ; 20.000       ; 4.000          ; Port Rate        ; clk_50m ; Rise       ; clk_50m                                                   ;
++--------+--------------+----------------+------------------+---------+------------+-----------------------------------------------------------+
+
+
++--------------------------------------------------------------------------------------------------------+
+; Setup Times                                                                                            ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise   ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; -0.382 ; 0.343 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+
+
++--------------------------------------------------------------------------------------------------------+
+; Hold Times                                                                                             ;
++-----------+------------+-------+--------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall   ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+--------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; 0.702 ; -0.010 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+--------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Clock to Output Times                                                                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 4.308 ; 4.279 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Minimum Clock to Output Times                                                                         ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 4.088 ; 4.057 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
+---------------------------------------------
+; Fast 1200mV 0C Model Metastability Report ;
+---------------------------------------------
+No synchronizer chains to report.
+
+
++-------------------------------------------------------------------------------------------------------------+
+; Multicorner Timing Analysis Summary                                                                         ;
++--------------------------------------------------+-------+-------+----------+---------+---------------------+
+; Clock                                            ; Setup ; Hold  ; Recovery ; Removal ; Minimum Pulse Width ;
++--------------------------------------------------+-------+-------+----------+---------+---------------------+
+; Worst-case Slack                                 ; 1.539 ; 0.194 ; N/A      ; N/A     ; 0.013               ;
+;  clk_50m                                         ; N/A   ; N/A   ; N/A      ; N/A     ; 9.448               ;
+;  pll|altpll_component|auto_generated|pll1|clk[0] ; 1.539 ; 0.194 ; N/A      ; N/A     ; 0.013               ;
+; Design-wide TNS                                  ; 0.0   ; 0.0   ; 0.0      ; 0.0     ; 0.0                 ;
+;  clk_50m                                         ; N/A   ; N/A   ; N/A      ; N/A     ; 0.000               ;
+;  pll|altpll_component|auto_generated|pll1|clk[0] ; 0.000 ; 0.000 ; N/A      ; N/A     ; 0.000               ;
++--------------------------------------------------+-------+-------+----------+---------+---------------------+
+
+
++--------------------------------------------------------------------------------------------------------+
+; Setup Times                                                                                            ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise   ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; -0.382 ; 0.343 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+--------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Hold Times                                                                                            ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; btn       ; clk_50m    ; 1.497 ; 1.204 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Clock to Output Times                                                                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 9.043 ; 8.932 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------+
+; Minimum Clock to Output Times                                                                         ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; Data Port ; Clock Port ; Rise  ; Fall  ; Clock Edge ; Clock Reference                                 ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+; led       ; clk_50m    ; 4.088 ; 4.057 ; Rise       ; pll|altpll_component|auto_generated|pll1|clk[0] ;
++-----------+------------+-------+-------+------------+-------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Board Trace Model Assignments                                                                                                                                                                                                                                                                                                                                                                                     ;
++----------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+; Pin            ; I/O Standard ; Near Tline Length ; Near Tline L per Length ; Near Tline C per Length ; Near Series R ; Near Differential R ; Near Pull-up R ; Near Pull-down R ; Near C ; Far Tline Length ; Far Tline L per Length ; Far Tline C per Length ; Far Series R ; Far Pull-up R ; Far Pull-down R ; Far C ; Termination Voltage ; Far Differential R ; EBD File Name ; EBD Signal Name ; EBD Far-end ;
++----------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+; led            ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; spi0_sck       ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; spi0_ss        ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; spi0_mosi      ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[0]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[1]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[2]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[3]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[4]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[5]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[6]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[7]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[8]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[9]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[10] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[11] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_addr[12] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_ba[0]    ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_ba[1]    ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_dqm[0]   ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_dqm[1]   ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_ras      ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_cas      ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_cke      ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_clk      ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_we       ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_cs       ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[0]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[1]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[2]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[3]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[4]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[5]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[6]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[7]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[8]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[9]  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[10] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[11] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[12] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[13] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[14] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; sdram_data[15] ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
+; ~ALTERA_nCEO~  ; 3.3-V LVTTL  ; 0 in              ; 0 H/in                  ; 0 F/in                  ; short         ; -                   ; open           ; open             ; open   ; 0 in             ; 0 H/in                 ; 0 F/in                 ; short        ; open          ; open            ; open  ; 0 V                 ; -                  ; n/a           ; n/a             ; n/a         ;
++----------------+--------------+-------------------+-------------------------+-------------------------+---------------+---------------------+----------------+------------------+--------+------------------+------------------------+------------------------+--------------+---------------+-----------------+-------+---------------------+--------------------+---------------+-----------------+-------------+
+
+
++-------------------------------------------------------------------+
+; Input Transition Times                                            ;
++----------------+--------------+-----------------+-----------------+
+; Pin            ; I/O Standard ; 10-90 Rise Time ; 90-10 Fall Time ;
++----------------+--------------+-----------------+-----------------+
+; spi0_miso      ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[0]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[1]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[2]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[3]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[4]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[5]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[6]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[7]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[8]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[9]  ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[10] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[11] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[12] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[13] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[14] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; sdram_data[15] ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; btn            ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
+; clk_50m        ; 3.3-V LVTTL  ; 2640 ps         ; 2640 ps         ;
++----------------+--------------+-----------------+-----------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Slow 1200mv 0c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin            ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; led            ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.12 V              ; -0.0818 V           ; 0.205 V                              ; 0.244 V                              ; 8.86e-10 s                  ; 6.56e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.12 V             ; -0.0818 V          ; 0.205 V                             ; 0.244 V                             ; 8.86e-10 s                 ; 6.56e-10 s                 ; No                        ; No                        ;
+; spi0_sck       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; spi0_ss        ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; spi0_mosi      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_addr[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.09 V              ; -0.011 V            ; 0.226 V                              ; 0.296 V                              ; 4.86e-09 s                  ; 3.55e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 6.38e-09 V                  ; 3.09 V             ; -0.011 V           ; 0.226 V                             ; 0.296 V                             ; 4.86e-09 s                 ; 3.55e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.12 V              ; -0.0818 V           ; 0.205 V                              ; 0.244 V                              ; 8.86e-10 s                  ; 6.56e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.12 V             ; -0.0818 V          ; 0.205 V                             ; 0.244 V                             ; 8.86e-10 s                 ; 6.56e-10 s                 ; No                        ; No                        ;
+; sdram_addr[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.12 V              ; -0.0818 V           ; 0.205 V                              ; 0.244 V                              ; 8.86e-10 s                  ; 6.56e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.12 V             ; -0.0818 V          ; 0.205 V                             ; 0.244 V                             ; 8.86e-10 s                 ; 6.56e-10 s                 ; No                        ; No                        ;
+; sdram_addr[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.09 V              ; -0.011 V            ; 0.196 V                              ; 0.301 V                              ; 4.93e-09 s                  ; 3.56e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.09 V             ; -0.011 V           ; 0.196 V                             ; 0.301 V                             ; 4.93e-09 s                 ; 3.56e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_addr[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_addr[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_ba[0]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_ba[1]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_dqm[0]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.09 V              ; -0.011 V            ; 0.196 V                              ; 0.301 V                              ; 4.93e-09 s                  ; 3.56e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.09 V             ; -0.011 V           ; 0.196 V                             ; 0.301 V                             ; 4.93e-09 s                 ; 3.56e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_dqm[1]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_ras      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_cas      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_cke      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_clk      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_we       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_cs       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 8.89e-09 V                   ; 3.12 V              ; -0.11 V             ; 0.153 V                              ; 0.272 V                              ; 6.41e-10 s                  ; 4.57e-10 s                  ; No                         ; Yes                        ; 3.08 V                      ; 8.89e-09 V                  ; 3.12 V             ; -0.11 V            ; 0.153 V                             ; 0.272 V                             ; 6.41e-10 s                 ; 4.57e-10 s                 ; No                        ; Yes                       ;
+; sdram_data[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[13] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.09 V              ; -0.011 V            ; 0.226 V                              ; 0.296 V                              ; 4.86e-09 s                  ; 3.55e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 6.38e-09 V                  ; 3.09 V             ; -0.011 V           ; 0.226 V                             ; 0.296 V                             ; 4.86e-09 s                 ; 3.55e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_data[14] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.13 V              ; -0.117 V            ; 0.15 V                               ; 0.263 V                              ; 6.31e-10 s                  ; 4.46e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.13 V             ; -0.117 V           ; 0.15 V                              ; 0.263 V                             ; 6.31e-10 s                 ; 4.46e-10 s                 ; No                        ; No                        ;
+; sdram_data[15] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.12 V              ; -0.0818 V           ; 0.205 V                              ; 0.244 V                              ; 8.86e-10 s                  ; 6.56e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.12 V             ; -0.0818 V          ; 0.205 V                             ; 0.244 V                             ; 8.86e-10 s                 ; 6.56e-10 s                 ; No                        ; No                        ;
+; ~ALTERA_nCEO~  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 6.38e-09 V                   ; 3.12 V              ; -0.0818 V           ; 0.205 V                              ; 0.244 V                              ; 8.86e-10 s                  ; 6.56e-10 s                  ; No                         ; No                         ; 3.08 V                      ; 6.38e-09 V                  ; 3.12 V             ; -0.0818 V          ; 0.205 V                             ; 0.244 V                             ; 8.86e-10 s                 ; 6.56e-10 s                 ; No                        ; No                        ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Slow 1200mv 85c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin            ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; led            ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0469 V           ; 0.191 V                              ; 0.215 V                              ; 1.08e-09 s                  ; 8.62e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0469 V          ; 0.191 V                             ; 0.215 V                             ; 1.08e-09 s                 ; 8.62e-10 s                 ; Yes                       ; No                        ;
+; spi0_sck       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; spi0_ss        ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; spi0_mosi      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_addr[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.08 V              ; -0.0053 V           ; 0.206 V                              ; 0.247 V                              ; 5.77e-09 s                  ; 4.45e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 5.04e-07 V                  ; 3.08 V             ; -0.0053 V          ; 0.206 V                             ; 0.247 V                             ; 5.77e-09 s                 ; 4.45e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0469 V           ; 0.191 V                              ; 0.215 V                              ; 1.08e-09 s                  ; 8.62e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0469 V          ; 0.191 V                             ; 0.215 V                             ; 1.08e-09 s                 ; 8.62e-10 s                 ; Yes                       ; No                        ;
+; sdram_addr[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0469 V           ; 0.191 V                              ; 0.215 V                              ; 1.08e-09 s                  ; 8.62e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0469 V          ; 0.191 V                             ; 0.215 V                             ; 1.08e-09 s                 ; 8.62e-10 s                 ; Yes                       ; No                        ;
+; sdram_addr[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.08 V              ; -0.00457 V          ; 0.185 V                              ; 0.21 V                               ; 5.8e-09 s                   ; 4.46e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.08 V             ; -0.00457 V         ; 0.185 V                             ; 0.21 V                              ; 5.8e-09 s                  ; 4.46e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_addr[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_addr[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_ba[0]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_ba[1]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_dqm[0]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.08 V              ; -0.00457 V          ; 0.185 V                              ; 0.21 V                               ; 5.8e-09 s                   ; 4.46e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.08 V             ; -0.00457 V         ; 0.185 V                             ; 0.21 V                              ; 5.8e-09 s                  ; 4.46e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_dqm[1]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_ras      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_cas      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_cke      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_clk      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_we       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_cs       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 7.5e-07 V                    ; 3.11 V              ; -0.0503 V           ; 0.122 V                              ; 0.172 V                              ; 7.08e-10 s                  ; 6.43e-10 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 7.5e-07 V                   ; 3.11 V             ; -0.0503 V          ; 0.122 V                             ; 0.172 V                             ; 7.08e-10 s                 ; 6.43e-10 s                 ; Yes                       ; Yes                       ;
+; sdram_data[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[13] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.08 V              ; -0.0053 V           ; 0.206 V                              ; 0.247 V                              ; 5.77e-09 s                  ; 4.45e-09 s                  ; Yes                        ; Yes                        ; 3.08 V                      ; 5.04e-07 V                  ; 3.08 V             ; -0.0053 V          ; 0.206 V                             ; 0.247 V                             ; 5.77e-09 s                 ; 4.45e-09 s                 ; Yes                       ; Yes                       ;
+; sdram_data[14] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0624 V           ; 0.233 V                              ; 0.172 V                              ; 6.86e-10 s                  ; 6.33e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0624 V          ; 0.233 V                             ; 0.172 V                             ; 6.86e-10 s                 ; 6.33e-10 s                 ; Yes                       ; No                        ;
+; sdram_data[15] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0469 V           ; 0.191 V                              ; 0.215 V                              ; 1.08e-09 s                  ; 8.62e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0469 V          ; 0.191 V                             ; 0.215 V                             ; 1.08e-09 s                 ; 8.62e-10 s                 ; Yes                       ; No                        ;
+; ~ALTERA_nCEO~  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.08 V                       ; 5.04e-07 V                   ; 3.11 V              ; -0.0469 V           ; 0.191 V                              ; 0.215 V                              ; 1.08e-09 s                  ; 8.62e-10 s                  ; Yes                        ; No                         ; 3.08 V                      ; 5.04e-07 V                  ; 3.11 V             ; -0.0469 V          ; 0.191 V                             ; 0.215 V                             ; 1.08e-09 s                 ; 8.62e-10 s                 ; Yes                       ; No                        ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+; Signal Integrity Metrics (Fast 1200mv 0c Model)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; Pin            ; I/O Standard ; Board Delay on Rise ; Board Delay on Fall ; Steady State Voh at FPGA Pin ; Steady State Vol at FPGA Pin ; Voh Max at FPGA Pin ; Vol Min at FPGA Pin ; Ringback Voltage on Rise at FPGA Pin ; Ringback Voltage on Fall at FPGA Pin ; 10-90 Rise Time at FPGA Pin ; 90-10 Fall Time at FPGA Pin ; Monotonic Rise at FPGA Pin ; Monotonic Fall at FPGA Pin ; Steady State Voh at Far-end ; Steady State Vol at Far-end ; Voh Max at Far-end ; Vol Min at Far-end ; Ringback Voltage on Rise at Far-end ; Ringback Voltage on Fall at Far-end ; 10-90 Rise Time at Far-end ; 90-10 Fall Time at Far-end ; Monotonic Rise at Far-end ; Monotonic Fall at Far-end ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+; led            ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.57 V              ; -0.0855 V           ; 0.315 V                              ; 0.175 V                              ; 6.79e-10 s                  ; 6.15e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.57 V             ; -0.0855 V          ; 0.315 V                             ; 0.175 V                             ; 6.79e-10 s                 ; 6.15e-10 s                 ; No                        ; No                        ;
+; spi0_sck       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; spi0_ss        ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; spi0_mosi      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_addr[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.48 V              ; -0.0162 V           ; 0.354 V                              ; 0.317 V                              ; 3.88e-09 s                  ; 3.06e-09 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.48 V             ; -0.0162 V          ; 0.354 V                             ; 0.317 V                             ; 3.88e-09 s                 ; 3.06e-09 s                 ; No                        ; No                        ;
+; sdram_addr[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.57 V              ; -0.0855 V           ; 0.315 V                              ; 0.175 V                              ; 6.79e-10 s                  ; 6.15e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.57 V             ; -0.0855 V          ; 0.315 V                             ; 0.175 V                             ; 6.79e-10 s                 ; 6.15e-10 s                 ; No                        ; No                        ;
+; sdram_addr[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.57 V              ; -0.0855 V           ; 0.315 V                              ; 0.175 V                              ; 6.79e-10 s                  ; 6.15e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.57 V             ; -0.0855 V          ; 0.315 V                             ; 0.175 V                             ; 6.79e-10 s                 ; 6.15e-10 s                 ; No                        ; No                        ;
+; sdram_addr[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.48 V              ; -0.0173 V           ; 0.356 V                              ; 0.324 V                              ; 3.89e-09 s                  ; 3.06e-09 s                  ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.48 V             ; -0.0173 V          ; 0.356 V                             ; 0.324 V                             ; 3.89e-09 s                 ; 3.06e-09 s                 ; No                        ; No                        ;
+; sdram_addr[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_addr[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_addr[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_ba[0]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_ba[1]    ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_dqm[0]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.48 V              ; -0.0173 V           ; 0.356 V                              ; 0.324 V                              ; 3.89e-09 s                  ; 3.06e-09 s                  ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.48 V             ; -0.0173 V          ; 0.356 V                             ; 0.324 V                             ; 3.89e-09 s                 ; 3.06e-09 s                 ; No                        ; No                        ;
+; sdram_dqm[1]   ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_ras      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_cas      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_cke      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_clk      ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_we       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_cs       ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[0]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[1]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[2]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[3]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[4]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[5]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[6]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[7]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.85e-07 V                   ; 3.57 V              ; -0.141 V            ; 0.301 V                              ; 0.239 V                              ; 4.61e-10 s                  ; 4.2e-10 s                   ; No                         ; No                         ; 3.46 V                      ; 1.85e-07 V                  ; 3.57 V             ; -0.141 V           ; 0.301 V                             ; 0.239 V                             ; 4.61e-10 s                 ; 4.2e-10 s                  ; No                        ; No                        ;
+; sdram_data[8]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[9]  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[10] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[11] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[12] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[13] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.48 V              ; -0.0162 V           ; 0.354 V                              ; 0.317 V                              ; 3.88e-09 s                  ; 3.06e-09 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.48 V             ; -0.0162 V          ; 0.354 V                             ; 0.317 V                             ; 3.88e-09 s                 ; 3.06e-09 s                 ; No                        ; No                        ;
+; sdram_data[14] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.6 V               ; -0.127 V            ; 0.302 V                              ; 0.21 V                               ; 4.55e-10 s                  ; 4.11e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.6 V              ; -0.127 V           ; 0.302 V                             ; 0.21 V                              ; 4.55e-10 s                 ; 4.11e-10 s                 ; No                        ; No                        ;
+; sdram_data[15] ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.57 V              ; -0.0855 V           ; 0.315 V                              ; 0.175 V                              ; 6.79e-10 s                  ; 6.15e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.57 V             ; -0.0855 V          ; 0.315 V                             ; 0.175 V                             ; 6.79e-10 s                 ; 6.15e-10 s                 ; No                        ; No                        ;
+; ~ALTERA_nCEO~  ; 3.3-V LVTTL  ; 0 s                 ; 0 s                 ; 3.46 V                       ; 1.25e-07 V                   ; 3.57 V              ; -0.0855 V           ; 0.315 V                              ; 0.175 V                              ; 6.79e-10 s                  ; 6.15e-10 s                  ; No                         ; No                         ; 3.46 V                      ; 1.25e-07 V                  ; 3.57 V             ; -0.0855 V          ; 0.315 V                             ; 0.175 V                             ; 6.79e-10 s                 ; 6.15e-10 s                 ; No                        ; No                        ;
++----------------+--------------+---------------------+---------------------+------------------------------+------------------------------+---------------------+---------------------+--------------------------------------+--------------------------------------+-----------------------------+-----------------------------+----------------------------+----------------------------+-----------------------------+-----------------------------+--------------------+--------------------+-------------------------------------+-------------------------------------+----------------------------+----------------------------+---------------------------+---------------------------+
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------+
+; Setup Transfers                                                                                                                               ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+; From Clock                                      ; To Clock                                        ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 1        ; 0        ; 0        ; 0        ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
+
+
++-----------------------------------------------------------------------------------------------------------------------------------------------+
+; Hold Transfers                                                                                                                                ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+; From Clock                                      ; To Clock                                        ; RR Paths ; FR Paths ; RF Paths ; FF Paths ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+; pll|altpll_component|auto_generated|pll1|clk[0] ; pll|altpll_component|auto_generated|pll1|clk[0] ; 1        ; 0        ; 0        ; 0        ;
++-------------------------------------------------+-------------------------------------------------+----------+----------+----------+----------+
+Entries labeled "false path" only account for clock-to-clock false paths and not path-based false paths. As a result, actual path counts may be lower than reported.
+
+
+---------------
+; Report TCCS ;
+---------------
+No dedicated SERDES Transmitter circuitry present in device or used in design
+
+
+---------------
+; Report RSKM ;
+---------------
+No non-DPA dedicated SERDES Receiver circuitry present in device or used in design
+
+
++------------------------------------------------+
+; Unconstrained Paths                            ;
++---------------------------------+-------+------+
+; Property                        ; Setup ; Hold ;
++---------------------------------+-------+------+
+; Illegal Clocks                  ; 0     ; 0    ;
+; Unconstrained Clocks            ; 0     ; 0    ;
+; Unconstrained Input Ports       ; 1     ; 1    ;
+; Unconstrained Input Port Paths  ; 1     ; 1    ;
+; Unconstrained Output Ports      ; 1     ; 1    ;
+; Unconstrained Output Port Paths ; 1     ; 1    ;
++---------------------------------+-------+------+
+
+
++------------------------------------+
+; TimeQuest Timing Analyzer Messages ;
++------------------------------------+
+Info: *******************************************************************
+Info: Running Quartus II 64-Bit TimeQuest Timing Analyzer
+    Info: Version 14.1.0 Build 186 12/03/2014 Patches 0.19 SJ Web Edition
+    Info: Processing started: Thu Sep 12 16:29:31 2019
+Info: Command: quartus_sta ff_propogation_test -c ff_propogation_test
+Info: qsta_default_script.tcl version: #3
+Warning (20028): Parallel compilation is not licensed and has been disabled
+Info (21077): Low junction temperature is 0 degrees C
+Info (21077): High junction temperature is 85 degrees C
+Info (332104): Reading SDC File: 'ff_propogation_test.sdc'
+Info (332110): Deriving PLL clocks
+    Info (332110): create_generated_clock -source {pll|altpll_component|auto_generated|pll1|inclk[0]} -multiply_by 8 -duty_cycle 50.00 -name {pll|altpll_component|auto_generated|pll1|clk[0]} {pll|altpll_component|auto_generated|pll1|clk[0]}
+Info (332151): Clock uncertainty is not calculated until you update the timing netlist.
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info: Found TIMEQUEST_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
+Info: Analyzing Slow 1200mV 85C Model
+Info (332146): Worst-case setup slack is 1.539
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     1.539               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332146): Worst-case hold slack is 0.501
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.501               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is 0.013
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.013               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+    Info (332119):     9.891               0.000 clk_50m 
+Info: Analyzing Slow 1200mV 0C Model
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332146): Worst-case setup slack is 1.635
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     1.635               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332146): Worst-case hold slack is 0.471
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.471               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is 0.013
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.013               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+    Info (332119):     9.902               0.000 clk_50m 
+Info: Analyzing Fast 1200mV 0C Model
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in TimeQuest to see clock uncertainties.
+Info (332146): Worst-case setup slack is 2.079
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     2.079               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332146): Worst-case hold slack is 0.194
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.194               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+Info (332140): No Recovery paths to report
+Info (332140): No Removal paths to report
+Info (332146): Worst-case minimum pulse width slack is 0.500
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.500               0.000 pll|altpll_component|auto_generated|pll1|clk[0] 
+    Info (332119):     9.448               0.000 clk_50m 
+Info (332102): Design is not fully constrained for setup requirements
+Info (332102): Design is not fully constrained for hold requirements
+Info: Quartus II 64-Bit TimeQuest Timing Analyzer was successful. 0 errors, 1 warning
+    Info: Peak virtual memory: 751 megabytes
+    Info: Processing ended: Thu Sep 12 16:29:33 2019
+    Info: Elapsed time: 00:00:02
+    Info: Total CPU time (on all processors): 00:00:02
+
+
