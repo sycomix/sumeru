@@ -27,8 +27,11 @@ architecture synth of cpu is
         signal sys_clk:         std_logic;
         signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
+
+        signal pc:              std_logic_vector(31 downto 0) := (others => '0');
+        signal icache_hit:      std_logic;
+        signal icache_data:     std_logic_vector(31 downto 0);
 begin
-        led <= '0';
         spi0_sck <= '0';
         spi0_ss <= '0';
         spi0_mosi <= '0';
@@ -49,6 +52,16 @@ begin
                         c0 => sys_clk,
                         c1 => mem_clk,
                         locked => reset_n);
+
+        icache: entity work.icache
+                port map(
+                        clk => sys_clk,
+                        addr => pc,
+                        hit => icache_hit,
+                        data => icache_data);
+
+        led <= icache_hit;
+
 end architecture;
 
 
