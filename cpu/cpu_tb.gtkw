@@ -1,0 +1,23 @@
+[*]
+[*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
+[*] Fri Apr 26 05:19:41 2019
+[*]
+[dumpfile] "cpu_tb.ghw"
+[dumpfile_mtime] "Fri Apr 26 05:18:20 2019"
+[dumpfile_size] 12938420
+[savefile] "cpu_tb.gtkw"
+[timestart] 0
+[size] 1548 692
+[pos] -1 -1
+*-26.085718 90000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[sst_width] 210
+[signals_width] 86
+[sst_expanded] 1
+[sst_vpaned_height] 187
+@28
+top.cpu_tb.cpu.reset_n
+top.cpu_tb.cpu.sys_clk
+top.cpu_tb.cpu.mem_clk
+[pattern_trace] 1
+[pattern_trace] 0
