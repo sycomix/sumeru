@@ -73,6 +73,9 @@ begin
         r_ram_wren <= not r_counter(10);
 
         ram: entity work.alt_ram
+                generic map(
+                        AWIDTH => 10,
+                        DWIDTH => 32)
                 port map(
                         address => r_counter(9 downto 0),
                         clock => sys_clk,

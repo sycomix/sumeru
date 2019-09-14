@@ -41,6 +41,11 @@ LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
 ENTITY alt_ram IS
+        GENERIC
+        (
+                AWIDTH          : INTEGER;
+                DWIDTH          : INTEGER
+        );
 	PORT
 	(
 		address		: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
@@ -73,8 +78,8 @@ BEGIN
 		power_up_uninitialized => "FALSE",
 		ram_block_type => "M9K",
 		read_during_write_mode_port_a => "NEW_DATA_NO_NBE_READ",
-		widthad_a => 10,
-		width_a => 32,
+		widthad_a => AWIDTH,
+		width_a => DWIDTH,
 		width_byteena_a => 1
 	)
 	PORT MAP (
