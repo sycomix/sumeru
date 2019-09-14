@@ -29,9 +29,14 @@ architecture synth of ram_propogation_test is
         signal sys_clk:         std_logic;
         signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
-        signal r_addr:          std_logic_vector(9 downto 0);
-        signal r_we:            std_logic := '1';
-        signal r_dio:           std_logic_vector(31 downto 0);
+        signal reset:           std_logic;
+
+        signal r_counter:       std_logic_vector(31 downto 0);
+
+        signal r_ram_wren:      std_logic;
+        signal r_ram_din:       std_logic_vector(31 downto 0);
+        signal r_ram_dout:      std_logic_vector(31 downto 0);
+
 begin
         spi0_sck <= '0';
         spi0_ss <= '0';
@@ -53,31 +58,32 @@ begin
                         c0 => sys_clk,
                         c1 => mem_clk,
                         locked => reset_n);
+
+        reset <= not reset_n;
                         
         counter: lpm_counter
                 generic map(
-                        LPM_WIDTH => 10)
+                        LPM_WIDTH => 32)
                 port map(
                         clock => sys_clk,
-                        q => r_addr);
+                        q => r_counter,
+                        aclr => reset);
         
-        r_we <= '0';
+        r_ram_din <= r_counter;
+        r_ram_wren <= not r_counter(10);
 
-        ram: lpm_ram_io
-                generic map(
-                        LPM_WIDTH => 32,
-                        LPM_WIDTHAD => 10)
+        ram: entity work.alt_ram
                 port map(
-                        address => r_addr,
-                        we => r_we,
-                        dio => r_dio,
-                        inclock => mem_clk,
-                        outclock => mem_clk);
+                        address => r_counter(9 downto 0),
+                        clock => sys_clk,
+                        data => r_ram_din,
+                        wren => r_ram_wren,
+                        q => r_ram_dout);
        
         process(sys_clk)
         begin
                 if (rising_edge(sys_clk)) then
-                        led <= r_dio(0);
+                        led <= r_ram_dout(26);
                 end if;
         end process;
 end architecture;

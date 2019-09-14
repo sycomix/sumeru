@@ -1,6 +1,7 @@
 TOPLEVEL = ram_propogation_test
 
 SRCS = pll.vhd \
+        alt_ram.vhd \
         ${TOPLEVEL}.vhd \
         ${TOPLEVEL}_tb.vhd
 
