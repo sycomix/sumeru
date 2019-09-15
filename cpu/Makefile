@@ -3,6 +3,8 @@ TOPLEVEL = cpu
 LIBSRC_DIR = ${SUMERU_DIR}/sw/vhdl/libsrc
 SRCS = pll.vhd \
         ${LIBSRC_DIR}/alt_ram.vhd \
+        memory_channel_types.vhd \
+        sdram_controller.vhd \
         icache.vhd \
         ${TOPLEVEL}.vhd \
         ${TOPLEVEL}_tb.vhd

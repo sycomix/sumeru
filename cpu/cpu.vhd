@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
+use work.memory_channel_types.ALL;
 
 entity cpu is
 port(
@@ -31,20 +32,12 @@ architecture synth of cpu is
         signal pc:              std_logic_vector(31 downto 0) := (others => '0');
         signal icache_hit:      std_logic;
         signal icache_data:     std_logic_vector(31 downto 0);
+        signal mc_in:           mem_channel_in_t;
+        signal mc_out:          mem_channel_out_t;
 begin
         spi0_sck <= '0';
         spi0_ss <= '0';
         spi0_mosi <= '0';
-        sdram_addr <= (others => '0');
-        sdram_data <= (others => 'Z');
-        sdram_ba <= (others => '0');
-        sdram_dqm <= (others => '0');
-        sdram_ras <= '1';
-        sdram_cas <= '1';
-        sdram_cke <= '0';
-        sdram_clk <= '0';
-        sdram_we <= '1';
-        sdram_cs <= '1';
 
         pll: entity work.pll 
                 port map(
@@ -53,13 +46,32 @@ begin
                         c1 => mem_clk,
                         locked => reset_n);
 
+        sdram_controller: entity work.sdram_controller
+                port map(
+                        sys_clk => sys_clk,
+                        mem_clk => mem_clk,
+                        mc_in => mc_in,
+                        mc_out => mc_out,
+                        sdram_data => sdram_data,
+                        sdram_addr => sdram_addr,
+                        sdram_ba => sdram_ba,
+                        sdram_dqm => sdram_dqm,
+                        sdram_ras => sdram_ras,
+                        sdram_cas => sdram_cas,
+                        sdram_cke => sdram_cke,
+                        sdram_clk => sdram_clk,
+                        sdram_we => sdram_we,
+                        sdram_cs => sdram_cs);
+
         icache: entity work.icache
                 port map(
                         sys_clk => sys_clk,
                         mem_clk => mem_clk,
                         addr => pc,
                         hit => icache_hit,
-                        data => icache_data);
+                        data => icache_data,
+                        mc_in => mc_in,
+                        mc_out => mc_out);
 
         led <= icache_data(26);
 

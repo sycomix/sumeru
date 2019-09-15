@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
+use work.memory_channel_types.ALL;
 
 entity icache is
 port(
@@ -8,10 +9,10 @@ port(
         mem_clk:                in std_logic;
         addr:                   in std_logic_vector(31 downto 0);
         hit:                    out std_logic;
-        data:                   out std_logic_vector(31 downto 0)
-        --
-        -- mc_in:               out mem_channel_in_t;
-        -- mc_out:              in mem_channel_out_t;
+        data:                   out std_logic_vector(31 downto 0);
+        
+        mc_in:                  out mem_channel_in_t;
+        mc_out:                 in mem_channel_out_t
     );
 end entity;
 
@@ -32,6 +33,10 @@ architecture synth of icache is
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
+    mc_in <= ((others => '0'), 
+              '0', '0', 
+              (others => '0'), 
+              (others => '0') );
 
     meta_ram: entity work.alt_ram
         generic map(
@@ -106,7 +111,7 @@ begin
             data1_wren <= '0';
             data2_wren <= '0';
             data3_wren <= '0';
-            meta_wren <= '1';
+            meta_wren <= '0';
             if (hit = '0') then
                 write_data <= addr(31 downto 4) & "1000";
                 data0_wren <= '1';
