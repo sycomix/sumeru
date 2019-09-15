@@ -62,6 +62,13 @@ begin
 
         led <= icache_hit;
 
+        process(sys_clk)
+        begin
+            if rising_edge(sys_clk) then
+                pc <= std_logic_vector(unsigned(pc) + 4);
+            end if;
+        end process;
+
 end architecture;
 
 

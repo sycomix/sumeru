@@ -46,10 +46,10 @@ set_location_assignment PIN_85 -to led
 set_location_assignment PIN_86 -to btn
 
 ## Flash Wiring
-set_location_assignment PIN_6 -to spi_mosi[0]
-set_location_assignment PIN_8 -to spi_ss[0]
-set_location_assignment PIN_12 -to spi_sck[0]
-set_location_assignment PIN_13 -to spi_miso[0]
+set_location_assignment PIN_6 -to spi0_mosi
+set_location_assignment PIN_8 -to spi0_ss
+set_location_assignment PIN_12 -to spi0_sck
+set_location_assignment PIN_13 -to spi0_miso
 
 
 #
@@ -139,16 +139,17 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW DEFAULT -to spi0_ss
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to clk_50m
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to uart0_rx
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to uart0_tx
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[7]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[6]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[5]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[4]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[3]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[2]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[1]
-set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to led
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to btn
+
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[7]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[6]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[5]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[4]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[3]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[2]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[1]
+#set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to gpio[0]
 
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_addr[3]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_addr[2]

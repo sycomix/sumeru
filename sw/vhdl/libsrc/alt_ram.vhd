@@ -12,11 +12,11 @@ ENTITY alt_ram IS
         );
 	PORT
 	(
-		address		: IN STD_LOGIC_VECTOR (9 DOWNTO 0);
+		address		: IN STD_LOGIC_VECTOR ((AWIDTH - 1) DOWNTO 0);
 		clock		: IN STD_LOGIC  := '1';
-		data		: IN STD_LOGIC_VECTOR (31 DOWNTO 0);
+		data		: IN STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0);
 		wren		: IN STD_LOGIC ;
-		q		: OUT STD_LOGIC_VECTOR (31 DOWNTO 0)
+		q		: OUT STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0)
 	);
 END alt_ram;
 
@@ -35,7 +35,7 @@ BEGIN
 		intended_device_family => "Cyclone IV E",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram",
-		numwords_a => 1024,
+		numwords_a => (2**AWIDTH),
 		operation_mode => "SINGLE_PORT",
 		outdata_aclr_a => "NONE",
 		outdata_reg_a => "UNREGISTERED",
