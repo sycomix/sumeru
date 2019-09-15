@@ -55,12 +55,13 @@ begin
 
         icache: entity work.icache
                 port map(
-                        clk => mem_clk,
+                        sys_clk => sys_clk,
+                        mem_clk => mem_clk,
                         addr => pc,
                         hit => icache_hit,
                         data => icache_data);
 
-        led <= icache_hit;
+        led <= icache_data(26);
 
         process(sys_clk)
         begin
