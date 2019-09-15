@@ -55,7 +55,7 @@ begin
 
         icache: entity work.icache
                 port map(
-                        clk => sys_clk,
+                        clk => mem_clk,
                         addr => pc,
                         hit => icache_hit,
                         data => icache_data);
@@ -64,7 +64,7 @@ begin
 
         process(sys_clk)
         begin
-            if rising_edge(sys_clk) then
+            if rising_edge(sys_clk) and icache_hit = '1' then
                 pc <= std_logic_vector(unsigned(pc) + 4);
             end if;
         end process;
