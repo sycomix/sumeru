@@ -1,23 +1,34 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Fri Apr 26 05:19:41 2019
+[*] Mon Sep 16 10:44:43 2019
 [*]
-[dumpfile] "cpu_tb.ghw"
-[dumpfile_mtime] "Fri Apr 26 05:18:20 2019"
-[dumpfile_size] 12938420
-[savefile] "cpu_tb.gtkw"
-[timestart] 0
-[size] 1548 692
+[dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
+[dumpfile_mtime] "Mon Sep 16 10:16:47 2019"
+[dumpfile_size] 13862740
+[savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
+[timestart] 7824500000
+[size] 1912 1043
 [pos] -1 -1
-*-26.085718 90000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-24.745234 7922500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
+[treeopen] top.cpu_tb.
+[treeopen] top.cpu_tb.cpu.
+[treeopen] top.cpu_tb.cpu.sdram_controller.
+[treeopen] top.cpu_tb.sdram.
 [sst_width] 210
-[signals_width] 86
+[signals_width] 261
 [sst_expanded] 1
-[sst_vpaned_height] 187
+[sst_vpaned_height] 311
 @28
 top.cpu_tb.cpu.reset_n
 top.cpu_tb.cpu.sys_clk
-top.cpu_tb.cpu.mem_clk
+@22
+#{top.cpu_tb.cpu.sdram_controller.cycle_counter[14:0]} top.cpu_tb.cpu.sdram_controller.cycle_counter[14] top.cpu_tb.cpu.sdram_controller.cycle_counter[13] top.cpu_tb.cpu.sdram_controller.cycle_counter[12] top.cpu_tb.cpu.sdram_controller.cycle_counter[11] top.cpu_tb.cpu.sdram_controller.cycle_counter[10] top.cpu_tb.cpu.sdram_controller.cycle_counter[9] top.cpu_tb.cpu.sdram_controller.cycle_counter[8] top.cpu_tb.cpu.sdram_controller.cycle_counter[7] top.cpu_tb.cpu.sdram_controller.cycle_counter[6] top.cpu_tb.cpu.sdram_controller.cycle_counter[5] top.cpu_tb.cpu.sdram_controller.cycle_counter[4] top.cpu_tb.cpu.sdram_controller.cycle_counter[3] top.cpu_tb.cpu.sdram_controller.cycle_counter[2] top.cpu_tb.cpu.sdram_controller.cycle_counter[1] top.cpu_tb.cpu.sdram_controller.cycle_counter[0]
+@28
+top.cpu_tb.cpu.sdram_controller.sdram_cke
+top.cpu_tb.cpu.sdram_controller.state
+@22
+#{top.cpu_tb.cpu.sdram_controller.command[3:0]} top.cpu_tb.cpu.sdram_controller.command[3] top.cpu_tb.cpu.sdram_controller.command[2] top.cpu_tb.cpu.sdram_controller.command[1] top.cpu_tb.cpu.sdram_controller.command[0]
+#{top.cpu_tb.cpu.sdram_controller.busy_wait[3:0]} top.cpu_tb.cpu.sdram_controller.busy_wait[3] top.cpu_tb.cpu.sdram_controller.busy_wait[2] top.cpu_tb.cpu.sdram_controller.busy_wait[1] top.cpu_tb.cpu.sdram_controller.busy_wait[0]
 [pattern_trace] 1
 [pattern_trace] 0
