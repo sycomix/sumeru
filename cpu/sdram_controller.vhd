@@ -36,20 +36,46 @@ entity sdram_controller is
 end entity;
 
 architecture synth of sdram_controller is
+    constant LMR_SETTING:       std_logic_vector(12 downto 0) :="0010000100011";
+
+    constant CMD_INHIBIT:       std_logic_vector(3 downto 0) := "1111";
+    constant CMD_NOP:           std_logic_vector(3 downto 0) := "0111";
+    constant CMD_PRECHARGE:     std_logic_vector(3 downto 0) := "0010";
+    constant CMD_LMR:           std_logic_vector(3 downto 0) := "0000";
+    constant CMD_REFRESH:       std_logic_vector(3 downto 0) := "0001";
+    constant CMD_ACTIVE:        std_logic_vector(3 downto 0) := "0011";
+    constant CMD_WRITE:         std_logic_vector(3 downto 0) := "0100";
+    constant CMD_READ:          std_logic_vector(3 downto 0) := "0101";
+    constant CMD_BURST_TERMINATE: std_logic_vector(3 downto 0) := "0110";
+
+    type controller_state_t is (
+        STARTUP,
+        IDLE
+    );
+
+    signal state:       controller_state_t := STARTUP;
+    signal command:     std_logic_vector(3 downto 0) := CMD_INHIBIT;
+    signal cke:         std_logic := '0';
+    signal addr:        std_logic_vector(12 downto 0) := LMR_SETTING;                                
+    signal ba:          std_logic_vector(1 downto 0) := (others => '0');
+    signal dqm:         std_logic_vector(1 downto 0) := (others => '1');
+
     signal cycle_counter:       bit_vector(STARTUP_CYCLE_BITNR downto 0) := 
                                                             (others => '0');
 
 begin
-    sdram_addr <= (others => '0');
+    sdram_clk <= mem_clk;
+    sdram_cke <= cke;
+    sdram_addr <= addr;
+    sdram_ba <= ba;
+    sdram_dqm <= dqm;
+
+    sdram_cs <= command(3);
+    sdram_ras <= command(2);
+    sdram_cas <= command(1);
+    sdram_we <= command(0);
+
     sdram_data <= (others => 'Z');
-    sdram_ba <= (others => '0');
-    sdram_dqm <= (others => '0');
-    sdram_ras <= '1';
-    sdram_cas <= '1';
-    sdram_cke <= '0';
-    sdram_clk <= '0';
-    sdram_we <= '1';
-    sdram_cs <= '1';
 
     mc_out.op_strobe <= '0';
 end architecture;
