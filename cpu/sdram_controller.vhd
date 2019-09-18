@@ -125,6 +125,7 @@ begin
                     end if;
                 when IDLE =>
                     command <= CMD_NOP;
+                    ba <= op_addr_bank;
                     if (busy_wait = "0000") then
                         if (unsigned(cycle_counter) > REFRESH_CYCLES) then
                             busy_wait <= "0" & TRFC_CYCLES;
@@ -145,23 +146,26 @@ begin
                                         to_integer(
                                             unsigned(op_addr_bank))).active <= '1';
                                     addr <= op_addr_row; 
-                                    ba <= op_addr_bank;
                                     busy_wait <= "0" & TRCD_CYCLES;
                                 else
                                     if (cur_bank_row /= op_addr_row) then
                                         -- Precharge row
                                         command <= CMD_PRECHARGE;
                                         addr(10) <= '0';
-                                        ba <= op_addr_bank;
                                         busy_wait <= "0" & TRP_CYCLES;
                                         bank_states(
                                             to_integer(
                                                 unsigned(op_addr_bank))).active <= '0';
                                     else
+                                        -- Read write only on 16 byte boundaries
+                                        -- cache line size is 16 bytes
+                                        addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
                                         if (mc_in.op_wren = '1') then
                                             -- Write Operation
+                                            command <= CMD_WRITE;
                                         else
                                             -- Read Operation
+                                            command <= CMD_READ;
                                         end if;
                                     end if;
                                 end if;
