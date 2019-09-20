@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
+use work.memory_channel_types.ALL;
 
 entity sdram_controller_test is
 port(
@@ -27,21 +28,19 @@ architecture synth of sdram_controller_test is
         signal sys_clk:         std_logic;
         signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
+        signal mc_in:           mem_channel_in_t;
+        signal mc_out:          mem_channel_out_t;
+
+        type controller_state_t is (
+            START,
+            DONE);
+
+        signal state:           controller_state_t := START;
+
 begin
-        led <= '0';
         spi0_sck <= '0';
         spi0_ss <= '0';
         spi0_mosi <= '0';
-        sdram_addr <= (others => '0');
-        sdram_data <= (others => 'Z');
-        sdram_ba <= (others => '0');
-        sdram_dqm <= (others => '0');
-        sdram_ras <= '1';
-        sdram_cas <= '1';
-        sdram_cke <= '0';
-        sdram_clk <= '0';
-        sdram_we <= '1';
-        sdram_cs <= '1';
 
         pll: entity work.pll 
                 port map(
@@ -49,6 +48,38 @@ begin
                         c0 => sys_clk,
                         c1 => mem_clk,
                         locked => reset_n);
+
+        sdram_controller: entity work.sdram_controller
+                port map(
+                        sys_clk => sys_clk,
+                        mem_clk => mem_clk,
+                        mc_in => mc_in,
+                        mc_out => mc_out,
+                        sdram_data => sdram_data,
+                        sdram_addr => sdram_addr,
+                        sdram_ba => sdram_ba,
+                        sdram_dqm => sdram_dqm,
+                        sdram_ras => sdram_ras,
+                        sdram_cas => sdram_cas,
+                        sdram_cke => sdram_cke,
+                        sdram_clk => sdram_clk,
+                        sdram_we => sdram_we,
+                        sdram_cs => sdram_cs);
+
+        process(sys_clk)
+        begin
+            if (rising_edge(sys_clk)) then
+                case state is
+                    when START =>
+                        mc_in.op_addr <= "000000000000000000000000";
+                        mc_in.op_start <= '1';
+                        mc_in.op_wren <= '1';
+                        mc_in.write_data <= "0000000000000001";
+                        mc_in.write_dqm <= "00";
+                    when DONE =>
+                end case;
+            end if;
+        end process;
 end architecture;
 
 

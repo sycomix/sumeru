@@ -3,20 +3,23 @@ TOPLEVEL = sdram_controller_test
 SRCS = pll.vhd \
         cpu_types.vhd \
         memory_channel_types.vhd \
-        sdram_controller.vhd \
+        sdram_controller_simlowdelay.vhd \
         ${TOPLEVEL}.vhd \
         ${TOPLEVEL}_tb.vhd
 
 SIM_PERIOD = 50us
 LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
 
-compile:
+compile: sdram_controller_simulation
 	for fn in $(SRCS); do \
 		ghdl -a --std=08 -fexplicit --ieee=synopsys \
                         -P$(LIB_DIR) $(SRCS); \
 	done
 	ghdl -e --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) \
                 $(TOPLEVEL)_tb
+
+sdram_controller_simulation:
+	@sed -e 's/(STARTUP_CYCLE_BITNR)/(4)/g' sdram_controller.vhd > sdram_controller_simlowdelay.vhd
 
 synth: 
 	quartus_sh --flow compile $(TOPLEVEL)

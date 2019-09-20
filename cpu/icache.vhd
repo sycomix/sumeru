@@ -33,11 +33,6 @@ architecture synth of icache is
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
-    mc_in <= ((others => '0'), 
-              '0', '0', 
-              (others => '0'), 
-              (others => '0') );
-
     meta_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
@@ -113,12 +108,9 @@ begin
             data3_wren <= '0';
             meta_wren <= '0';
             if (hit = '0') then
-                write_data <= addr(31 downto 4) & "1000";
-                data0_wren <= '1';
-                data1_wren <= '1';
-                data2_wren <= '1';
-                data3_wren <= '1';
-                meta_wren <= '1';
+                mc_in.op_addr <= addr(23 downto 0);
+                mc_in.op_start <= '1';
+                mc_in.op_wren <= '0';
             end if;
         end if;
     end process;
