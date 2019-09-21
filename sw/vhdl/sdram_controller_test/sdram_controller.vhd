@@ -200,7 +200,7 @@ begin
                                     bank_states(
                                         to_integer(
                                             unsigned(op_addr_bank))).active <= '1';
-                                    aiddr <= op_addr_row; 
+                                    addr <= op_addr_row; 
                                     busy_wait_counter <= TRCD_CYCLES;
                                 else
                                     if (cur_bank_row /= op_addr_row) then
