@@ -33,7 +33,7 @@ architecture synth of sdram_controller_test is
         signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', (others => '0'), (others => '0'));
         signal mc_out:          mem_channel_out_t;
         signal byte_counter:    std_logic_vector(2 downto 0);
-        signal r_counter:       std_logic_vector(19 downto 0);
+        signal r_counter:       std_logic_vector(19 downto 0) := (others => '0');
         signal ram_data_out:    std_logic_vector(15 downto 0);
 
         type controller_state_t is (
@@ -59,14 +59,6 @@ begin
                         c1 => mem_clk,
                         locked => reset_n);
 
-        counter: lpm_counter
-                generic map(
-                        LPM_WIDTH => 20)
-                port map(
-                        clock => sys_clk,
-                        q => r_counter);
-
-                        
         led <= ram_data_out(3);
 
         sdram_controller: entity work.sdram_controller
@@ -123,6 +115,7 @@ begin
                     when READ_DATA =>
                         if (byte_counter = "000") then
                             state <= START;
+                            r_counter <= std_logic_vector(unsigned(r_counter) + 1);
                         end if;
                     when DONE =>
                 end case;
