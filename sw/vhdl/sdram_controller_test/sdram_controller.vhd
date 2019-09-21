@@ -94,6 +94,9 @@ architecture synth of sdram_controller is
     signal busy_wait:   std_logic;
     signal dqm_on:      std_logic;
 
+    signal strobe_r1:   std_logic;
+    signal strobe_r2:   std_logic;
+
 begin
     sdram_clk <= mem_clk;
     sdram_cke <= cke;
@@ -134,10 +137,16 @@ begin
         if (reset_n = '0') then   
             -- XXX Impl proper reset 
             mc_out.op_strobe <= '0';
+            strobe_r1 <= '0';
+            strobe_r2 <= '0';
             busy_wait_counter <= (others => '0');
             dqm_on_counter <= (others => '0');
         elsif (rising_edge(sys_clk)) then
             cycle_counter <= std_logic_vector(unsigned(cycle_counter) + 1);
+
+            mc_out.op_strobe <= strobe_r1;
+            strobe_r1 <= strobe_r2;
+
 
             if (dqm_on) then
                 dqm_on_counter <= std_logic_vector(unsigned(dqm_on_counter) - 1);
@@ -210,9 +219,11 @@ begin
                                         if (mc_in.op_wren = '1') then
                                             -- Write Operation
                                             state <= WRITE;
-                                            mc_out.op_strobe <= not mc_out.op_strobe;
+                                            strobe_r1 <= not strobe_r2;
+                                            strobe_r2 <= not strobe_r2;
                                         else
                                             -- Read Operation
+                                            strobe_r2 <= not strobe_r2;
                                             command <= CMD_READ;
                                             busy_wait_counter <= "1001";
                                             dqm_on_counter <= "1000";
