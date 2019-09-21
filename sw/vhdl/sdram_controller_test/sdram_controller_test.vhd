@@ -28,11 +28,15 @@ architecture synth of sdram_controller_test is
         signal sys_clk:         std_logic;
         signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
-        signal mc_in:           mem_channel_in_t;
+        signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', (others => '0'), (others => '0'));
         signal mc_out:          mem_channel_out_t;
+        signal byte_counter:    std_logic_vector(2 downto 0);
 
         type controller_state_t is (
             START,
+            WRITE_WAIT,
+            WRITE_DATA,
+            READ,
             DONE);
 
         signal state:           controller_state_t := START;
@@ -53,6 +57,7 @@ begin
                 port map(
                         sys_clk => sys_clk,
                         mem_clk => mem_clk,
+                        reset_n => reset_n,
                         mc_in => mc_in,
                         mc_out => mc_out,
                         sdram_data => sdram_data,
@@ -74,8 +79,24 @@ begin
                         mc_in.op_addr <= "000000000000000000000000";
                         mc_in.op_start <= '1';
                         mc_in.op_wren <= '1';
+                        mc_in.op_dqm <= "00";
                         mc_in.write_data <= "0000000000000001";
-                        mc_in.write_dqm <= "00";
+                        state <= WRITE_WAIT;
+                    when WRITE_WAIT =>
+                        if (mc_out.op_strobe = mc_in.op_start) then
+                            state <= WRITE_DATA;
+                            byte_counter <= "110";
+                        end if;
+                    when WRITE_DATA =>
+                        if (byte_counter = "000") then
+                            state <= READ;
+                        else
+                            byte_counter <= std_logic_vector(unsigned(byte_counter) - 1);
+                        end if;
+                    when READ =>
+                        mc_in.op_start <= '0';
+                        mc_in.op_wren <= '0';
+                        state <= DONE;
                     when DONE =>
                 end case;
             end if;

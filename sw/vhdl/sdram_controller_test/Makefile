@@ -4,6 +4,7 @@ SRCS = pll.vhd \
         cpu_types.vhd \
         memory_channel_types.vhd \
         sdram_controller_simlowdelay.vhd \
+        simulation/sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}.vhd \
         ${TOPLEVEL}_tb.vhd
 

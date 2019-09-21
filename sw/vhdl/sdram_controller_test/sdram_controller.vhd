@@ -14,16 +14,17 @@ entity sdram_controller is
         -- One refresh command every 7.813us (or 7813 ns)
         -- (7812.5 / SYS_CLK_PERIOD_NS) - 7.0;
         REFRESH_CYCLES:         natural := 1035;
-        TRFC_CYCLES:            std_logic_vector(2 downto 0) := "111";
-        TRP_CYCLES:             std_logic_vector(2 downto 0) := "010";
-        TRCD_CYCLES:            std_logic_vector(2 downto 0) := "010";
-        CAS_CYCLES:             std_logic_vector(2 downto 0) := "001";
+        TRFC_CYCLES:            std_logic_vector(3 downto 0) := "1000";
+        TRP_CYCLES:             std_logic_vector(3 downto 0) := "0010";
+        TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0010";
+        CAS_CYCLES:             std_logic_vector(3 downto 0) := "0001";
 
         STARTUP_CYCLE_BITNR:    natural := 14
     );
     port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
+        reset_n:                in std_logic;
         mc_in:                  in mem_channel_in_t;
         mc_out:                 out mem_channel_out_t;
         data_out:               out std_logic_vector(15 downto 0);
@@ -64,7 +65,7 @@ architecture synth of sdram_controller is
     type controller_state_t is (
         STARTUP,
         IDLE,
-        DONE
+        WRITE
     );
 
     signal state:       controller_state_t := STARTUP;
@@ -75,7 +76,7 @@ architecture synth of sdram_controller is
     signal dqm:         std_logic_vector(1 downto 0) := (others => '1');
 
     signal busy_wait_counter:   std_logic_vector(3 downto 0) := (others => '0');
-    signal dqm_wait_counter:    std_logic_vector(3 downto 0) := (others => '0');
+    signal dqm_on_counter:      std_logic_vector(3 downto 0) := (others => '0');
 
     signal cycle_counter:       std_logic_vector(STARTUP_CYCLE_BITNR downto 0) := 
                                                             (others => '0');
@@ -92,7 +93,7 @@ architecture synth of sdram_controller is
     signal cur_bank_row: std_logic_vector(12 downto 0);
 
     signal busy_wait:   std_logic;
-    signal dqm_wait:    std_logic;
+    signal dqm_on:      std_logic;
 
 begin
     sdram_clk <= mem_clk;
@@ -105,28 +106,43 @@ begin
     sdram_cas <= command(1);
     sdram_we <= command(0);
 
-    sdram_data <= mc_in.write_data when sdram_dqm /= "11" else (others => 'Z');
-    sdram_dqm <= "00" when dqm_wait else "11";
+    sdram_data <= mc_in.write_data when
+                    (dqm_on = '1' and mc_in.op_wren = '1')
+                    else (others => 'Z');
+
+    -- XXX TODO FIX/IMPL ME
+    sdram_dqm <= mc_in.op_dqm when dqm_on else "11";
 
     busy_wait <= 
         busy_wait_counter(0) or busy_wait_counter(1) or
         busy_wait_counter(2) or busy_wait_counter(3);
 
-    dqm_wait <= 
-        dqm_wait_counter(0) or dqm_wait_counter(1) or
-        dqm_wait_counter(2) or dqm_wait_counter(3);
+    dqm_on <= 
+        dqm_on_counter(0) or dqm_on_counter(1) or
+        dqm_on_counter(2) or dqm_on_counter(3);
 
     cur_bank_active <= bank_states(to_integer(unsigned(op_addr_bank))).active;
     cur_bank_row <= bank_states(to_integer(unsigned(op_addr_bank))).row;
+    
+    process(mem_clk)
+    begin
+        if (rising_edge(mem_clk)) then
+            data_out <= sdram_data;
+        end if;
+    end process;
 
     process(sys_clk)
     begin
-        if (rising_edge(sys_clk)) then
-            data_out <= sdram_data;
+        if (reset_n = '0') then   
+            XXX Impl proper reset 
+            mc_out.op_strobe <= '0';
+            busy_wait_counter <= (others => '0');
+            dqm_on_counter <= (others => '0');
+        elsif (rising_edge(sys_clk)) then
             cycle_counter <= std_logic_vector(unsigned(cycle_counter) + 1);
 
-            if (dqm_wait) then
-                dqm_wait_counter <= std_logic_vector(unsigned(dqm_wait_counter) - 1);
+            if (dqm_on) then
+                dqm_on_counter <= std_logic_vector(unsigned(dqm_on_counter) - 1);
             end if;
 
             command <= CMD_NOP;
@@ -142,11 +158,10 @@ begin
                             command <= CMD_LMR;
                         elsif (cycle_counter(2 downto 0) = "111") then
                             state <= IDLE;
-                            mc_out.op_strobe <= '0';
                         end if;
                     end if;
                 when IDLE =>
-                    if (busy_wait) then
+                    if (busy_wait = '0') then
                         if (unsigned(cycle_counter) > REFRESH_CYCLES) then
                             if (bank_states(0).active = '1' or
                                 bank_states(1).active = '1' or
@@ -158,11 +173,11 @@ begin
                                 bank_states(2).active <= '0';
                                 bank_states(3).active <= '0';
                                 command <= CMD_PRECHARGE;
-                                busy_wait_counter <= "0" & TRP_CYCLES;
+                                busy_wait_counter <= TRP_CYCLES;
                                 addr(10) <= '1';
                             else
                                 command <= CMD_REFRESH;
-                                busy_wait_counter <= "0" & TRFC_CYCLES;
+                                busy_wait_counter <= TRFC_CYCLES;
                                 cycle_counter <= 
                                     std_logic_vector(unsigned(cycle_counter) - 
                                                                 REFRESH_CYCLES);
@@ -180,13 +195,13 @@ begin
                                         to_integer(
                                             unsigned(op_addr_bank))).active <= '1';
                                     addr <= op_addr_row; 
-                                    busy_wait_counter <= "0" & TRCD_CYCLES;
+                                    busy_wait_counter <= TRCD_CYCLES;
                                 else
                                     if (cur_bank_row /= op_addr_row) then
                                         -- Precharge row
                                         command <= CMD_PRECHARGE;
                                         addr(10) <= '0';
-                                        busy_wait_counter <= "0" & TRP_CYCLES;
+                                        busy_wait_counter <= TRP_CYCLES;
                                         bank_states(
                                             to_integer(
                                                 unsigned(op_addr_bank))).active <= '0';
@@ -194,17 +209,17 @@ begin
                                         -- Read write only on 16 byte boundaries
                                         -- cache line size is 16 bytes
                                         -- Auto pre-charge disabled
-                                        busy_wait_counter <= "1010";
-                                        dqm_wait_counter <= "1000";
                                         addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
                                         if (mc_in.op_wren = '1') then
                                             -- Write Operation
-                                            command <= CMD_WRITE;
+                                            state <= WRITE;
+                                            mc_out.op_strobe <= not mc_out.op_strobe;
                                         else
                                             -- Read Operation
                                             command <= CMD_READ;
+                                            busy_wait_counter <= "1001";
+                                            dqm_on_counter <= "1000";
                                         end if;
-                                        state <= DONE;
                                     end if;
                                 end if;
                             end if;
@@ -212,7 +227,11 @@ begin
                     else
                         busy_wait_counter <= std_logic_vector(unsigned(busy_wait_counter) - 1);
                     end if;
-                when DONE =>
+                when WRITE =>
+                    command <= CMD_WRITE;
+                    busy_wait_counter <= "0111";
+                    dqm_on_counter <= "1000";
+                    state <= IDLE;
             end case;
         end if;
     end process;
