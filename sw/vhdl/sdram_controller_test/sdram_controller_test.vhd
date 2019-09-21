@@ -94,7 +94,7 @@ begin
                 byte_counter <= std_logic_vector(unsigned(byte_counter) - 1);
                 case state is
                     when START =>
-                        mc_in.op_addr <= "000000000000000000000000";
+                        mc_in.op_addr <= r_counter & "00000000";
                         mc_in.op_start <= '1';
                         mc_in.op_wren <= '1';
                         mc_in.op_dqm <= "00";
