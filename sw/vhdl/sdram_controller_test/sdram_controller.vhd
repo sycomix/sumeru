@@ -80,6 +80,8 @@ architecture synth of sdram_controller is
     signal cycle_counter:       std_logic_vector(STARTUP_CYCLE_BITNR downto 0) := 
                                                             (others => '0');
 
+    signal refresh_lock:        std_logic := '0';
+
     type bank_state_t is record
         active:         std_logic;
         row:            std_logic_vector(12 downto 0);
@@ -181,9 +183,14 @@ begin
                         --     violation.
                         --     Hence in the below conditional we chech 
                         --     strobe first and then the refresh counter.
-                        --     Don't expect and refresh-starvation problems.
                         --
-                        if (mc_in.op_start /= mc_out.op_strobe) then
+                        --     We don't expect any refresh-starvation problems.
+                        --
+                        --     refresh_lock is required to avoid a transaction
+                        --     from pre-emeting refresh after pre-charge.
+                        --
+                        if (mc_in.op_start /= mc_out.op_strobe and
+                            refresh_lock = '0') then
                             if (cur_bank_active = '0') then
                                 -- Activate row
                                 command <= CMD_ACTIVE;
@@ -237,12 +244,14 @@ begin
                                 command <= CMD_PRECHARGE;
                                 busy_wait_counter <= TRP_CYCLES;
                                 addr(10) <= '1';
+                                refresh_lock <= '1';
                             else
                                 command <= CMD_REFRESH;
                                 busy_wait_counter <= TRFC_CYCLES;
                                 cycle_counter <= 
                                     std_logic_vector(unsigned(cycle_counter) - 
                                                                 REFRESH_CYCLES);
+                                refresh_lock <= '0';
                             end if;
                         end if;
                     else
