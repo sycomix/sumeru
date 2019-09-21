@@ -33,7 +33,7 @@ architecture synth of sdram_controller_test is
         signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', (others => '0'), (others => '0'));
         signal mc_out:          mem_channel_out_t;
         signal byte_counter:    std_logic_vector(2 downto 0);
-        signal r_counter:       std_logic_vector(15 downto 0);
+        signal r_counter:       std_logic_vector(19 downto 0);
         signal ram_data_out:    std_logic_vector(15 downto 0);
 
         type controller_state_t is (
@@ -58,14 +58,15 @@ begin
                         c0 => sys_clk,
                         c1 => mem_clk,
                         locked => reset_n);
-                        
+
         counter: lpm_counter
                 generic map(
-                        LPM_WIDTH => 16)
+                        LPM_WIDTH => 20)
                 port map(
                         clock => sys_clk,
                         q => r_counter);
 
+                        
         led <= ram_data_out(3);
 
         sdram_controller: entity work.sdram_controller
@@ -94,19 +95,19 @@ begin
                 byte_counter <= std_logic_vector(unsigned(byte_counter) - 1);
                 case state is
                     when START =>
-                        mc_in.op_addr <= r_counter & "00000000";
+                        mc_in.op_addr <= r_counter & "0000";
                         mc_in.op_start <= '1';
                         mc_in.op_wren <= '1';
                         mc_in.op_dqm <= "00";
                         state <= WRITE_WAIT;
                     when WRITE_WAIT =>
-                        mc_in.write_data <= r_counter;
+                        mc_in.write_data <= r_counter(15 downto 0);
                         if (mc_out.op_strobe = mc_in.op_start) then
                             state <= WRITE_DATA;
                             byte_counter <= "110";
                         end if;
                     when WRITE_DATA =>
-                        mc_in.write_data <= r_counter;
+                        mc_in.write_data <= r_counter(15 downto 0);
                         if (byte_counter = "000") then
                             state <= READ;
                         end if;

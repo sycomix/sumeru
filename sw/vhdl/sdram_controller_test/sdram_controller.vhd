@@ -87,7 +87,12 @@ architecture synth of sdram_controller is
 
     type bank_states_t is array(0 to 3) of bank_state_t;
 
-    signal bank_states: bank_states_t;
+    signal bank_states: bank_states_t := (
+                                            ('0', (others =>'0')),
+                                            ('0', (others =>'0')),
+                                            ('0', (others =>'0')),
+                                            ('0', (others =>'0')));
+
     signal cur_bank_active: std_logic;
     signal cur_bank_row: std_logic_vector(12 downto 0);
 
@@ -168,7 +173,58 @@ begin
                     end if;
                 when IDLE =>
                     if (busy_wait = '0') then
-                        if (unsigned(cycle_counter) > REFRESH_CYCLES) then
+                        --
+                        -- XXX Do not force a refresh if a transaction
+                        --     is pending. As we might end up precharging
+                        --     an immediately activated line berfore refresh
+                        --     and this will cause a tRAS (Active-to-Precharge)
+                        --     violation.
+                        --     Hence in the below conditional we chech 
+                        --     strobe first and then the refresh counter.
+                        --     Don't expect and refresh-starvation problems.
+                        --
+                        if (mc_in.op_start /= mc_out.op_strobe) then
+                            if (cur_bank_active = '0') then
+                                -- Activate row
+                                command <= CMD_ACTIVE;
+                                bank_states(
+                                    to_integer(
+                                        unsigned(op_addr_bank))).row <= 
+                                            op_addr_row;
+                                bank_states(
+                                    to_integer(
+                                        unsigned(op_addr_bank))).active <= '1';
+                                addr <= op_addr_row; 
+                                busy_wait_counter <= TRCD_CYCLES;
+                            else
+                                if (cur_bank_row /= op_addr_row) then
+                                    -- Precharge row
+                                    command <= CMD_PRECHARGE;
+                                    addr(10) <= '0';
+                                    busy_wait_counter <= TRP_CYCLES;
+                                    bank_states(
+                                        to_integer(
+                                            unsigned(op_addr_bank))).active <= '0';
+                                else
+                                    -- Read write only on 16 byte boundaries
+                                    -- cache line size is 16 bytes
+                                    -- Auto pre-charge disabled
+                                    addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
+                                    if (mc_in.op_wren = '1') then
+                                        -- Write Operation
+                                        state <= WRITE;
+                                        strobe_r1 <= not strobe_r2;
+                                        strobe_r2 <= not strobe_r2;
+                                    else
+                                        -- Read Operation
+                                        strobe_r2 <= not strobe_r2;
+                                        command <= CMD_READ;
+                                        busy_wait_counter <= "1001";
+                                        dqm_on_counter <= "1000";
+                                    end if;
+                                end if;
+                            end if;
+                        elsif (unsigned(cycle_counter) > REFRESH_CYCLES) then
                             if (bank_states(0).active = '1' or
                                 bank_states(1).active = '1' or
                                 bank_states(2).active = '1' or
@@ -187,49 +243,6 @@ begin
                                 cycle_counter <= 
                                     std_logic_vector(unsigned(cycle_counter) - 
                                                                 REFRESH_CYCLES);
-                            end if;
-                        else
-                            if (mc_in.op_start /= mc_out.op_strobe) then
-                                if (cur_bank_active = '0') then
-                                    -- Activate row
-                                    command <= CMD_ACTIVE;
-                                    bank_states(
-                                        to_integer(
-                                            unsigned(op_addr_bank))).row <= 
-                                                op_addr_row;
-                                    bank_states(
-                                        to_integer(
-                                            unsigned(op_addr_bank))).active <= '1';
-                                    addr <= op_addr_row; 
-                                    busy_wait_counter <= TRCD_CYCLES;
-                                else
-                                    if (cur_bank_row /= op_addr_row) then
-                                        -- Precharge row
-                                        command <= CMD_PRECHARGE;
-                                        addr(10) <= '0';
-                                        busy_wait_counter <= TRP_CYCLES;
-                                        bank_states(
-                                            to_integer(
-                                                unsigned(op_addr_bank))).active <= '0';
-                                    else
-                                        -- Read write only on 16 byte boundaries
-                                        -- cache line size is 16 bytes
-                                        -- Auto pre-charge disabled
-                                        addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
-                                        if (mc_in.op_wren = '1') then
-                                            -- Write Operation
-                                            state <= WRITE;
-                                            strobe_r1 <= not strobe_r2;
-                                            strobe_r2 <= not strobe_r2;
-                                        else
-                                            -- Read Operation
-                                            strobe_r2 <= not strobe_r2;
-                                            command <= CMD_READ;
-                                            busy_wait_counter <= "1001";
-                                            dqm_on_counter <= "1000";
-                                        end if;
-                                    end if;
-                                end if;
                             end if;
                         end if;
                     else
