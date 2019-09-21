@@ -72,7 +72,6 @@ architecture synth of sdram_controller is
     signal command:     std_logic_vector(3 downto 0) := CMD_INHIBIT;
     signal cke:         std_logic := '0';
     signal addr:        std_logic_vector(12 downto 0) := LMR_SETTING;                                
-    signal ba:          std_logic_vector(1 downto 0) := (others => '0');
     signal dqm:         std_logic_vector(1 downto 0) := (others => '1');
 
     signal busy_wait_counter:   std_logic_vector(3 downto 0) := (others => '0');
@@ -99,7 +98,7 @@ begin
     sdram_clk <= mem_clk;
     sdram_cke <= cke;
     sdram_addr <= addr;
-    sdram_ba <= ba;
+    sdram_ba <= op_addr_bank;
 
     sdram_cs <= command(3);
     sdram_ras <= command(2);
@@ -110,7 +109,6 @@ begin
                     (dqm_on = '1' and mc_in.op_wren = '1')
                     else (others => 'Z');
 
-    -- XXX TODO FIX/IMPL ME
     sdram_dqm <= mc_in.op_dqm when dqm_on else "11";
 
     busy_wait <= 
@@ -134,7 +132,7 @@ begin
     process(sys_clk)
     begin
         if (reset_n = '0') then   
-            XXX Impl proper reset 
+            -- XXX Impl proper reset 
             mc_out.op_strobe <= '0';
             busy_wait_counter <= (others => '0');
             dqm_on_counter <= (others => '0');
@@ -146,7 +144,6 @@ begin
             end if;
 
             command <= CMD_NOP;
-            ba <= op_addr_bank;
 
             case state is
                 when STARTUP =>
