@@ -30,7 +30,7 @@ architecture synth of sdram_controller_test is
         signal sys_clk:         std_logic;
         signal mem_clk:         std_logic;
         signal reset_n:         std_logic;
-        signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', (others => '0'), (others => '0'));
+        signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
         signal mc_out:          mem_channel_out_t;
         signal byte_counter:    std_logic_vector(2 downto 0);
         signal r_counter:       std_logic_vector(19 downto 0) := (others => '0');
@@ -91,12 +91,17 @@ begin
                         mc_in.op_start <= '1';
                         mc_in.op_wren <= '1';
                         mc_in.op_dqm <= "00";
+                        mc_in.op_burst <= '0';          -- XXX Set this
                         state <= WRITE_WAIT;
                     when WRITE_WAIT =>
                         mc_in.write_data <= r_counter(15 downto 0);
                         if (mc_out.op_strobe = mc_in.op_start) then
-                            state <= WRITE_DATA;
-                            byte_counter <= "110";
+                            if (mc_in.op_burst = '1') then
+                                state <= WRITE_DATA;
+                                byte_counter <= "110";
+                            else
+                                state <= READ;
+                            end if;
                         end if;
                     when WRITE_DATA =>
                         mc_in.write_data <= r_counter(15 downto 0);
@@ -109,8 +114,13 @@ begin
                         state <= READ_WAIT;
                     when READ_WAIT =>
                         if (mc_out.op_strobe = mc_in.op_start) then
-                            byte_counter <= "110";
-                            state <= READ_DATA;
+                            if (mc_in.op_burst = '1') then
+                                byte_counter <= "110";
+                                state <= READ_DATA;
+                            else
+                                r_counter <= std_logic_vector(unsigned(r_counter) + 1);
+                                state <= START;
+                            end if;
                         end if;
                     when READ_DATA =>
                         if (byte_counter = "000") then

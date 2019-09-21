@@ -65,7 +65,7 @@ architecture synth of sdram_controller is
     type controller_state_t is (
         STARTUP,
         IDLE,
-        WRITE
+        TERMINATE_BURST
     );
 
     signal state:       controller_state_t := STARTUP;
@@ -208,17 +208,31 @@ begin
                                     -- cache line size is 16 bytes
                                     -- Auto pre-charge disabled
                                     addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
+                                    if (mc_in.op_burst = '1') then
+                                        dqm_on_counter <= "1000";
+                                    else
+                                        dqm_on_counter <= "0001";
+                                    end if;
+                                    strobe_r2 <= not strobe_r2;
                                     if (mc_in.op_wren = '1') then
                                         -- Write Operation
-                                        state <= WRITE;
+                                        mc_out.op_strobe <= not strobe_r2;
                                         strobe_r1 <= not strobe_r2;
-                                        strobe_r2 <= not strobe_r2;
+                                        command <= CMD_WRITE;
+                                        if (mc_in.op_burst = '1') then
+                                            busy_wait_counter <= "0111";
+                                        else
+                                            state <= TERMINATE_BURST;
+                                        end if;
                                     else
                                         -- Read Operation
-                                        strobe_r2 <= not strobe_r2;
                                         command <= CMD_READ;
-                                        busy_wait_counter <= "1001";
-                                        dqm_on_counter <= "1000";
+                                        if (mc_in.op_burst = '1') then
+                                            busy_wait_counter <= "1001";
+                                        else
+                                            busy_wait_counter <= "0010";
+                                            state <= TERMINATE_BURST;
+                                        end if;
                                     end if;
                                 end if;
                             end if;
@@ -248,10 +262,8 @@ begin
                     else
                         busy_wait_counter <= std_logic_vector(unsigned(busy_wait_counter) - 1);
                     end if;
-                when WRITE =>
-                    command <= CMD_WRITE;
-                    busy_wait_counter <= "0111";
-                    dqm_on_counter <= "1000";
+                when TERMINATE_BURST =>
+                    command <= CMD_BURST_TERMINATE;
                     state <= IDLE;
             end case;
         end if;
