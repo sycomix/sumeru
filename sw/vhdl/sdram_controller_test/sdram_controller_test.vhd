@@ -1,7 +1,9 @@
-library ieee;
+library ieee, lpm;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
+use lpm.lpm_components.lpm_counter;
 use work.memory_channel_types.ALL;
+
 
 entity sdram_controller_test is
 port(
@@ -31,6 +33,7 @@ architecture synth of sdram_controller_test is
         signal mc_in:           mem_channel_in_t := ((others => '0'), '0', '0', (others => '0'), (others => '0'));
         signal mc_out:          mem_channel_out_t;
         signal byte_counter:    std_logic_vector(2 downto 0);
+        signal r_counter:       std_logic_vector(15 downto 0);
 
         type controller_state_t is (
             START,
@@ -52,6 +55,13 @@ begin
                         c0 => sys_clk,
                         c1 => mem_clk,
                         locked => reset_n);
+                        
+        counter: lpm_counter
+                generic map(
+                        LPM_WIDTH => 16)
+                port map(
+                        clock => sys_clk,
+                        q => r_counter);
 
         sdram_controller: entity work.sdram_controller
                 port map(
@@ -80,14 +90,15 @@ begin
                         mc_in.op_start <= '1';
                         mc_in.op_wren <= '1';
                         mc_in.op_dqm <= "00";
-                        mc_in.write_data <= "0000000000000001";
                         state <= WRITE_WAIT;
                     when WRITE_WAIT =>
+                        mc_in.write_data <= r_counter;
                         if (mc_out.op_strobe = mc_in.op_start) then
                             state <= WRITE_DATA;
                             byte_counter <= "110";
                         end if;
                     when WRITE_DATA =>
+                        mc_in.write_data <= r_counter;
                         if (byte_counter = "000") then
                             state <= READ;
                         else
