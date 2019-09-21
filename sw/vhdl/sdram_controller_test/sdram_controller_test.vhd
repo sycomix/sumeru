@@ -34,12 +34,15 @@ architecture synth of sdram_controller_test is
         signal mc_out:          mem_channel_out_t;
         signal byte_counter:    std_logic_vector(2 downto 0);
         signal r_counter:       std_logic_vector(15 downto 0);
+        signal ram_data_out:    std_logic_vector(15 downto 0);
 
         type controller_state_t is (
             START,
             WRITE_WAIT,
             WRITE_DATA,
             READ,
+            READ_WAIT,
+            READ_DATA,
             DONE);
 
         signal state:           controller_state_t := START;
@@ -63,11 +66,15 @@ begin
                         clock => sys_clk,
                         q => r_counter);
 
+        led <= ram_data_out(3);
+
         sdram_controller: entity work.sdram_controller
                 port map(
                         sys_clk => sys_clk,
                         mem_clk => mem_clk,
                         reset_n => reset_n,
+                        data_out => ram_data_out,
+
                         mc_in => mc_in,
                         mc_out => mc_out,
                         sdram_data => sdram_data,
@@ -84,6 +91,7 @@ begin
         process(sys_clk)
         begin
             if (rising_edge(sys_clk)) then
+                byte_counter <= std_logic_vector(unsigned(byte_counter) - 1);
                 case state is
                     when START =>
                         mc_in.op_addr <= "000000000000000000000000";
@@ -101,13 +109,20 @@ begin
                         mc_in.write_data <= r_counter;
                         if (byte_counter = "000") then
                             state <= READ;
-                        else
-                            byte_counter <= std_logic_vector(unsigned(byte_counter) - 1);
                         end if;
                     when READ =>
                         mc_in.op_start <= '0';
                         mc_in.op_wren <= '0';
-                        state <= DONE;
+                        state <= READ_WAIT;
+                    when READ_WAIT =>
+                        if (mc_out.op_strobe = mc_in.op_start) then
+                            byte_counter <= "110";
+                            state <= READ_DATA;
+                        end if;
+                    when READ_DATA =>
+                        if (byte_counter = "000") then
+                            state <= START;
+                        end if;
                     when DONE =>
                 end case;
             end if;
