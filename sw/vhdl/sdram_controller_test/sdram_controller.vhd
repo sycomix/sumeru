@@ -26,7 +26,7 @@ entity sdram_controller is
         mem_clk:                in std_logic;
         reset_n:                in std_logic;
         mc_in:                  in mem_channel_in_t;
-        mc_out:                 out mem_channel_out_t;
+        mc_out:                 out mem_channel_out_t := (op_strobe => '0');
         data_out:               out std_logic_vector(15 downto 0);
 
         sdram_data:             inout std_logic_vector(15 downto 0);
@@ -101,8 +101,8 @@ architecture synth of sdram_controller is
     signal busy_wait:   std_logic;
     signal dqm_on:      std_logic;
 
-    signal strobe_r1:   std_logic;
-    signal strobe_r2:   std_logic;
+    signal strobe_r1:   std_logic := '0';
+    signal strobe_r2:   std_logic := '0';
 
 begin
     sdram_clk <= mem_clk;
@@ -141,25 +141,15 @@ begin
 
     process(sys_clk)
     begin
-        if (reset_n = '0') then   
-            -- XXX Impl proper reset 
-            mc_out.op_strobe <= '0';
-            strobe_r1 <= '0';
-            strobe_r2 <= '0';
-            busy_wait_counter <= (others => '0');
-            dqm_on_counter <= (others => '0');
-        elsif (rising_edge(sys_clk)) then
+        if (rising_edge(sys_clk)) then
             cycle_counter <= std_logic_vector(unsigned(cycle_counter) + 1);
-
             mc_out.op_strobe <= strobe_r1;
             strobe_r1 <= strobe_r2;
-
+            command <= CMD_NOP;
 
             if (dqm_on) then
                 dqm_on_counter <= std_logic_vector(unsigned(dqm_on_counter) - 1);
             end if;
-
-            command <= CMD_NOP;
 
             case state is
                 when STARTUP =>
@@ -190,7 +180,8 @@ begin
                         --     from pre-emeting refresh after pre-charge.
                         --
                         if (mc_in.op_start /= mc_out.op_strobe and
-                            refresh_lock = '0') then
+                            refresh_lock = '0') 
+                        then
                             if (cur_bank_active = '0') then
                                 -- Activate row
                                 command <= CMD_ACTIVE;
