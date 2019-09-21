@@ -1,46 +1,53 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Fri Sep 20 11:23:51 2019
+[*] Sat Sep 21 09:27:52 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/sw/vhdl/sdram_controller_test/sdram_controller_test_tb.ghw"
-[dumpfile_mtime] "Fri Sep 20 11:23:11 2019"
-[dumpfile_size] 12993431
+[dumpfile_mtime] "Fri Sep 20 19:46:04 2019"
+[dumpfile_size] 13256430
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/sw/vhdl/sdram_controller_test/sdram_controller_test_tb.gtkw"
-[timestart] 0
+[timestart] 301200000
 [size] 1912 1043
 [pos] -1 -1
-*-26.085718 92500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-25.085718 317500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.sdram_controller_test_tb.
 [treeopen] top.sdram_controller_test_tb.sdram_controller_test.
 [treeopen] top.sdram_controller_test_tb.sdram_controller_test.mc_in.
 [treeopen] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.
-[sst_width] 210
-[signals_width] 223
+[sst_width] 298
+[signals_width] 373
 [sst_expanded] 1
 [sst_vpaned_height] 311
 @28
 top.sdram_controller_test_tb.sdram_controller_test.reset_n
 top.sdram_controller_test_tb.sdram_controller_test.sys_clk
-@29
 top.sdram_controller_test_tb.sdram_controller_test.state
-@28
 top.sdram_controller_test_tb.sdram_controller_test.mc_in.op_start
 top.sdram_controller_test_tb.sdram_controller_test.mc_in.op_wren
 #{top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_dqm[1:0]} top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_dqm[1] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_dqm[0]
 @22
 #{top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[15:0]} top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[15] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[14] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[13] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[12] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[11] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[10] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[9] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[8] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[7] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[6] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[5] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[4] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[3] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[2] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[1] top.sdram_controller_test_tb.sdram_controller_test.mc_in.write_data[0]
-@28
+@29
 top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.mc_out.op_strobe
+@28
 top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.state
+top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.dqm_wait
+top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait
 @22
 #{top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.command[3:0]} top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.command[3] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.command[2] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.command[1] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.command[0]
 @28
 top.sdram_controller_test_tb.sdram_clk
 top.sdram_controller_test_tb.sdram_cke
+@22
+#{top.sdram_controller_test_tb.sdram_addr[12:0]} top.sdram_controller_test_tb.sdram_addr[12] top.sdram_controller_test_tb.sdram_addr[11] top.sdram_controller_test_tb.sdram_addr[10] top.sdram_controller_test_tb.sdram_addr[9] top.sdram_controller_test_tb.sdram_addr[8] top.sdram_controller_test_tb.sdram_addr[7] top.sdram_controller_test_tb.sdram_addr[6] top.sdram_controller_test_tb.sdram_addr[5] top.sdram_controller_test_tb.sdram_addr[4] top.sdram_controller_test_tb.sdram_addr[3] top.sdram_controller_test_tb.sdram_addr[2] top.sdram_controller_test_tb.sdram_addr[1] top.sdram_controller_test_tb.sdram_addr[0]
+@28
 #{top.sdram_controller_test_tb.sdram_dqm[1:0]} top.sdram_controller_test_tb.sdram_dqm[1] top.sdram_controller_test_tb.sdram_dqm[0]
 #{top.sdram_controller_test_tb.sdram_ba[1:0]} top.sdram_controller_test_tb.sdram_ba[1] top.sdram_controller_test_tb.sdram_ba[0]
 @22
 #{top.sdram_controller_test_tb.sdram_data[15:0]} top.sdram_controller_test_tb.sdram_data[15] top.sdram_controller_test_tb.sdram_data[14] top.sdram_controller_test_tb.sdram_data[13] top.sdram_controller_test_tb.sdram_data[12] top.sdram_controller_test_tb.sdram_data[11] top.sdram_controller_test_tb.sdram_data[10] top.sdram_controller_test_tb.sdram_data[9] top.sdram_controller_test_tb.sdram_data[8] top.sdram_controller_test_tb.sdram_data[7] top.sdram_controller_test_tb.sdram_data[6] top.sdram_controller_test_tb.sdram_data[5] top.sdram_controller_test_tb.sdram_data[4] top.sdram_controller_test_tb.sdram_data[3] top.sdram_controller_test_tb.sdram_data[2] top.sdram_controller_test_tb.sdram_data[1] top.sdram_controller_test_tb.sdram_data[0]
+#{top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[15:0]} top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[15] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[14] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[13] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[12] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[11] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[10] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[9] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[8] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[7] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[6] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[5] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[4] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[3] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[2] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[1] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.data_out[0]
+#{top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait_counter[3:0]} top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait_counter[3] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait_counter[2] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait_counter[1] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.busy_wait_counter[0]
+#{top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[14:0]} top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[14] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[13] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[12] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[11] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[10] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[9] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[8] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[7] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[6] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[5] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[4] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[3] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[2] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[1] top.sdram_controller_test_tb.sdram_controller_test.sdram_controller.cycle_counter[0]
 [pattern_trace] 1
 [pattern_trace] 0
