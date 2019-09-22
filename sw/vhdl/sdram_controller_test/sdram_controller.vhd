@@ -70,6 +70,7 @@ architecture synth of sdram_controller is
     );
 
     signal state:       controller_state_t := STARTUP;
+    signal rw_next_state: controller_state_t;
     signal command:     std_logic_vector(3 downto 0) := CMD_INHIBIT;
     signal cke:         std_logic := '0';
     signal addr:        std_logic_vector(12 downto 0) := LMR_SETTING;                                
@@ -81,6 +82,9 @@ architecture synth of sdram_controller is
                                                             (others => '0');
 
     signal refresh_lock:        std_logic := '0';
+
+    signal strobe_r1:           std_logic := '0';
+    signal strobe_r2:           std_logic := '0';
 
     type bank_state_t is record
         active:         std_logic;
@@ -95,14 +99,14 @@ architecture synth of sdram_controller is
                                             ('0', (others =>'0')),
                                             ('0', (others =>'0')));
 
+    signal busy_wait_period:    std_logic_vector(3 downto 0) := (others => '0');
+    signal bw:                  std_logic_vector(1 downto 0);
+
     signal cur_bank_active: std_logic;
     signal cur_bank_row: std_logic_vector(12 downto 0);
 
     signal busy_wait:   std_logic;
     signal dqm_on:      std_logic;
-
-    signal strobe_r1:   std_logic := '0';
-    signal strobe_r2:   std_logic := '0';
 
 begin
     sdram_clk <= mem_clk;
@@ -120,6 +124,16 @@ begin
                     else (others => 'Z');
 
     sdram_dqm <= mc_in.op_dqm when dqm_on else "11";
+
+    rw_next_state <= IDLE when mc_in.op_burst = '1' else TERMINATE_BURST;
+
+    bw <= mc_in.op_wren & mc_in.op_burst;
+    with bw select
+        busy_wait_period <= 
+            "0010" when "00",
+            "1001" when "01",
+            "0111" when "11",
+            "0000" when others;
 
     busy_wait <= 
         busy_wait_counter(0) or busy_wait_counter(1) or
@@ -208,31 +222,18 @@ begin
                                     -- cache line size is 16 bytes
                                     -- Auto pre-charge disabled
                                     addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
-                                    if (mc_in.op_burst = '1') then
-                                        dqm_on_counter <= "1000";
-                                    else
-                                        dqm_on_counter <= "0001";
-                                    end if;
+                                    dqm_on_counter <= 
+                                        mc_in.op_burst & 
+                                        "00" &
+                                        (not mc_in.op_burst);
+                                    state <= rw_next_state;
                                     strobe_r2 <= not strobe_r2;
+                                    busy_wait_counter <= busy_wait_period;
+                                    command <= "010" & (not mc_in.op_wren);
                                     if (mc_in.op_wren = '1') then
                                         -- Write Operation
                                         mc_out.op_strobe <= not strobe_r2;
                                         strobe_r1 <= not strobe_r2;
-                                        command <= CMD_WRITE;
-                                        if (mc_in.op_burst = '1') then
-                                            busy_wait_counter <= "0111";
-                                        else
-                                            state <= TERMINATE_BURST;
-                                        end if;
-                                    else
-                                        -- Read Operation
-                                        command <= CMD_READ;
-                                        if (mc_in.op_burst = '1') then
-                                            busy_wait_counter <= "1001";
-                                        else
-                                            busy_wait_counter <= "0010";
-                                            state <= TERMINATE_BURST;
-                                        end if;
                                     end if;
                                 end if;
                             end if;
