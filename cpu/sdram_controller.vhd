@@ -26,8 +26,9 @@ entity sdram_controller is
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
         mc_in:                  in mem_channel_in_t;
-        mc_out:                 out mem_channel_out_t := (op_strobe => '0');
+        mc_out:                 out mem_channel_out_t;
         data_out:               out std_logic_vector(15 downto 0);
+        busy:                   out std_logic;
 
         sdram_data:             inout std_logic_vector(15 downto 0);
         sdram_addr:             out std_logic_vector(12 downto 0);
@@ -82,6 +83,7 @@ architecture synth of sdram_controller is
 
     signal refresh_lock:        std_logic := '0';
 
+    signal strobe:              std_logic := '0';
     signal strobe_r1:           std_logic := '0';
     signal strobe_r2:           std_logic := '0';
 
@@ -108,6 +110,8 @@ architecture synth of sdram_controller is
     signal dqm_on:      std_logic;
 
 begin
+    mc_out.op_strobe <= strobe;
+
     sdram_clk <= mem_clk;
     sdram_cke <= cke;
     sdram_addr <= addr;
@@ -142,6 +146,8 @@ begin
         dqm_on_counter(0) or dqm_on_counter(1) or
         dqm_on_counter(2) or dqm_on_counter(3);
 
+    busy <= busy_wait;
+
     cur_bank_active <= bank_states(to_integer(unsigned(op_addr_bank))).active;
     cur_bank_row <= bank_states(to_integer(unsigned(op_addr_bank))).row;
     
@@ -156,7 +162,7 @@ begin
     begin
         if (rising_edge(sys_clk)) then
             cycle_counter <= std_logic_vector(unsigned(cycle_counter) + 1);
-            mc_out.op_strobe <= strobe_r1;
+            strobe <= strobe_r1;
             strobe_r1 <= strobe_r2;
             command <= CMD_NOP;
 
@@ -192,8 +198,7 @@ begin
                         --     refresh_lock is required to avoid a transaction
                         --     from pre-emeting refresh after pre-charge.
                         --
-                        if (mc_in.op_start /= mc_out.op_strobe and
-                            refresh_lock = '0') 
+                        if (mc_in.op_start /= strobe and refresh_lock = '0') 
                         then
                             if (cur_bank_active = '0') then
                                 -- Activate row
@@ -231,7 +236,7 @@ begin
                                     command <= "010" & (not mc_in.op_wren);
                                     if (mc_in.op_wren = '1') then
                                         -- Write Operation
-                                        mc_out.op_strobe <= not strobe_r2;
+                                        strobe <= not strobe_r2;
                                         strobe_r1 <= not strobe_r2;
                                     end if;
                                 end if;

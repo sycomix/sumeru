@@ -141,12 +141,12 @@ begin
     data3_wren <= b7 or b8;
     meta_wren <= b8;
 
-    write_data <= mc_data_out & mc_data_out;
-    meta_data <= addr(31 downto 4) & "1000";
-
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            write_data <= mc_data_out & mc_data_out;
+            meta_data <= addr(31 downto 4) & "1000";
+
             b1 <= '0';
             b2 <= b1;
             b3 <= b2;

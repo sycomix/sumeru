@@ -35,6 +35,7 @@ architecture synth of cpu is
         signal mc_in:           mem_channel_in_t;
         signal mc_out:          mem_channel_out_t;
         signal mc_data_out:     std_logic_vector(15 downto 0);
+        signal mc_busy:         std_logic;
 begin
         spi0_sck <= '0';
         spi0_ss <= '0';
@@ -63,7 +64,8 @@ begin
                         sdram_cke => sdram_cke,
                         sdram_clk => sdram_clk,
                         sdram_we => sdram_we,
-                        sdram_cs => sdram_cs);
+                        sdram_cs => sdram_cs,
+                        busy => mc_busy);
 
         icache: entity work.icache
                 port map(
