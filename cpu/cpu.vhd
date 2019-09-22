@@ -32,10 +32,14 @@ architecture synth of cpu is
         signal pc:              std_logic_vector(31 downto 0) := (others => '0');
         signal icache_hit:      std_logic;
         signal icache_data:     std_logic_vector(31 downto 0);
-        signal mc_in:           mem_channel_in_t;
-        signal mc_out:          mem_channel_out_t;
-        signal mc_data_out:     std_logic_vector(15 downto 0);
-        signal mc_busy:         std_logic;
+
+        signal sdc_in:          mem_channel_in_t;
+        signal sdc_out:         mem_channel_out_t;
+        signal sdc_data_out:    std_logic_vector(15 downto 0);
+        signal sdc_busy:        std_logic;
+
+        signal mc0_in:          mem_channel_in_t;
+        signal mc0_out:         mem_channel_out_t;
 begin
         spi0_sck <= '0';
         spi0_ss <= '0';
@@ -52,9 +56,9 @@ begin
                 port map(
                         sys_clk => sys_clk,
                         mem_clk => mem_clk,
-                        mc_in => mc_in,
-                        mc_out => mc_out,
-                        data_out => mc_data_out,
+                        mc_in => sdc_in,
+                        mc_out => sdc_out,
+                        data_out => sdc_data_out,
                         sdram_data => sdram_data,
                         sdram_addr => sdram_addr,
                         sdram_ba => sdram_ba,
@@ -65,7 +69,24 @@ begin
                         sdram_clk => sdram_clk,
                         sdram_we => sdram_we,
                         sdram_cs => sdram_cs,
-                        busy => mc_busy);
+                        busy => sdc_busy);
+
+        memory_arbitrator: entity work.memory_arbitrator
+                port map(
+                        sys_clk => sys_clk,
+                        mem_clk => mem_clk,
+
+                        mc0_in => mc0_in,
+                        mc0_out => mc0_out,
+
+                        mc1_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
+                        mc2_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
+                        mc3_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
+
+                        sdc_in => sdc_in,
+                        sdc_out => sdc_out,
+                        sdc_busy => sdc_busy);
+                        
 
         icache: entity work.icache
                 port map(
@@ -74,9 +95,9 @@ begin
                         addr => pc,
                         hit => icache_hit,
                         data => icache_data,
-                        mc_in => mc_in,
-                        mc_out => mc_out,
-                        mc_data_out => mc_data_out);
+                        mc_in => mc0_in,
+                        mc_out => mc0_out,
+                        sdc_data_out => sdc_data_out);
 
         led <= icache_data(26);
 

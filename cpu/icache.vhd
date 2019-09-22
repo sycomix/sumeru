@@ -13,7 +13,7 @@ port(
         
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
-        mc_data_out:            in std_logic_vector(15 downto 0)
+        sdc_data_out:           in std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -144,7 +144,7 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            write_data <= mc_data_out & mc_data_out;
+            write_data <= sdc_data_out & sdc_data_out;
             meta_data <= addr(31 downto 4) & "1000";
 
             b1 <= '0';
