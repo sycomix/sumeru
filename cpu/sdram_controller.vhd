@@ -74,6 +74,7 @@ architecture synth of sdram_controller is
     signal command:     std_logic_vector(3 downto 0) := CMD_INHIBIT;
     signal cke:         std_logic := '0';
     signal addr:        std_logic_vector(12 downto 0) := LMR_SETTING;                                
+    signal bank:        std_logic_vector(1 downto 0) := (others => '0');
 
     signal busy_wait_counter:   std_logic_vector(3 downto 0) := (others => '0');
     signal dqm_on_counter:      std_logic_vector(3 downto 0) := (others => '0');
@@ -115,7 +116,7 @@ begin
     sdram_clk <= mem_clk;
     sdram_cke <= cke;
     sdram_addr <= addr;
-    sdram_ba <= op_addr_bank;
+    sdram_ba <= bank;
 
     sdram_cs <= command(3);
     sdram_ras <= command(2);
@@ -211,12 +212,14 @@ begin
                                     to_integer(
                                         unsigned(op_addr_bank))).active <= '1';
                                 addr <= op_addr_row; 
+                                bank <= op_addr_bank;
                                 busy_wait_counter <= TRCD_CYCLES;
                             else
                                 if (cur_bank_row /= op_addr_row) then
                                     -- Precharge row
                                     command <= CMD_PRECHARGE;
                                     addr(10) <= '0';
+                                    bank <= op_addr_bank;
                                     busy_wait_counter <= TRP_CYCLES;
                                     bank_states(
                                         to_integer(
@@ -226,6 +229,7 @@ begin
                                     -- cache line size is 16 bytes
                                     -- Auto pre-charge disabled
                                     addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
+                                    bank <= op_addr_bank;
                                     dqm_on_counter <= 
                                         mc_in.op_burst & 
                                         "00" &
@@ -254,6 +258,7 @@ begin
                                 command <= CMD_PRECHARGE;
                                 busy_wait_counter <= TRP_CYCLES;
                                 addr(10) <= '1';
+                                -- no need to set bank
                                 refresh_lock <= '1';
                             else
                                 command <= CMD_REFRESH;
