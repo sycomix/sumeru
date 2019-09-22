@@ -30,7 +30,16 @@ architecture synth of icache is
     signal data2_wren:          std_logic := '0';
     signal data3_wren:          std_logic := '0';
 
+    signal op_start:            std_logic := '0';
+
+    type cache_state_t is (
+        IDLE,
+        WAIT_LOAD);
+
+    signal state:               cache_state_t := IDLE;
+
     signal write_data:          std_logic_vector(31 downto 0);
+
 
 begin
     meta_ram: entity work.alt_ram
@@ -98,6 +107,11 @@ begin
         '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) 
         else '0'; 
 
+    mc_in.op_start <= op_start;
+    mc_in.op_addr <= addr(23 downto 0);
+    mc_in.op_wren <= '0';
+    mc_in.op_dqm <= "00";
+    mc_in.op_burst <= '1';
 
     process(sys_clk)
     begin
@@ -107,11 +121,15 @@ begin
             data2_wren <= '0';
             data3_wren <= '0';
             meta_wren <= '0';
-            if (hit = '0') then
-                mc_in.op_addr <= addr(23 downto 0);
-                mc_in.op_start <= '1';
-                mc_in.op_wren <= '0';
-            end if;
+
+            case state is
+                when IDLE =>
+                    if (hit = '0') then
+                        op_start <= not op_start;
+                        state <= WAIT_LOAD;
+                    end if;
+                when WAIT_LOAD =>
+            end case;
         end if;
     end process;
 
