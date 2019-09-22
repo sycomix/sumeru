@@ -40,6 +40,8 @@ architecture synth of icache is
 
     signal state:               cache_state_t := IDLE;
 
+    signal byteena_w0:          std_logic;
+    signal byteena_w1:          std_logic;
     signal byteena:             std_logic_vector(3 downto 0);
     signal write_data:          std_logic_vector(31 downto 0);
     signal meta_data:           std_logic_vector(31 downto 0);
@@ -63,7 +65,7 @@ begin
             address => addr(11 downto 4),
             data => meta_data,
             wren => meta_wren,
-            byteena => byteena,
+            byteena => (others => '1'),
             q => meta);
 
     data0_ram: entity work.alt_ram_byteena
@@ -129,7 +131,15 @@ begin
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
-    byteena <= "1111";
+
+    byteena_w0 <= b1 or b3 or b5 or b7;
+    byteena_w1 <= b2 or b4 or b6 or b8;
+    byteena <= byteena_w1 & byteena_w1 & byteena_w0 & byteena_w0;
+    data0_wren <= b1 or b2;
+    data1_wren <= b3 or b4;
+    data2_wren <= b5 or b6;
+    data3_wren <= b7 or b8;
+    meta_wren <= b8;
 
     write_data <= mc_data_out & mc_data_out;
     meta_data <= addr(31 downto 4) & "1000";
@@ -137,12 +147,6 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            data0_wren <= '0';
-            data1_wren <= '0';
-            data2_wren <= '0';
-            data3_wren <= '0';
-            meta_wren <= '0';
-
             b1 <= '0';
             b2 <= b1;
             b3 <= b2;
@@ -165,7 +169,6 @@ begin
                     end if;
                 when WAIT_B8 =>
                     if (b8 = '1') then
-                        meta_wren <= '1';
                         state <= IDLE;
                     end if;
             end case;
