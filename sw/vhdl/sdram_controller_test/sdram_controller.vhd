@@ -19,7 +19,8 @@ entity sdram_controller is
         TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0010";
         CAS_CYCLES:             std_logic_vector(3 downto 0) := "0001";
 
-        STARTUP_CYCLE_BITNR:    natural := 14
+        STARTUP_CYCLE_BITNR:    natural := 14;
+        REFRESH_PENDING_BITNR:  natural := 10
     );
     port(
         sys_clk:                in std_logic;
@@ -72,7 +73,6 @@ architecture synth of sdram_controller is
     signal command:     std_logic_vector(3 downto 0) := CMD_INHIBIT;
     signal cke:         std_logic := '0';
     signal addr:        std_logic_vector(12 downto 0) := LMR_SETTING;                                
-    signal dqm:         std_logic_vector(1 downto 0) := (others => '1');
 
     signal busy_wait_counter:   std_logic_vector(3 downto 0) := (others => '0');
     signal dqm_on_counter:      std_logic_vector(3 downto 0) := (others => '0');
@@ -236,7 +236,7 @@ begin
                                     end if;
                                 end if;
                             end if;
-                        elsif (unsigned(cycle_counter) > REFRESH_CYCLES) then
+                        elsif (cycle_counter(REFRESH_PENDING_BITNR) = '1') then
                             if (bank_states(0).active = '1' or
                                 bank_states(1).active = '1' or
                                 bank_states(2).active = '1' or
@@ -253,9 +253,7 @@ begin
                             else
                                 command <= CMD_REFRESH;
                                 busy_wait_counter <= TRFC_CYCLES;
-                                cycle_counter <= 
-                                    std_logic_vector(unsigned(cycle_counter) - 
-                                                                REFRESH_CYCLES);
+                                cycle_counter <= "00000" & cycle_counter(9 downto 0);
                                 refresh_lock <= '0';
                             end if;
                         end if;
