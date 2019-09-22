@@ -34,6 +34,7 @@ architecture synth of cpu is
         signal icache_data:     std_logic_vector(31 downto 0);
         signal mc_in:           mem_channel_in_t;
         signal mc_out:          mem_channel_out_t;
+        signal mc_data_out:     std_logic_vector(15 downto 0);
 begin
         spi0_sck <= '0';
         spi0_ss <= '0';
@@ -52,6 +53,7 @@ begin
                         mem_clk => mem_clk,
                         mc_in => mc_in,
                         mc_out => mc_out,
+                        data_out => mc_data_out,
                         sdram_data => sdram_data,
                         sdram_addr => sdram_addr,
                         sdram_ba => sdram_ba,
@@ -71,7 +73,8 @@ begin
                         hit => icache_hit,
                         data => icache_data,
                         mc_in => mc_in,
-                        mc_out => mc_out);
+                        mc_out => mc_out,
+                        mc_data_out => mc_data_out);
 
         led <= icache_data(26);
 
