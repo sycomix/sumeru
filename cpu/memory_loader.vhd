@@ -39,7 +39,7 @@ begin
         generic map(
             AWIDTH => 9,
             DWIDTH => 16,
-            DATA_FILE => "BOOTCODE.mif")
+            DATA_FILE => "BOOTCODE.hex")
         port map(
             clock => sys_clk,
             address => counter(8 downto 0),
