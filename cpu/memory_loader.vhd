@@ -4,6 +4,8 @@ use ieee.numeric_std.ALL;
 use work.memory_channel_types.ALL;
 
 entity memory_loader is
+generic(
+        DATA_FILE:              string);
 port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
@@ -21,6 +23,7 @@ architecture synth of memory_loader is
 
     type loader_state_t is (
         IDLE,
+        WAIT_STROBE,
         DONE);
 
     signal state:               loader_state_t := IDLE;
@@ -39,7 +42,7 @@ begin
         generic map(
             AWIDTH => 9,
             DWIDTH => 16,
-            DATA_FILE => "BOOTCODE.hex")
+            DATA_FILE => DATA_FILE)
         port map(
             clock => sys_clk,
             address => counter(8 downto 0),
@@ -52,6 +55,13 @@ begin
                 when IDLE =>
                     if (load_done = '1') then
                         state <= DONE;
+                    else
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                    end if;
+                when WAIT_STROBE =>
+                    if (op_start = mc_out.op_strobe) then
+                        counter <= std_logic_vector(unsigned(counter) + 1);
                     end if;
                 when DONE =>
             end case;
