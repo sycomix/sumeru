@@ -56,7 +56,7 @@ architecture synth of icache is
     signal b8:                  std_logic := '0';
 
 begin
-    meta_ram: entity work.alt_ram_byteena
+    meta_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
@@ -65,7 +65,6 @@ begin
             address => addr(11 downto 4),
             data => meta_data,
             wren => meta_wren,
-            byteena => (others => '1'),
             q => meta);
 
     data0_ram: entity work.alt_ram_byteena
