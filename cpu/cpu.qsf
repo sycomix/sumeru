@@ -33,10 +33,13 @@ set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULA
 set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
 set_global_assignment -name VHDL_FILE pll.vhd
+set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/alt_rom.vhd
+set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/alt_ram.vhd
 set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/alt_ram_byteena.vhd
 set_global_assignment -name VHDL_FILE cpu_types.vhd
 set_global_assignment -name VHDL_FILE memory_channel_types.vhd
 set_global_assignment -name VHDL_FILE memory_arbitrator.vhd
+set_global_assignment -name VHDL_FILE memory_loader.vhd
 set_global_assignment -name VHDL_FILE cpu.vhd
 set_global_assignment -name VHDL_FILE sdram_controller.vhd
 set_global_assignment -name VHDL_FILE icache.vhd
