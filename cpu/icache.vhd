@@ -127,7 +127,7 @@ begin
         else '0'; 
 
     mc_in.op_start <= op_start;
-    mc_in.op_addr <= addr(23 downto 0);
+    mc_in.op_addr <= addr(24 downto 1);
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
