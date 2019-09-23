@@ -225,10 +225,9 @@ begin
                                         to_integer(
                                             unsigned(op_addr_bank))).active <= '0';
                                 else
-                                    -- Read write only on 16 byte boundaries
                                     -- cache line size is 16 bytes
                                     -- Auto pre-charge disabled
-                                    addr <= "0000" & op_addr_col(8 downto 4) & "0000"; 
+                                    addr <= "0000" & op_addr_col;
                                     bank <= op_addr_bank;
                                     dqm_on_counter <= 
                                         mc_in.op_burst & 

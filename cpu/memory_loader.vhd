@@ -62,6 +62,7 @@ begin
                 when WAIT_STROBE =>
                     if (op_start = mc_out.op_strobe) then
                         counter <= std_logic_vector(unsigned(counter) + 1);
+                        state <= IDLE;
                     end if;
                 when DONE =>
             end case;
