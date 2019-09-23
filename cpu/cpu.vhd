@@ -127,12 +127,15 @@ begin
             mc_in => mc1_in,
             mc_out => mc1_out);
 
-    led <= icache_data(26);
-
     process(sys_clk)
     begin
         if rising_edge(sys_clk) and icache_hit = '1' then
             pc <= std_logic_vector(unsigned(pc) + 4);
+            if (icache_data = x"00000000") then
+                led <= '0';
+            else
+                led <= '1';
+            end if;
         end if;
     end process;
 
