@@ -76,11 +76,15 @@ begin
                         sys_clk => sys_clk,
                         mem_clk => mem_clk,
 
+                        mc0_enable => '1',
                         mc0_in => mc0_in,
                         mc0_out => mc0_out,
 
+                        mc1_enable => '1',
                         mc1_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
+                        mc2_enable => '1',
                         mc2_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
+                        mc3_enable => '1',
                         mc3_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
 
                         sdc_in => sdc_in,
