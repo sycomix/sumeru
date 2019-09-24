@@ -49,12 +49,6 @@ architecture synth of cpu is
     signal op_start:            std_logic := '0'; 
     signal led_r:               std_logic := '1';
 
-    type state_t is (
-        IDLE,
-        DONE);
-
-    signal state:               state_t := IDLE;
-
 begin
     spi0_sck <= '0';
     spi0_ss <= '0';
@@ -104,7 +98,22 @@ begin
             sdc_in => sdc_in,
             sdc_out => sdc_out,
             sdc_busy => sdc_busy);
-                        
+
+    icache: entity work.icache
+        port map(
+            sys_clk => sys_clk,
+            mem_clk => mem_clk,
+            enable => bootcode_load_done,
+
+            addr => pc,
+            hit => icache_hit,
+            data => icache_data,
+
+            mc_in => mc0_in,
+            mc_out => mc0_out,
+
+            sdc_data_out => sdc_data_out
+            );
 
     bootcode_loader: entity work.memory_loader
         generic map(
@@ -119,27 +128,23 @@ begin
             mc_in => mc1_in,
             mc_out => mc1_out);
 
+    -- led <= '0' when icache_data = x"0500006F" else '1';
+    
+    -- mc0_in.op_start <= op_start;
+    -- mc0_in.op_wren <= '0';
+    -- mc0_in.op_burst <= '1';
+    -- mc0_in.op_dqm <= "00";
+    -- mc0_in.op_addr <= "000000000000000000000001";
+    -- op_start <= bootcode_load_done;
+
     led <= led_r;
-    mc0_in.op_start <= op_start;
-    mc0_in.op_wren <= '0';
-    mc0_in.op_burst <= '1';
-    mc0_in.op_dqm <= "00";
-    mc0_in.op_addr <= (others => '0');
 
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            case state is
-                when IDLE =>
-                    if (bootcode_load_done = '1') then
-                        op_start <= not op_start;
-                        state <= DONE;
-                    end if;
-                when DONE =>
-                    if (sdc_data_out = x"0013") then
-                        led_r <= '0';
-                    end if;
-            end case;
+            if (icache_data(31 downto 16) = x"006F" and bootcode_load_done = '1') then
+                led_r <= '0';
+            end if;
         end if;
     end process;
 

@@ -7,6 +7,8 @@ entity icache is
 port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
+        enable:                 in std_logic;
+
         addr:                   in std_logic_vector(31 downto 0);
         hit:                    out std_logic;
         data:                   out std_logic_vector(31 downto 0);
@@ -35,7 +37,13 @@ architecture synth of icache is
 
     type cache_state_t is (
         IDLE,
-        WAIT_LOAD,
+        WAIT_B1,
+        WAIT_B2,
+        WAIT_B3,
+        WAIT_B4,
+        WAIT_B5,
+        WAIT_B6,
+        WAIT_B7,        
         WAIT_B8);
 
     signal state:               cache_state_t := IDLE;
@@ -45,15 +53,9 @@ architecture synth of icache is
     signal byteena:             std_logic_vector(3 downto 0);
     signal write_data:          std_logic_vector(31 downto 0);
     signal meta_data:           std_logic_vector(31 downto 0);
-
-    signal b1:                  std_logic := '0';
-    signal b2:                  std_logic := '0';
-    signal b3:                  std_logic := '0';
-    signal b4:                  std_logic := '0';
-    signal b5:                  std_logic := '0';
-    signal b6:                  std_logic := '0';
-    signal b7:                  std_logic := '0';
-    signal b8:                  std_logic := '0';
+    signal lo_word:             std_logic_vector(15 downto 0);
+    signal hi_word:             std_logic_vector(15 downto 0);
+    
 
 begin
     meta_ram: entity work.alt_ram
@@ -67,7 +69,7 @@ begin
             wren => meta_wren,
             q => meta);
 
-    data0_ram: entity work.alt_ram_byteena
+    data0_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
@@ -76,10 +78,9 @@ begin
             address => addr(11 downto 4),
             data => write_data,
             wren => data0_wren,
-            byteena => byteena,
             q => data0);
 
-    data1_ram: entity work.alt_ram_byteena
+    data1_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
@@ -88,10 +89,9 @@ begin
             address => addr(11 downto 4),
             data => write_data,
             wren => data1_wren,
-            byteena => byteena,
             q => data1);
 
-    data2_ram: entity work.alt_ram_byteena
+    data2_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
@@ -100,10 +100,9 @@ begin
             address => addr(11 downto 4),
             data => write_data,
             wren => data2_wren,
-            byteena => byteena,
             q => data2);
 
-    data3_ram: entity work.alt_ram_byteena
+    data3_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
@@ -112,7 +111,6 @@ begin
             address => addr(11 downto 4),
             data => write_data,
             wren => data3_wren,
-            byteena => byteena,
             q => data3);
 
     with addr(3 downto 2) select 
@@ -123,53 +121,57 @@ begin
 
     hit <= 
         '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) 
-        else '0'; 
-
+        else '0';
+        
+    write_data <= hi_word & lo_word;
+    meta_data <= addr(31 downto 4) & "1000";
+ 
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
 
-    byteena_w0 <= b1 or b3 or b5 or b7;
-    byteena_w1 <= b2 or b4 or b6 or b8;
-    byteena <= byteena_w1 & byteena_w1 & byteena_w0 & byteena_w0;
-    data0_wren <= b1 or b2;
-    data1_wren <= b3 or b4;
-    data2_wren <= b5 or b6;
-    data3_wren <= b7 or b8;
-    meta_wren <= b8;
-
-    process(sys_clk)
+    process(mem_clk)
     begin
-        if (rising_edge(sys_clk)) then
-            write_data <= sdc_data_out & sdc_data_out;
-            meta_data <= addr(31 downto 4) & "1000";
-
-            b1 <= '0';
-            b2 <= b1;
-            b3 <= b2;
-            b4 <= b3;
-            b5 <= b4;
-            b6 <= b5;
-            b7 <= b6;
-            b8 <= b7;
-
+        if (rising_edge(mem_clk)) then
+            data0_wren <= '0';
+            data1_wren <= '0';
+            data2_wren <= '0';
+            data3_wren <= '0';
+            meta_wren <= '0';
+            lo_word <= hi_word;
+            hi_word <= sdc_data_out;
+            
             case state is
                 when IDLE =>
-                    if (hit = '0') then
+                    if (hit = '0' and enable = '1') then
                         op_start <= not op_start;
-                        state <= WAIT_LOAD;
+                        state <= WAIT_B1;
                     end if;
-                when WAIT_LOAD =>
+                when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then
-                        b1 <= '1';
-                        state <= WAIT_B8;
+                        state <= WAIT_B2;
                     end if;
+                when WAIT_B2 =>
+                    data0_wren <= '1';
+                    state <= WAIT_B3;
+                when WAIT_B3 =>
+                    state <= WAIT_B4;
+                when WAIT_B4 =>
+                    data1_wren <= '1';
+                    state <= WAIT_B5;
+                when WAIT_B5 =>
+                    state <= WAIT_B6;
+                when WAIT_B6 =>
+                    data2_wren <= '1';
+                    state <= WAIT_B7;
+                when WAIT_B7 =>
+                    state <= WAIT_B8;
                 when WAIT_B8 =>
-                    if (b8 = '1') then
-                        state <= IDLE;
-                    end if;
+                    data3_wren <= '1';
+                    meta_wren <= '1';
+                    state <= IDLE;
             end case;
         end if;
     end process;
