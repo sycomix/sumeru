@@ -8,19 +8,15 @@ port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
         
-        mc0_enable:             in std_logic;
         mc0_in:                 in mem_channel_in_t;
         mc0_out:                out mem_channel_out_t;
 
-        mc1_enable:             in std_logic;
         mc1_in:                 in mem_channel_in_t;
         mc1_out:                out mem_channel_out_t;
         
-        mc2_enable:             in std_logic;
         mc2_in:                 in mem_channel_in_t;
         mc2_out:                out mem_channel_out_t;
 
-        mc3_enable:             in std_logic;
         mc3_in:                 in mem_channel_in_t;
         mc3_out:                out mem_channel_out_t;
 
@@ -73,28 +69,28 @@ begin
             case state is
                 when IDLE =>
                     if (sdc_busy = '0') then
-                        if (mc0_in.op_start /= mc0_strobe and mc0_enable = '1') then
+                        if (mc0_in.op_start /= mc0_strobe) then
                             sdc_in.op_addr <= mc0_in.op_addr;
                             sdc_in.op_wren <= mc0_in.op_wren;
                             sdc_in.op_burst <= mc0_in.op_burst;
                             chan <= "00";
                             op_start <= not op_start;
                             state <= WAIT_STROBE;
-                        elsif (mc1_in.op_start /= mc1_strobe and mc1_enable = '1') then
+                        elsif (mc1_in.op_start /= mc1_strobe) then
                             sdc_in.op_addr <= mc1_in.op_addr;
                             sdc_in.op_wren <= mc1_in.op_wren;
                             sdc_in.op_burst <= mc1_in.op_burst;
                             chan <= "01";
                             op_start <= not op_start;
                             state <= WAIT_STROBE;
-                        elsif (mc2_in.op_start /= mc2_strobe and mc2_enable = '1') then
+                        elsif (mc2_in.op_start /= mc2_strobe) then
                             sdc_in.op_addr <= mc2_in.op_addr;
                             sdc_in.op_wren <= mc2_in.op_wren;
                             sdc_in.op_burst <= mc2_in.op_burst;
                             chan <= "10";
                             op_start <= not op_start;
                             state <= WAIT_STROBE;
-                        elsif (mc3_in.op_start /= mc3_strobe and mc3_enable = '1') then
+                        elsif (mc3_in.op_start /= mc3_strobe) then
                             sdc_in.op_addr <= mc3_in.op_addr;
                             sdc_in.op_wren <= mc3_in.op_wren;
                             sdc_in.op_burst <= mc3_in.op_burst;
