@@ -1,21 +1,21 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Mon Sep 23 08:06:30 2019
+[*] Mon Sep 23 20:02:31 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
-[dumpfile_mtime] "Mon Sep 23 08:05:25 2019"
-[dumpfile_size] 16745958
+[dumpfile_mtime] "Mon Sep 23 20:00:41 2019"
+[dumpfile_size] 13284734
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
-[timestart] 8194000000
+[timestart] 11825800000
 [size] 1912 1043
 [pos] -1 -1
-*-28.745234 11953750000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-24.745234 11931100000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.cpu_tb.
 [treeopen] top.cpu_tb.cpu.
 [treeopen] top.cpu_tb.cpu.bootcode_loader.
 [treeopen] top.cpu_tb.cpu.bootcode_loader.mc_in.
-[treeopen] top.cpu_tb.cpu.icache.meta_ram.
+[treeopen] top.cpu_tb.cpu.sdram_controller.
 [sst_width] 268
 [signals_width] 261
 [sst_expanded] 1
@@ -35,5 +35,12 @@ top.cpu_tb.cpu.icache_hit
 @28
 top.cpu_tb.cpu.bootcode_loader.mc_in.op_start
 top.cpu_tb.cpu.bootcode_loader.mc_out.op_strobe
+@22
+#{top.cpu_tb.cpu.sdram_controller.data_out[15:0]} top.cpu_tb.cpu.sdram_controller.data_out[15] top.cpu_tb.cpu.sdram_controller.data_out[14] top.cpu_tb.cpu.sdram_controller.data_out[13] top.cpu_tb.cpu.sdram_controller.data_out[12] top.cpu_tb.cpu.sdram_controller.data_out[11] top.cpu_tb.cpu.sdram_controller.data_out[10] top.cpu_tb.cpu.sdram_controller.data_out[9] top.cpu_tb.cpu.sdram_controller.data_out[8] top.cpu_tb.cpu.sdram_controller.data_out[7] top.cpu_tb.cpu.sdram_controller.data_out[6] top.cpu_tb.cpu.sdram_controller.data_out[5] top.cpu_tb.cpu.sdram_controller.data_out[4] top.cpu_tb.cpu.sdram_controller.data_out[3] top.cpu_tb.cpu.sdram_controller.data_out[2] top.cpu_tb.cpu.sdram_controller.data_out[1] top.cpu_tb.cpu.sdram_controller.data_out[0]
+@28
+top.cpu_tb.cpu.led
+top.cpu_tb.cpu.bootcode_loader.mc_in.op_wren
+@22
+#{top.cpu_tb.cpu.sdram_controller.command[3:0]} top.cpu_tb.cpu.sdram_controller.command[3] top.cpu_tb.cpu.sdram_controller.command[2] top.cpu_tb.cpu.sdram_controller.command[1] top.cpu_tb.cpu.sdram_controller.command[0]
 [pattern_trace] 1
 [pattern_trace] 0
