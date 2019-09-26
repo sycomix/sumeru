@@ -12,7 +12,7 @@ port(
         addr:                   in std_logic_vector(31 downto 0);
         hit:                    out std_logic;
         data:                   out std_logic_vector(31 downto 0);
-        
+
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
         sdc_data_out:           in std_logic_vector(15 downto 0)
@@ -37,25 +37,25 @@ architecture synth of icache is
 
     type cache_state_t is (
         IDLE,
-        WAIT_LOAD,
+        WAIT_B1,
+        WAIT_B2,
+        WAIT_B3,
+        WAIT_B4,
+        WAIT_B5,
+        WAIT_B6,
+        WAIT_B7,        
         WAIT_B8);
 
     signal state:               cache_state_t := IDLE;
 
+    signal byteena_w0:          std_logic;
+    signal byteena_w1:          std_logic;
+    signal byteena:             std_logic_vector(3 downto 0);
     signal write_data:          std_logic_vector(31 downto 0);
     signal meta_data:           std_logic_vector(31 downto 0);
-    signal hi_data_word:        std_logic_vector(15 downto 0);
-    signal lo_data_word:        std_logic_vector(15 downto 0);
-
-    signal b1:                  std_logic := '0';
-    signal b2:                  std_logic := '0';
-    signal b3:                  std_logic := '0';
-    signal b4:                  std_logic := '0';
-    signal b5:                  std_logic := '0';
-    signal b6:                  std_logic := '0';
-    signal b7:                  std_logic := '0';
-    signal b8:                  std_logic := '0';
-
+    signal lo_word:             std_logic_vector(15 downto 0);
+    signal hi_word:             std_logic_vector(15 downto 0);
+    
 
 begin
     meta_ram: entity work.alt_ram
@@ -119,55 +119,57 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    hit <= 
-        '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) 
-        else '0'; 
-
+    hit <= '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) else '0';
+        
+    write_data <= hi_word & lo_word;
+    meta_data <= addr(31 downto 4) & "1000";
+ 
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
-
-    data0_wren <= b2;
-    data1_wren <= b4;
-    data2_wren <= b6;
-    data3_wren <= b8;
-    meta_wren <= b8;
-
-    meta_data <= addr(31 downto 4) & "1000";
-    write_data <= hi_data_word & lo_data_word;
-
+    
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            b1 <= '0';
-            b2 <= b1;
-            b3 <= b2;
-            b4 <= b3;
-            b5 <= b4;
-            b6 <= b5;
-            b7 <= b6;
-            b8 <= b7;
-
-            lo_data_word <= hi_data_word;
-            hi_data_word <= sdc_data_out;
-
+            data0_wren <= '0';
+            data1_wren <= '0';
+            data2_wren <= '0';
+            data3_wren <= '0';
+            meta_wren <= '0';
+            lo_word <= hi_word;
+            hi_word <= sdc_data_out;
+            
             case state is
                 when IDLE =>
                     if (hit = '0' and enable = '1') then
                         op_start <= not op_start;
-                        state <= WAIT_LOAD;
+                        state <= WAIT_B1;
                     end if;
-                when WAIT_LOAD =>
+                when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then
-                        b1 <= '1';
-                        state <= WAIT_B8;
+                        state <= WAIT_B2;
                     end if;
+                when WAIT_B2 =>
+                    data0_wren <= '1';
+                    state <= WAIT_B3;
+                when WAIT_B3 =>
+                    state <= WAIT_B4;
+                when WAIT_B4 =>
+                    data1_wren <= '1';
+                    state <= WAIT_B5;
+                when WAIT_B5 =>
+                    state <= WAIT_B6;
+                when WAIT_B6 =>
+                    data2_wren <= '1';
+                    state <= WAIT_B7;
+                when WAIT_B7 =>
+                    state <= WAIT_B8;
                 when WAIT_B8 =>
-                    if (b8 = '1') then
-                        state <= IDLE;
-                    end if;
+                    data3_wren <= '1';
+                    meta_wren <= '1';
+                    state <= IDLE;
             end case;
         end if;
     end process;
