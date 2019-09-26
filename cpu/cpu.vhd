@@ -47,7 +47,12 @@ architecture synth of cpu is
     signal bootcode_load_done:  std_logic;
 
     signal op_start:            std_logic := '0'; 
-    signal led_r:               std_logic := '1';
+    
+    type state_t is (
+        IDLE,
+        DONE);
+        
+    signal state:               state_t := IDLE;
 
 begin
     spi0_sck <= '0';
@@ -127,24 +132,20 @@ begin
             load_done => bootcode_load_done,
             mc_in => mc1_in,
             mc_out => mc1_out);
-
-    -- led <= '0' when icache_data = x"0500006F" else '1';
     
-    -- mc0_in.op_start <= op_start;
-    -- mc0_in.op_wren <= '0';
-    -- mc0_in.op_burst <= '1';
-    -- mc0_in.op_dqm <= "00";
-    -- mc0_in.op_addr <= "000000000000000000000001";
-    -- op_start <= bootcode_load_done;
-
-    led <= led_r;
-
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (icache_data(31 downto 16) = x"006F" and bootcode_load_done = '1') then
-                led_r <= '0';
-            end if;
+            case state is
+                when IDLE =>
+                    if (icache_hit = '1') then
+                        pc <= std_logic_vector(unsigned(pc) + 4);
+                        if (icache_data = x"4A4A52B7") then
+                            led <= not led;
+                        end if;
+                    end if;
+                when DONE =>
+            end case;                
         end if;
     end process;
 

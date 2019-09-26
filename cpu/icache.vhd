@@ -12,7 +12,7 @@ port(
         addr:                   in std_logic_vector(31 downto 0);
         hit:                    out std_logic;
         data:                   out std_logic_vector(31 downto 0);
-        
+
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
         sdc_data_out:           in std_logic_vector(15 downto 0)
@@ -119,9 +119,7 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    hit <= 
-        '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) 
-        else '0';
+    hit <= '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) else '0';
         
     write_data <= hi_word & lo_word;
     meta_data <= addr(31 downto 4) & "1000";
@@ -131,10 +129,10 @@ begin
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
-
-    process(mem_clk)
+    
+    process(sys_clk)
     begin
-        if (rising_edge(mem_clk)) then
+        if (rising_edge(sys_clk)) then
             data0_wren <= '0';
             data1_wren <= '0';
             data2_wren <= '0';

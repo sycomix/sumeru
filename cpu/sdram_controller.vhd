@@ -13,14 +13,14 @@ entity sdram_controller is
     generic(
         -- One refresh command every 7.813us (or 7813 ns)
         -- (7812.5 / SYS_CLK_PERIOD_NS) - 7.0;
-        REFRESH_CYCLES:         natural := 1035;
-        TRFC_CYCLES:            std_logic_vector(3 downto 0) := "1000";
-        TRP_CYCLES:             std_logic_vector(3 downto 0) := "0010";
-        TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0010";
+        -- 100 Mhz timing
+        REFRESH_CYCLES:         natural := 780;
+        TRFC_CYCLES:            std_logic_vector(3 downto 0) := "0110";
+        TRP_CYCLES:             std_logic_vector(3 downto 0) := "0001";
+        TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0001";
         CAS_CYCLES:             std_logic_vector(3 downto 0) := "0001";
 
-        STARTUP_CYCLE_BITNR:    natural := 14;
-        REFRESH_PENDING_BITNR:  natural := 10
+        STARTUP_CYCLE_BITNR:    natural := 14
     );
     port(
         sys_clk:                in std_logic;
@@ -244,7 +244,7 @@ begin
                                     end if;
                                 end if;
                             end if;
-                        elsif (cycle_counter(REFRESH_PENDING_BITNR) = '1') then
+                        elsif (unsigned(cycle_counter) > REFRESH_CYCLES) then
                             if (bank_states(0).active = '1' or
                                 bank_states(1).active = '1' or
                                 bank_states(2).active = '1' or
@@ -262,7 +262,7 @@ begin
                             else
                                 command <= CMD_REFRESH;
                                 busy_wait_counter <= TRFC_CYCLES;
-                                cycle_counter <= "00000" & cycle_counter(9 downto 0);
+                                cycle_counter <= std_logic_vector(unsigned(cycle_counter) - REFRESH_CYCLES);
                                 refresh_lock <= '0';
                             end if;
                         end if;
