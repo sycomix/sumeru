@@ -48,14 +48,8 @@ architecture synth of icache is
 
     signal state:               cache_state_t := IDLE;
 
-    signal byteena_w0:          std_logic;
-    signal byteena_w1:          std_logic;
-    signal byteena:             std_logic_vector(3 downto 0);
-    signal write_data:          std_logic_vector(31 downto 0);
     signal meta_data:           std_logic_vector(31 downto 0);
-    signal lo_word:             std_logic_vector(15 downto 0);
-    signal hi_word:             std_logic_vector(15 downto 0);
-    
+    signal write_data:          std_logic_vector(31 downto 0);
 
 begin
     meta_ram: entity work.alt_ram
@@ -121,7 +115,6 @@ begin
 
     hit <= '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) else '0';
         
-    write_data <= hi_word & lo_word;
     meta_data <= addr(31 downto 4) & "1000";
  
     mc_in.op_start <= op_start;
@@ -138,8 +131,8 @@ begin
             data2_wren <= '0';
             data3_wren <= '0';
             meta_wren <= '0';
-            lo_word <= hi_word;
-            hi_word <= sdc_data_out;
+            write_data(15 downto 0) <= write_data(31 downto 16);
+            write_data(31 downto 16) <= sdc_data_out;
             
             case state is
                 when IDLE =>
