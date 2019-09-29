@@ -4,6 +4,7 @@ LIBSRC_DIR = ${SUMERU_DIR}/sw/vhdl/libsrc
 SRCS = pll.vhd \
         ${LIBSRC_DIR}/alt_rom.vhd \
         ${LIBSRC_DIR}/alt_ram.vhd \
+        ${LIBSRC_DIR}/alt_ram_init.vhd \
         ${LIBSRC_DIR}/alt_ram_byteena.vhd \
         cpu_types.vhd \
         memory_channel_types.vhd \
