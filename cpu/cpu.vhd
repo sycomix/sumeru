@@ -46,8 +46,6 @@ architecture synth of cpu is
 
     signal bootcode_load_done:  std_logic;
 
-    signal op_start:            std_logic := '0'; 
-    
     type state_t is (
         IDLE,
         DONE);
