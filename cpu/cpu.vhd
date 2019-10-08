@@ -102,6 +102,19 @@ begin
             sdc_out => sdc_out,
             sdc_busy => sdc_busy);
 
+    bootcode_loader: entity work.memory_loader
+        generic map(
+            DATA_FILE => "BOOTCODE.hex"
+        )
+        port map(
+            sys_clk => sys_clk,
+            mem_clk => mem_clk,
+            reset_n => reset_n,
+
+            load_done => bootcode_load_done,
+            mc_in => mc1_in,
+            mc_out => mc1_out);
+
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
@@ -117,19 +130,6 @@ begin
 
             sdc_data_out => sdc_data_out
             );
-
-    bootcode_loader: entity work.memory_loader
-        generic map(
-            DATA_FILE => "BOOTCODE.hex"
-        )
-        port map(
-            sys_clk => sys_clk,
-            mem_clk => mem_clk,
-            reset_n => reset_n,
-
-            load_done => bootcode_load_done,
-            mc_in => mc1_in,
-            mc_out => mc1_out);
     
     process(sys_clk)
     begin
