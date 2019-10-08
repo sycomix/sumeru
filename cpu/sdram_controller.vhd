@@ -14,10 +14,10 @@ entity sdram_controller is
         -- One refresh command every 7.813us (or 7813 ns)
         -- (7812.5 / SYS_CLK_PERIOD_NS) - 7.0;
         -- 133 Mhz timing
-        REFRESH_CYCLES:         natural := 1035;
-        TRFC_CYCLES:            std_logic_vector(3 downto 0) := "1000";
-        TRP_CYCLES:             std_logic_vector(3 downto 0) := "0010";
-        TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0010";
+        REFRESH_CYCLES:         natural := 780;
+        TRFC_CYCLES:            std_logic_vector(3 downto 0) := "0110";
+        TRP_CYCLES:             std_logic_vector(3 downto 0) := "0001";
+        TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0001";
         CAS_CYCLES:             std_logic_vector(3 downto 0) := "0001";
 
         STARTUP_CYCLE_BITNR:    natural := 14

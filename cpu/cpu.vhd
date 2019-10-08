@@ -27,7 +27,6 @@ end entity;
 architecture synth of cpu is
     signal sys_clk:             std_logic;
     signal mem_clk:             std_logic;
-    signal cache_clk:           std_logic;
     signal reset_n:             std_logic;
 
     signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
@@ -66,7 +65,6 @@ begin
             inclk0 => clk_50m,
             c0 => sys_clk,
             c1 => mem_clk,
-            c2 => cache_clk,
             locked => reset_n);
 
     sdram_controller: entity work.sdram_controller
@@ -124,7 +122,7 @@ begin
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
-            cache_clk => cache_clk,
+            cache_clk => mem_clk,
             enable => bootcode_load_done,
 
             addr => pc,
@@ -142,7 +140,7 @@ begin
         if (rising_edge(sys_clk)) then
             if (icache_hit = '1') then
                 pc <= std_logic_vector(unsigned(pc) + 4);
-                if (icache_data = x"4A4A52B7") then
+                if (icache_data = x"01d62023") then
                     led <= not led;
                 end if;
             end if;
