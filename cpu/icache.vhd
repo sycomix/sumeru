@@ -6,7 +6,7 @@ use work.memory_channel_types.ALL;
 entity icache is
 port(
         sys_clk:                in std_logic;
-        mem_clk:                in std_logic;
+        cache_clk:              in std_logic;
         enable:                 in std_logic;
 
         addr:                   in std_logic_vector(31 downto 0);
@@ -57,7 +57,7 @@ begin
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
-            clock => mem_clk,
+            clock => cache_clk,
             address => addr(11 downto 4),
             data => meta_data,
             wren => meta_wren,
@@ -68,7 +68,7 @@ begin
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
-            clock => mem_clk,
+            clock => cache_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data0_wren,
@@ -79,7 +79,7 @@ begin
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
-            clock => mem_clk,
+            clock => cache_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data1_wren,
@@ -90,7 +90,7 @@ begin
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
-            clock => mem_clk,
+            clock => cache_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data2_wren,
@@ -101,7 +101,7 @@ begin
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
-            clock => mem_clk,
+            clock => cache_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data3_wren,

@@ -27,11 +27,10 @@ end entity;
 architecture synth of cpu is
     signal sys_clk:             std_logic;
     signal mem_clk:             std_logic;
+    signal cache_clk:           std_logic;
     signal reset_n:             std_logic;
 
     signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
-    signal icache_hit:          std_logic;
-    signal icache_data:         std_logic_vector(31 downto 0);
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -46,11 +45,16 @@ architecture synth of cpu is
 
     signal bootcode_load_done:  std_logic;
 
+    signal icache_hit:          std_logic;
+    signal icache_data:         std_logic_vector(31 downto 0);
+
     type state_t is (
+        INIT,
         IDLE,
-        DONE);
+        WAIT_STROBE,
+        WAIT_BUSY);
         
-    signal state:               state_t := IDLE;
+    signal state:               state_t := INIT;
 
 begin
     spi0_sck <= '0';
@@ -62,6 +66,7 @@ begin
             inclk0 => clk_50m,
             c0 => sys_clk,
             c1 => mem_clk,
+            c2 => cache_clk,
             locked => reset_n);
 
     sdram_controller: entity work.sdram_controller
@@ -82,25 +87,26 @@ begin
             sdram_we => sdram_we,
             sdram_cs => sdram_cs,
             busy => sdc_busy);
-
+            
     memory_arbitrator: entity work.memory_arbitrator
         port map(
-            sys_clk => sys_clk,
-            mem_clk => mem_clk,
+            clk => sys_clk,
+
+            sdc_busy => sdc_busy,
+            sdc_in => sdc_in,
+            sdc_out => sdc_out,
 
             mc0_in => mc0_in,
             mc0_out => mc0_out,
 
             mc1_in => mc1_in,
             mc1_out => mc1_out,
+        
+            mc2_in => ((others => '0'), '0', '0', '0', 
+                       (others => '0'), (others => '0')),
 
-            mc2_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
-
-            mc3_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0')),
-
-            sdc_in => sdc_in,
-            sdc_out => sdc_out,
-            sdc_busy => sdc_busy);
+            mc3_in => ((others => '0'), '0', '0', '0', 
+                       (others => '0'), (others => '0')));
 
     bootcode_loader: entity work.memory_loader
         generic map(
@@ -118,7 +124,7 @@ begin
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
-            mem_clk => mem_clk,
+            cache_clk => cache_clk,
             enable => bootcode_load_done,
 
             addr => pc,
@@ -130,20 +136,16 @@ begin
 
             sdc_data_out => sdc_data_out
             );
-    
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            case state is
-                when IDLE =>
-                    if (icache_hit = '1') then
-                        pc <= std_logic_vector(unsigned(pc) + 4);
-                        if (icache_data = x"4A4A52B7") then
-                            led <= not led;
-                        end if;
-                    end if;
-                when DONE =>
-            end case;                
+            if (icache_hit = '1') then
+                pc <= std_logic_vector(unsigned(pc) + 4);
+                if (icache_data = x"4A4A52B7") then
+                    led <= not led;
+                end if;
+            end if;
         end if;
     end process;
 

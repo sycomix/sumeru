@@ -5,8 +5,10 @@ use work.memory_channel_types.ALL;
 
 entity memory_arbitrator is
 port(
-        sys_clk:                in std_logic;
-        mem_clk:                in std_logic;
+        clk:                    in std_logic;
+        sdc_busy:               in std_logic;
+        sdc_in:                 out mem_channel_in_t;
+        sdc_out:                in mem_channel_out_t;
         
         mc0_in:                 in mem_channel_in_t;
         mc0_out:                out mem_channel_out_t;
@@ -18,12 +20,7 @@ port(
         mc2_out:                out mem_channel_out_t;
 
         mc3_in:                 in mem_channel_in_t;
-        mc3_out:                out mem_channel_out_t;
-
-        sdc_in:                 out mem_channel_in_t;
-        sdc_out:                in mem_channel_out_t;
-
-        sdc_busy:               in std_logic
+        mc3_out:                out mem_channel_out_t
     );
 end entity;
 
@@ -31,7 +28,8 @@ architecture synth of memory_arbitrator is
 
     type arbit_state_t is (
         IDLE,
-        WAIT_STROBE
+        WAIT_STROBE,
+        WAIT_BUSY
         );
 
     signal state:               arbit_state_t := IDLE;
@@ -63,45 +61,43 @@ begin
             mc2_in.op_dqm when "10",
             mc3_in.op_dqm when others;
 
-    process(mem_clk)
+    process(clk)
     begin
-        if (rising_edge(mem_clk)) then
+        if (rising_edge(clk)) then
             case state is
                 when IDLE =>
-                    if (sdc_busy = '0') then
-                        if (mc0_in.op_start /= mc0_strobe) then
-                            sdc_in.op_addr <= mc0_in.op_addr;
-                            sdc_in.op_wren <= mc0_in.op_wren;
-                            sdc_in.op_burst <= mc0_in.op_burst;
-                            chan <= "00";
-                            op_start <= not op_start;
-                            state <= WAIT_STROBE;
-                        elsif (mc1_in.op_start /= mc1_strobe) then
-                            sdc_in.op_addr <= mc1_in.op_addr;
-                            sdc_in.op_wren <= mc1_in.op_wren;
-                            sdc_in.op_burst <= mc1_in.op_burst;
-                            chan <= "01";
-                            op_start <= not op_start;
-                            state <= WAIT_STROBE;
-                        elsif (mc2_in.op_start /= mc2_strobe) then
-                            sdc_in.op_addr <= mc2_in.op_addr;
-                            sdc_in.op_wren <= mc2_in.op_wren;
-                            sdc_in.op_burst <= mc2_in.op_burst;
-                            chan <= "10";
-                            op_start <= not op_start;
-                            state <= WAIT_STROBE;
-                        elsif (mc3_in.op_start /= mc3_strobe) then
-                            sdc_in.op_addr <= mc3_in.op_addr;
-                            sdc_in.op_wren <= mc3_in.op_wren;
-                            sdc_in.op_burst <= mc3_in.op_burst;
-                            chan <= "11";
-                            op_start <= not op_start;
-                            state <= WAIT_STROBE;
-                        end if;
+                    if (mc0_in.op_start /= mc0_strobe) then
+                        sdc_in.op_addr <= mc0_in.op_addr;
+                        sdc_in.op_wren <= mc0_in.op_wren;
+                        sdc_in.op_burst <= mc0_in.op_burst;
+                        chan <= "00";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                    elsif (mc1_in.op_start /= mc1_strobe) then
+                        sdc_in.op_addr <= mc1_in.op_addr;
+                        sdc_in.op_wren <= mc1_in.op_wren;
+                        sdc_in.op_burst <= mc1_in.op_burst;
+                        chan <= "01";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                    elsif (mc2_in.op_start /= mc2_strobe) then
+                        sdc_in.op_addr <= mc2_in.op_addr;
+                        sdc_in.op_wren <= mc2_in.op_wren;
+                        sdc_in.op_burst <= mc2_in.op_burst;
+                        chan <= "10";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                    elsif (mc3_in.op_start /= mc3_strobe) then
+                        sdc_in.op_addr <= mc3_in.op_addr;
+                        sdc_in.op_wren <= mc3_in.op_wren;
+                        sdc_in.op_burst <= mc3_in.op_burst;
+                        chan <= "11";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
                     end if;
                 when WAIT_STROBE =>
                     if (sdc_out.op_strobe = op_start) then
-                        state <= IDLE;
+                        state <= WAIT_BUSY;
                         case chan is
                             when "00" =>
                                 mc0_strobe <= not mc0_strobe;
@@ -112,6 +108,10 @@ begin
                             when others =>
                                 mc3_strobe <= not mc3_strobe;
                         end case;
+                    end if;
+                when WAIT_BUSY =>
+                    if (sdc_busy = '0') then
+                        state <= IDLE;
                     end if;
             end case;
         end if;

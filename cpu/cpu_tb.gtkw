@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Tue Sep 24 12:01:09 2019
+[*] Tue Oct  8 11:33:42 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
-[dumpfile_mtime] "Tue Sep 24 11:51:15 2019"
-[dumpfile_size] 13807703
+[dumpfile_mtime] "Tue Oct  8 11:33:30 2019"
+[dumpfile_size] 53047497
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
-[timestart] 11818500000
+[timestart] 11848400000
 [size] 1912 1043
-[pos] 46 -108
-*-25.745234 11983800000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-24.745234 11942330000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.cpu_tb.
 [treeopen] top.cpu_tb.cpu.
@@ -26,11 +26,6 @@ top.cpu_tb.cpu.sys_clk
 top.cpu_tb.cpu.bootcode_load_done
 @22
 #{top.cpu_tb.cpu.pc[31:0]} top.cpu_tb.cpu.pc[31] top.cpu_tb.cpu.pc[30] top.cpu_tb.cpu.pc[29] top.cpu_tb.cpu.pc[28] top.cpu_tb.cpu.pc[27] top.cpu_tb.cpu.pc[26] top.cpu_tb.cpu.pc[25] top.cpu_tb.cpu.pc[24] top.cpu_tb.cpu.pc[23] top.cpu_tb.cpu.pc[22] top.cpu_tb.cpu.pc[21] top.cpu_tb.cpu.pc[20] top.cpu_tb.cpu.pc[19] top.cpu_tb.cpu.pc[18] top.cpu_tb.cpu.pc[17] top.cpu_tb.cpu.pc[16] top.cpu_tb.cpu.pc[15] top.cpu_tb.cpu.pc[14] top.cpu_tb.cpu.pc[13] top.cpu_tb.cpu.pc[12] top.cpu_tb.cpu.pc[11] top.cpu_tb.cpu.pc[10] top.cpu_tb.cpu.pc[9] top.cpu_tb.cpu.pc[8] top.cpu_tb.cpu.pc[7] top.cpu_tb.cpu.pc[6] top.cpu_tb.cpu.pc[5] top.cpu_tb.cpu.pc[4] top.cpu_tb.cpu.pc[3] top.cpu_tb.cpu.pc[2] top.cpu_tb.cpu.pc[1] top.cpu_tb.cpu.pc[0]
-@28
-top.cpu_tb.cpu.icache_hit
-@23
-#{top.cpu_tb.cpu.icache_data[31:0]} top.cpu_tb.cpu.icache_data[31] top.cpu_tb.cpu.icache_data[30] top.cpu_tb.cpu.icache_data[29] top.cpu_tb.cpu.icache_data[28] top.cpu_tb.cpu.icache_data[27] top.cpu_tb.cpu.icache_data[26] top.cpu_tb.cpu.icache_data[25] top.cpu_tb.cpu.icache_data[24] top.cpu_tb.cpu.icache_data[23] top.cpu_tb.cpu.icache_data[22] top.cpu_tb.cpu.icache_data[21] top.cpu_tb.cpu.icache_data[20] top.cpu_tb.cpu.icache_data[19] top.cpu_tb.cpu.icache_data[18] top.cpu_tb.cpu.icache_data[17] top.cpu_tb.cpu.icache_data[16] top.cpu_tb.cpu.icache_data[15] top.cpu_tb.cpu.icache_data[14] top.cpu_tb.cpu.icache_data[13] top.cpu_tb.cpu.icache_data[12] top.cpu_tb.cpu.icache_data[11] top.cpu_tb.cpu.icache_data[10] top.cpu_tb.cpu.icache_data[9] top.cpu_tb.cpu.icache_data[8] top.cpu_tb.cpu.icache_data[7] top.cpu_tb.cpu.icache_data[6] top.cpu_tb.cpu.icache_data[5] top.cpu_tb.cpu.icache_data[4] top.cpu_tb.cpu.icache_data[3] top.cpu_tb.cpu.icache_data[2] top.cpu_tb.cpu.icache_data[1] top.cpu_tb.cpu.icache_data[0]
-@22
 #{top.cpu_tb.cpu.bootcode_loader.counter[9:0]} top.cpu_tb.cpu.bootcode_loader.counter[9] top.cpu_tb.cpu.bootcode_loader.counter[8] top.cpu_tb.cpu.bootcode_loader.counter[7] top.cpu_tb.cpu.bootcode_loader.counter[6] top.cpu_tb.cpu.bootcode_loader.counter[5] top.cpu_tb.cpu.bootcode_loader.counter[4] top.cpu_tb.cpu.bootcode_loader.counter[3] top.cpu_tb.cpu.bootcode_loader.counter[2] top.cpu_tb.cpu.bootcode_loader.counter[1] top.cpu_tb.cpu.bootcode_loader.counter[0]
 #{top.cpu_tb.cpu.bootcode_loader.rom_data[15:0]} top.cpu_tb.cpu.bootcode_loader.rom_data[15] top.cpu_tb.cpu.bootcode_loader.rom_data[14] top.cpu_tb.cpu.bootcode_loader.rom_data[13] top.cpu_tb.cpu.bootcode_loader.rom_data[12] top.cpu_tb.cpu.bootcode_loader.rom_data[11] top.cpu_tb.cpu.bootcode_loader.rom_data[10] top.cpu_tb.cpu.bootcode_loader.rom_data[9] top.cpu_tb.cpu.bootcode_loader.rom_data[8] top.cpu_tb.cpu.bootcode_loader.rom_data[7] top.cpu_tb.cpu.bootcode_loader.rom_data[6] top.cpu_tb.cpu.bootcode_loader.rom_data[5] top.cpu_tb.cpu.bootcode_loader.rom_data[4] top.cpu_tb.cpu.bootcode_loader.rom_data[3] top.cpu_tb.cpu.bootcode_loader.rom_data[2] top.cpu_tb.cpu.bootcode_loader.rom_data[1] top.cpu_tb.cpu.bootcode_loader.rom_data[0]
 @28
@@ -44,5 +39,7 @@ top.cpu_tb.cpu.bootcode_loader.mc_in.op_wren
 @22
 #{top.cpu_tb.cpu.sdram_controller.command[3:0]} top.cpu_tb.cpu.sdram_controller.command[3] top.cpu_tb.cpu.sdram_controller.command[2] top.cpu_tb.cpu.sdram_controller.command[1] top.cpu_tb.cpu.sdram_controller.command[0]
 #{top.cpu_tb.sdram_data[15:0]} top.cpu_tb.sdram_data[15] top.cpu_tb.sdram_data[14] top.cpu_tb.sdram_data[13] top.cpu_tb.sdram_data[12] top.cpu_tb.sdram_data[11] top.cpu_tb.sdram_data[10] top.cpu_tb.sdram_data[9] top.cpu_tb.sdram_data[8] top.cpu_tb.sdram_data[7] top.cpu_tb.sdram_data[6] top.cpu_tb.sdram_data[5] top.cpu_tb.sdram_data[4] top.cpu_tb.sdram_data[3] top.cpu_tb.sdram_data[2] top.cpu_tb.sdram_data[1] top.cpu_tb.sdram_data[0]
+@28
+top.cpu_tb.cpu.state
 [pattern_trace] 1
 [pattern_trace] 0
