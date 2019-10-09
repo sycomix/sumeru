@@ -30,6 +30,8 @@ architecture synth of dcache is
 
     signal meta:                std_logic_vector(31 downto 0);
     signal meta_wren:           std_logic := '0';
+    alias line_valid:           std_logic is meta(3);
+    alias line_dirty:           std_logic is meta(2);
 
     signal data0:               std_logic_vector(35 downto 0);
     signal data1:               std_logic_vector(35 downto 0);
@@ -44,32 +46,28 @@ architecture synth of dcache is
     signal mc_op_start:         std_logic := '0';
 
     type cache_state_t is (
-        IDLE,
-        WAIT_B1,
-        WAIT_B2,
-        WAIT_B3,
-        WAIT_B4,
-        WAIT_B5,
-        WAIT_B6,
-        WAIT_B7,        
-        WAIT_B8);
+          IDLE
+        , STORE_LINE
+        , LOAD_LINE
+    );
 
     signal state:               cache_state_t := IDLE;
 
-    signal meta_write:          std_logic_vector(31 downto 0);
-    signal line_valid:          std_logic;
-    signal line_dirty:          std_logic;
+    signal meta_write:              std_logic_vector(31 downto 0);
+    signal meta_write_line_valid:   std_logic;
+    signal meta_write_line_dirty:   std_logic;
 
-    signal cache_write_data:          std_logic_vector(35 downto 0);
+    signal cache_byteena:       std_logic_vector(3 downto 0);
+    signal cache_write_data:    std_logic_vector(35 downto 0);
     -- componets of cache_write_data
-    signal cache_write_data_b0:       std_logic_vector(7 downto 0);
-    signal cache_write_data_b1:       std_logic_vector(7 downto 0);
-    signal cache_write_data_b2:       std_logic_vector(7 downto 0);
-    signal cache_write_data_b3:       std_logic_vector(7 downto 0);
-    signal cache_write_data_bytevalid0: std_logic;
-    signal cache_write_data_bytevalid1: std_logic;
-    signal cache_write_data_bytevalid2: std_logic;
-    signal cache_write_data_bytevalid3: std_logic;
+    signal cache_write_data_b0:     std_logic_vector(7 downto 0);
+    signal cache_write_data_b1:     std_logic_vector(7 downto 0);
+    signal cache_write_data_b2:     std_logic_vector(7 downto 0);
+    signal cache_write_data_b3:     std_logic_vector(7 downto 0);
+    signal cache_write_data_bytevalid0:     std_logic;
+    signal cache_write_data_bytevalid1:     std_logic;
+    signal cache_write_data_bytevalid2:     std_logic;
+    signal cache_write_data_bytevalid3:     std_logic;
     --
    
     -- cache data is data bits and byteena bits
@@ -82,6 +80,7 @@ architecture synth of dcache is
     signal data_bytevalidall:    std_logic_vector(3 downto 0);
 
     signal write_strobe_save:   std_logic := '0';
+    signal counter:             std_logic_vector(2 downto 0);
 
 begin
     data_bytevalidall <= 
@@ -114,6 +113,7 @@ begin
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data0_wren,
+            byteena => cache_byteena,
             q => data0);
 
     data1_ram: entity work.alt_ram_byteena
@@ -125,6 +125,7 @@ begin
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data1_wren,
+            byteena => cache_byteena,
             q => data1);
 
     data2_ram: entity work.alt_ram_byteena
@@ -136,6 +137,7 @@ begin
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data2_wren,
+            byteena => cache_byteena,
             q => data2);
 
     data3_ram: entity work.alt_ram_byteena
@@ -147,6 +149,7 @@ begin
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data3_wren,
+            byteena => cache_byteena,
             q => data3);
 
     read_data <= 
@@ -164,7 +167,9 @@ begin
               (data_bytevalidall and byteena) = byteena) 
         else '0';
 
-    meta_write <= addr(31 downto 4) & line_valid & line_dirty & "00";
+    meta_write <= 
+        addr(31 downto 4) & meta_write_line_valid & 
+        meta_write_line_dirty & "00";
         
     write_strobe <= write_strobe_save;
 
@@ -197,7 +202,7 @@ begin
                                 mc_in.op_dqm <= 
                                         (not data0(17)) & (not data0(8));
                                 mc_in.write_data <= 
-                                        data0(16 to 9) & data0(7 downto 0);
+                                        data0(16 downto 9) & data0(7 downto 0);
                                 state <= STORE_LINE;
                                 counter <= (others => '0');
                             elsif (wren = '0') then
@@ -206,18 +211,25 @@ begin
                                 mc_in.op_addr <= addr(24 downto 4) & "000";
                                 mc_in.op_wren <= '0';
                                 mc_in.op_dqm <= "00";
-                                -- set byten to "1111"
+                                meta_write_line_valid <= '1';
+                                meta_write_line_dirty <= '0';
+                                cache_write_data_bytevalid0 <= '1';
+                                cache_write_data_bytevalid1 <= '1';
+                                cache_write_data_bytevalid2 <= '1';
+                                cache_write_data_bytevalid3 <= '1';
+                                cache_byteena <= "1111";
                                 state <= LOAD_LINE;
                                 counter <= (others => '0');
                             else
                                 -- INITIALIZE LINE
-                                line_valid <= '0';
-                                line_dirty <= '0';
+                                meta_write_line_valid <= '1';
+                                meta_write_line_dirty <= '0';
                                 -- XXX Data we don't care as bytevalid are 0
                                 cache_write_data_bytevalid0 <= '0';
                                 cache_write_data_bytevalid1 <= '0';
                                 cache_write_data_bytevalid2 <= '0';
                                 cache_write_data_bytevalid3 <= '0';
+                                cache_byteena <= "1111";
                                 data0_wren <= '1';
                                 data1_wren <= '1';
                                 data2_wren <= '1';
@@ -226,25 +238,44 @@ begin
                             end if;
                         elsif (wren = '1') then
                             -- WRITE TO LINE
-                            -- SET DIRTY BIT
-                            -- TOGGLE START_SAVE
+                            cache_write_data_bytevalid0 <= '1';
+                            cache_write_data_bytevalid1 <= '1';
+                            cache_write_data_bytevalid2 <= '1';
+                            cache_write_data_bytevalid3 <= '1';
+                            cache_byteena <= byteena;
+                            meta_write_line_dirty <= '1';
+                            meta_write_line_valid <= '1';
+                            data0_wren <= '1';
+                            data1_wren <= '1';
+                            data2_wren <= '1';
+                            data3_wren <= '1';
+                            meta_wren <= '1';
+                            start_save <= not start_save;
                         else
-                            -- TOGGLE START_SAVE
-                        end if
+                            start_save <= not start_save;
+                        end if;
                     end if;
-
-
-
-
-            cache_write_data_bytevalid0 <= '1';
-            cache_write_data_bytevalid1 <= '1';
-            cache_write_data_bytevalid2 <= '1';
-            cache_write_data_bytevalid3 <= '1';
-
-
-
-
-
+                when LOAD_LINE =>
+                    if (mc_out.op_strobe = mc_op_start) then
+                        counter <= std_logic_vector(unsigned(counter) + 1);
+                        case counter is
+                            when "000" =>
+                                data0_wren <= '1';
+                            when "010" =>
+                                data1_wren <= '1';
+                            when "100" =>
+                                data2_wren <= '1';
+                            when "110" =>
+                                data3_wren <= '1';
+                                meta_wren <= '1';
+                                state <= IDLE;
+                            when others =>
+                        end case;
+                    end if;
+                when STORE_LINE =>
+            end case;
+        end if;
+    end process;
 end architecture;
 
 

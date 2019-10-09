@@ -16,7 +16,7 @@ ENTITY alt_ram_byteena IS
 		clock		: IN STD_LOGIC  := '1';
 		data		: IN STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0);
 		wren		: IN STD_LOGIC ;
-                byteena         : IN STD_LOGIC_VECTOR (((DWIDTH / 8) - 1) DOWNTO 0);
+        byteena     : IN STD_LOGIC_VECTOR (((DWIDTH / 8) - 1) DOWNTO 0);
 		q		: OUT STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0)
 	);
 END alt_ram_byteena;
@@ -24,10 +24,10 @@ END alt_ram_byteena;
 
 ARCHITECTURE SYN OF alt_ram_byteena IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (31 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0);
 
 BEGIN
-	q    <= sub_wire0(31 DOWNTO 0);
+	q    <= sub_wire0((DWIDTH - 1) DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (

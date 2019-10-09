@@ -42,10 +42,21 @@ architecture synth of cpu is
     signal mc1_in:              mem_channel_in_t;
     signal mc1_out:             mem_channel_out_t;
 
+    signal mc2_in:              mem_channel_in_t;
+    signal mc2_out:             mem_channel_out_t;
+
     signal bootcode_load_done:  std_logic;
 
     signal icache_hit:          std_logic;
     signal icache_data:         std_logic_vector(31 downto 0);
+
+    signal dcache_start:        std_logic := '0';
+    signal dcache_hit:          std_logic;
+    signal dcache_data:         std_logic_vector(31 downto 0);
+    signal dcache_wren:         std_logic := '0';
+    signal dcache_byteena:      std_logic_vector(3 downto 0);
+    signal dcache_write_strobe: std_logic;
+    signal dcache_write_data:   std_logic_vector(31 downto 0);
 
     type state_t is (
         INIT,
@@ -99,10 +110,10 @@ begin
 
             mc1_in => mc1_in,
             mc1_out => mc1_out,
-        
-            mc2_in => ((others => '0'), '0', '0', '0', 
-                       (others => '0'), (others => '0')),
 
+            mc2_in => mc2_in,
+            mc2_out => mc2_out,
+        
             mc3_in => ((others => '0'), '0', '0', '0', 
                        (others => '0'), (others => '0')));
 
@@ -135,13 +146,35 @@ begin
             sdc_data_out => sdc_data_out
             );
 
+    dcache: entity work.dcache
+        port map(
+            sys_clk => sys_clk,
+            mem_clk => mem_clk,
+
+            addr => pc,
+            start => dcache_start,
+            
+            hit => dcache_hit,
+            read_data => dcache_data,
+
+            wren => dcache_wren,
+            byteena => dcache_byteena,
+            write_strobe => dcache_write_strobe,
+            write_data => dcache_write_data,
+
+            mc_in => mc2_in,
+            mc_out => mc2_out,
+            sdc_data_out => sdc_data_out);
+
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
             if (icache_hit = '1') then
-                pc <= std_logic_vector(unsigned(pc) + 4);
-                if (icache_data = x"01d62023") then
-                    led <= not led;
+                if (icache_data = x"0500006F") then
+                    dcache_start <= '1';
+                else
+                    pc <= std_logic_vector(unsigned(pc) + 4);
                 end if;
             end if;
         end if;

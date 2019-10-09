@@ -23,10 +23,10 @@ END alt_ram;
 
 ARCHITECTURE SYN OF alt_ram IS
 
-	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (31 DOWNTO 0);
+	SIGNAL sub_wire0	: STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0);
 
 BEGIN
-	q    <= sub_wire0(31 DOWNTO 0);
+	q    <= sub_wire0((DWIDTH - 1) DOWNTO 0);
 
 	altsyncram_component : altsyncram
 	GENERIC MAP (
