@@ -107,10 +107,7 @@ begin
             wren => meta_wren,
             q => meta);
 
-    data0_ram: entity work.alt_ram_byteena
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 36)
+    data0_ram: entity work.ram1p_256x36_byteena
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),
@@ -119,10 +116,7 @@ begin
             byteena => cache_byteena,
             q => data0);
 
-    data1_ram: entity work.alt_ram_byteena
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 36)
+    data1_ram: entity work.ram1p_256x36_byteena
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),
@@ -131,10 +125,7 @@ begin
             byteena => cache_byteena,
             q => data1);
 
-    data2_ram: entity work.alt_ram_byteena
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 36)
+    data2_ram: entity work.ram1p_256x36_byteena
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),
@@ -143,10 +134,7 @@ begin
             byteena => cache_byteena,
             q => data2);
 
-    data3_ram: entity work.alt_ram_byteena
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 36)
+    data3_ram: entity work.ram1p_256x36_byteena
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),
@@ -209,14 +197,24 @@ begin
                             cache_write_data_bytevalid1 <= '1';
                             cache_write_data_bytevalid2 <= '1';
                             cache_write_data_bytevalid3 <= '1';
+                            cache_write_data_b0 <= write_data(7 downto 0);
+                            cache_write_data_b1 <= write_data(15 downto 8);
+                            cache_write_data_b2 <= write_data(23 downto 16);
+                            cache_write_data_b3 <= write_data(31 downto 24);
                             cache_byteena <= byteena;
                             meta_write_line_dirty <= '1';
                             meta_write_line_valid <= '1';
-                            data0_wren <= '1';
-                            data1_wren <= '1';
-                            data2_wren <= '1';
-                            data3_wren <= '1';
                             meta_wren <= '1';
+                            case addr(3 downto 2) is
+                                when "00" =>
+                                    data0_wren <= '1';
+                                when "01" =>
+                                    data1_wren <= '1';
+                                when "10" =>
+                                    data2_wren <= '1';
+                                when others =>
+                                    data3_wren <= '1';
+                            end case;
                         elsif (hit = '0') then
                             -- Cache miss
                             if (line_dirty = '1') then

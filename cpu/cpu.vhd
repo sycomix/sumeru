@@ -170,9 +170,17 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            if (dcache_data = x"0500006F") then
+                led <= '0';
+            else
+                led <= '1';
+            end if;
             if (icache_hit = '1') then
                 if (icache_data = x"0500006F") then
                     dcache_start <= '1';
+                    dcache_wren <= '1';
+                    dcache_write_data <= icache_data;
+                    dcache_byteena <= "1111";
                 else
                     pc <= std_logic_vector(unsigned(pc) + 4);
                 end if;
