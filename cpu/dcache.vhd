@@ -8,16 +8,16 @@ port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
         
+        addr:                   in std_logic_vector(31 downto 0);
+        start:                  in std_logic;
+
         hit:                    out std_logic;
+        read_data:              out std_logic_vector(31 downto 0);
 
-        op_start:               in std_logic;
-        op_wren:                in std_logic;
-        op_byteena:             in std_logic_vector(3 downto 0);
-        op_strobe:              out std_logic;
-
-        op_addr:                in std_logic_vector(31 downto 0);
-        op_data:                out std_logic_vector(31 downto 0);
-        op_data_write:          in std_logic_vector(31 downto 0);
+        wren:                   in std_logic;
+        byteena:                in std_logic_vector(3 downto 0);
+        write_strobe:           out std_logic;
+        write_data:             in std_logic_vector(31 downto 0);
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
@@ -26,13 +26,15 @@ port(
 end entity;
 
 architecture synth of dcache is
+    signal start_save:          std_logic := '0';
+
     signal meta:                std_logic_vector(31 downto 0);
     signal meta_wren:           std_logic := '0';
 
-    signal data0:               std_logic_vector(31 downto 0);
-    signal data1:               std_logic_vector(31 downto 0);
-    signal data2:               std_logic_vector(31 downto 0);
-    signal data3:               std_logic_vector(31 downto 0);
+    signal data0:               std_logic_vector(35 downto 0);
+    signal data1:               std_logic_vector(35 downto 0);
+    signal data2:               std_logic_vector(35 downto 0);
+    signal data3:               std_logic_vector(35 downto 0);
 
     signal data0_wren:          std_logic := '0';
     signal data1_wren:          std_logic := '0';
@@ -55,80 +57,120 @@ architecture synth of dcache is
     signal state:               cache_state_t := IDLE;
 
     signal meta_write:          std_logic_vector(31 downto 0);
-    signal data_write:          std_logic_vector(31 downto 0);
+    signal line_valid:          std_logic;
+    signal line_dirty:          std_logic;
+
+    signal cache_write_data:          std_logic_vector(35 downto 0);
+    -- componets of cache_write_data
+    signal cache_write_data_b0:       std_logic_vector(7 downto 0);
+    signal cache_write_data_b1:       std_logic_vector(7 downto 0);
+    signal cache_write_data_b2:       std_logic_vector(7 downto 0);
+    signal cache_write_data_b3:       std_logic_vector(7 downto 0);
+    signal cache_write_data_bytevalid0: std_logic;
+    signal cache_write_data_bytevalid1: std_logic;
+    signal cache_write_data_bytevalid2: std_logic;
+    signal cache_write_data_bytevalid3: std_logic;
+    --
+   
+    -- cache data is data bits and byteena bits
+    signal cache_data:          std_logic_vector(35 downto 0);
+    -- alias for byteena bits
+    alias data_bytevalid0:      std_logic is cache_data(8);
+    alias data_bytevalid1:      std_logic is cache_data(17);
+    alias data_bytevalid2:      std_logic is cache_data(26);
+    alias data_bytevalid3:      std_logic is cache_data(35);
+    signal data_bytevalidall:    std_logic_vector(3 downto 0);
+
+    signal write_strobe_save:   std_logic := '0';
 
 begin
+    data_bytevalidall <= 
+        data_bytevalid3 & data_bytevalid2 &
+        data_bytevalid1 & data_bytevalid0;
+
+    cache_write_data <= 
+        cache_write_data_bytevalid3 & cache_write_data_b3 &
+        cache_write_data_bytevalid2 & cache_write_data_b2 &
+        cache_write_data_bytevalid1 & cache_write_data_b1 &
+        cache_write_data_bytevalid0 & cache_write_data_b0;
+
     meta_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
             DWIDTH => 32)
         port map(
             clock => mem_clk,
-            address => op_addr(11 downto 4),
+            address => addr(11 downto 4),
             data => meta_write,
             wren => meta_wren,
             q => meta);
 
-    data0_ram: entity work.alt_ram
+    data0_ram: entity work.alt_ram_byteena
         generic map(
             AWIDTH => 8,
-            DWIDTH => 32)
+            DWIDTH => 36)
         port map(
             clock => mem_clk,
-            address => op_addr(11 downto 4),
-            data => data_write,
+            address => addr(11 downto 4),
+            data => cache_write_data,
             wren => data0_wren,
             q => data0);
 
-    data1_ram: entity work.alt_ram
+    data1_ram: entity work.alt_ram_byteena
         generic map(
             AWIDTH => 8,
-            DWIDTH => 32)
+            DWIDTH => 36)
         port map(
             clock => mem_clk,
-            address => op_addr(11 downto 4),
-            data => data_write,
+            address => addr(11 downto 4),
+            data => cache_write_data,
             wren => data1_wren,
             q => data1);
 
-    data2_ram: entity work.alt_ram
+    data2_ram: entity work.alt_ram_byteena
         generic map(
             AWIDTH => 8,
-            DWIDTH => 32)
+            DWIDTH => 36)
         port map(
             clock => mem_clk,
-            address => op_addr(11 downto 4),
-            data => data_write,
+            address => addr(11 downto 4),
+            data => cache_write_data,
             wren => data2_wren,
             q => data2);
 
-    data3_ram: entity work.alt_ram
+    data3_ram: entity work.alt_ram_byteena
         generic map(
             AWIDTH => 8,
-            DWIDTH => 32)
+            DWIDTH => 36)
         port map(
             clock => mem_clk,
-            address => op_addr(11 downto 4),
-            data => data_write,
+            address => addr(11 downto 4),
+            data => cache_write_data,
             wren => data3_wren,
             q => data3);
 
-    with op_addr(3 downto 2) select 
-        op_data <= data0 when "00",
+    read_data <= 
+        cache_data(34 downto 27) & cache_data(25 downto 18) &
+        cache_data(16 downto 9) & cache_data(7 downto 0);
+
+    with addr(3 downto 2) select 
+        cache_data <= data0 when "00",
                 data1 when "01",
                 data2 when "10",
                 data3 when others;
 
-    hit <= '1' when (meta(31 downto 3) = (op_addr(31 downto 4) & "1")) else '0';
+    hit <= '1' 
+        when ((meta(31 downto 3) = (addr(31 downto 4) & "1")) and
+              (data_bytevalidall and byteena) = byteena) 
+        else '0';
+
+    meta_write <= addr(31 downto 4) & line_valid & line_dirty & "00";
         
-    meta_write <= op_addr(31 downto 4) & "1000";
- 
-    mc_in.op_start <= mc_op_start;
-    mc_in.op_addr <= op_addr(24 downto 1);
-    mc_in.op_wren <= '0';
-    mc_in.op_dqm <= "00";
+    write_strobe <= write_strobe_save;
+
     mc_in.op_burst <= '1';
-    
+    mc_in.op_start <= mc_op_start;
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
@@ -137,41 +179,71 @@ begin
             data2_wren <= '0';
             data3_wren <= '0';
             meta_wren <= '0';
-            data_write(15 downto 0) <= data_write(31 downto 16);
-            data_write(31 downto 16) <= sdc_data_out;
-            
+
+            cache_write_data_b0 <= cache_write_data_b2;
+            cache_write_data_b1 <= cache_write_data_b3;
+            cache_write_data_b2 <= sdc_data_out(7 downto 0);
+            cache_write_data_b3 <= sdc_data_out(15 downto 8);
+
             case state is
                 when IDLE =>
-                    if (hit = '0' and enable = '1') then
-                        mc_op_start <= not mc_op_start;
-                        state <= WAIT_B1;
+                    if (start /= start_save) then
+                        if (hit = '0') then
+                            if (line_dirty = '1') then
+                                -- STORE LINE
+                                mc_op_start <= not mc_op_start;
+                                mc_in.op_addr <= meta(24 downto 4) & "000";
+                                mc_in.op_wren <= '1';
+                                mc_in.op_dqm <= 
+                                        (not data0(17)) & (not data0(8));
+                                mc_in.write_data <= 
+                                        data0(16 to 9) & data0(7 downto 0);
+                                state <= STORE_LINE;
+                                counter <= (others => '0');
+                            elsif (wren = '0') then
+                                -- LOAD LINE
+                                mc_op_start <= not mc_op_start;
+                                mc_in.op_addr <= addr(24 downto 4) & "000";
+                                mc_in.op_wren <= '0';
+                                mc_in.op_dqm <= "00";
+                                -- set byten to "1111"
+                                state <= LOAD_LINE;
+                                counter <= (others => '0');
+                            else
+                                -- INITIALIZE LINE
+                                line_valid <= '0';
+                                line_dirty <= '0';
+                                -- XXX Data we don't care as bytevalid are 0
+                                cache_write_data_bytevalid0 <= '0';
+                                cache_write_data_bytevalid1 <= '0';
+                                cache_write_data_bytevalid2 <= '0';
+                                cache_write_data_bytevalid3 <= '0';
+                                data0_wren <= '1';
+                                data1_wren <= '1';
+                                data2_wren <= '1';
+                                data3_wren <= '1';
+                                meta_wren <= '1';
+                            end if;
+                        elsif (wren = '1') then
+                            -- WRITE TO LINE
+                            -- SET DIRTY BIT
+                            -- TOGGLE START_SAVE
+                        else
+                            -- TOGGLE START_SAVE
+                        end if
                     end if;
-                when WAIT_B1 =>
-                    if (mc_out.op_strobe = mc_op_start) then
-                        state <= WAIT_B2;
-                    end if;
-                when WAIT_B2 =>
-                    data0_wren <= '1';
-                    state <= WAIT_B3;
-                when WAIT_B3 =>
-                    state <= WAIT_B4;
-                when WAIT_B4 =>
-                    data1_wren <= '1';
-                    state <= WAIT_B5;
-                when WAIT_B5 =>
-                    state <= WAIT_B6;
-                when WAIT_B6 =>
-                    data2_wren <= '1';
-                    state <= WAIT_B7;
-                when WAIT_B7 =>
-                    state <= WAIT_B8;
-                when WAIT_B8 =>
-                    data3_wren <= '1';
-                    meta_wren <= '1';
-                    state <= IDLE;
-            end case;
-        end if;
-    end process;
+
+
+
+
+            cache_write_data_bytevalid0 <= '1';
+            cache_write_data_bytevalid1 <= '1';
+            cache_write_data_bytevalid2 <= '1';
+            cache_write_data_bytevalid3 <= '1';
+
+
+
+
 
 end architecture;
 
