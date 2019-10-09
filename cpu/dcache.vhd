@@ -53,6 +53,8 @@ architecture synth of dcache is
 
     signal state:               cache_state_t := IDLE;
 
+    signal line_hit:            std_logic;
+
     signal meta_write:              std_logic_vector(31 downto 0);
     signal meta_write_line_valid:   std_logic;
     signal meta_write_line_dirty:   std_logic;
@@ -93,6 +95,7 @@ begin
         cache_write_data_bytevalid1 & cache_write_data_b1 &
         cache_write_data_bytevalid0 & cache_write_data_b0;
 
+    -- XXX: Init (via file) meta ram values to 0 on start
     meta_ram: entity work.alt_ram
         generic map(
             AWIDTH => 8,
@@ -162,9 +165,14 @@ begin
                 data2 when "10",
                 data3 when others;
 
+    line_hit <= '1' 
+        when meta(31 downto 4) = addr(31 downto 4)
+        else '0';
+
     hit <= '1' 
-        when ((meta(31 downto 3) = (addr(31 downto 4) & "1")) and
-              (data_bytevalidall and byteena) = byteena) 
+        when (line_hit = '1' and 
+                meta(3) = '1' and 
+                (data_bytevalidall and byteena) = byteena)
         else '0';
 
     meta_write <= 
@@ -193,9 +201,26 @@ begin
             case state is
                 when IDLE =>
                     if (start /= start_save) then
-                        if (hit = '0') then
+                        if (wren = '1' and line_hit = '1') then
+                            -- Write data to line
+                            start_save <= not start_save;
+                            write_strobe_save <= not write_strobe_save;
+                            cache_write_data_bytevalid0 <= '1';
+                            cache_write_data_bytevalid1 <= '1';
+                            cache_write_data_bytevalid2 <= '1';
+                            cache_write_data_bytevalid3 <= '1';
+                            cache_byteena <= byteena;
+                            meta_write_line_dirty <= '1';
+                            meta_write_line_valid <= '1';
+                            data0_wren <= '1';
+                            data1_wren <= '1';
+                            data2_wren <= '1';
+                            data3_wren <= '1';
+                            meta_wren <= '1';
+                        elsif (hit = '0') then
+                            -- Cache miss
                             if (line_dirty = '1') then
-                                -- STORE LINE
+                                -- Store line
                                 mc_op_start <= not mc_op_start;
                                 mc_in.op_addr <= meta(24 downto 4) & "000";
                                 mc_in.op_wren <= '1';
@@ -203,10 +228,14 @@ begin
                                         (not data0(17)) & (not data0(8));
                                 mc_in.write_data <= 
                                         data0(16 downto 9) & data0(7 downto 0);
+                                -- After storing, store should reset the
+                                -- line dirty and valid bits
                                 state <= STORE_LINE;
                                 counter <= (others => '0');
                             elsif (wren = '0') then
-                                -- LOAD LINE
+                                -- Load line
+                                -- hit going high will signify completion
+                                start_save <= not start_save;
                                 mc_op_start <= not mc_op_start;
                                 mc_in.op_addr <= addr(24 downto 4) & "000";
                                 mc_in.op_wren <= '0';
@@ -222,6 +251,7 @@ begin
                                 counter <= (others => '0');
                             else
                                 -- INITIALIZE LINE
+                                -- XXX Invariant: Must be followed by write
                                 meta_write_line_valid <= '1';
                                 meta_write_line_dirty <= '0';
                                 -- XXX Data we don't care as bytevalid are 0
@@ -236,22 +266,8 @@ begin
                                 data3_wren <= '1';
                                 meta_wren <= '1';
                             end if;
-                        elsif (wren = '1') then
-                            -- WRITE TO LINE
-                            cache_write_data_bytevalid0 <= '1';
-                            cache_write_data_bytevalid1 <= '1';
-                            cache_write_data_bytevalid2 <= '1';
-                            cache_write_data_bytevalid3 <= '1';
-                            cache_byteena <= byteena;
-                            meta_write_line_dirty <= '1';
-                            meta_write_line_valid <= '1';
-                            data0_wren <= '1';
-                            data1_wren <= '1';
-                            data2_wren <= '1';
-                            data3_wren <= '1';
-                            meta_wren <= '1';
-                            start_save <= not start_save;
                         else
+                            -- NOP: Cahe-hit Read
                             start_save <= not start_save;
                         end if;
                     end if;

@@ -16,7 +16,7 @@ ENTITY alt_ram_byteena IS
 		clock		: IN STD_LOGIC  := '1';
 		data		: IN STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0);
 		wren		: IN STD_LOGIC ;
-        byteena     : IN STD_LOGIC_VECTOR (((DWIDTH / 8) - 1) DOWNTO 0);
+        byteena     : IN STD_LOGIC_VECTOR (3 DOWNTO 0);
 		q		: OUT STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0)
 	);
 END alt_ram_byteena;
