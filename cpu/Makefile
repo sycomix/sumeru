@@ -50,6 +50,7 @@ clean:
                 greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
                 sdram_controller_simlowdelay.vhd \
                 PLLJ_*.txt obj *.ppf *.cmp *.qdf \
+				*.vhd.bak \
                 BOOTCODE.bin BOOTCODE.hex BOOTCODE
 
 prog:
