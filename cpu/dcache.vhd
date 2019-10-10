@@ -8,7 +8,7 @@ port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
         
-        addr:                   in std_logic_vector(31 downto 0);
+        addr:                   in std_logic_vector(24 downto 0);
         start:                  in std_logic;
 
         hit:                    out std_logic;
@@ -28,9 +28,8 @@ end entity;
 architecture synth of dcache is
     signal start_save:          std_logic := '0';
 
-    signal meta:                std_logic_vector(31 downto 0);
+    signal meta:                std_logic_vector(15 downto 0);
     signal meta_wren:           std_logic := '0';
-    alias line_valid:           std_logic is meta(3);
     alias line_dirty:           std_logic is meta(2);
 
     signal data0:               std_logic_vector(35 downto 0);
@@ -55,8 +54,7 @@ architecture synth of dcache is
 
     signal line_hit:            std_logic;
 
-    signal meta_write:              std_logic_vector(31 downto 0);
-    signal meta_write_line_valid:   std_logic;
+    signal meta_write:              std_logic_vector(15 downto 0);
     signal meta_write_line_dirty:   std_logic;
 
     signal cache_byteena:       std_logic_vector(3 downto 0);
@@ -66,37 +64,37 @@ architecture synth of dcache is
     signal cache_write_data_b1:     std_logic_vector(7 downto 0);
     signal cache_write_data_b2:     std_logic_vector(7 downto 0);
     signal cache_write_data_b3:     std_logic_vector(7 downto 0);
-    signal cache_write_data_bytevalid0:     std_logic;
-    signal cache_write_data_bytevalid1:     std_logic;
-    signal cache_write_data_bytevalid2:     std_logic;
-    signal cache_write_data_bytevalid3:     std_logic;
+    signal cache_write_data_byteena0:     std_logic;
+    signal cache_write_data_byteena1:     std_logic;
+    signal cache_write_data_byteena2:     std_logic;
+    signal cache_write_data_byteena3:     std_logic;
     --
    
     -- cache data is data bits and byteena bits
     signal cache_data:          std_logic_vector(35 downto 0);
     -- alias for byteena bits
-    alias data_bytevalid0:      std_logic is cache_data(8);
-    alias data_bytevalid1:      std_logic is cache_data(17);
-    alias data_bytevalid2:      std_logic is cache_data(26);
-    alias data_bytevalid3:      std_logic is cache_data(35);
-    signal data_bytevalidall:    std_logic_vector(3 downto 0);
+    alias data_byteena0:      std_logic is cache_data(8);
+    alias data_byteena1:      std_logic is cache_data(17);
+    alias data_byteena2:      std_logic is cache_data(26);
+    alias data_byteena3:      std_logic is cache_data(35);
+    signal data_byteenaall:    std_logic_vector(3 downto 0);
 
     signal write_strobe_save:   std_logic := '0';
     signal counter:             std_logic_vector(2 downto 0);
 
 begin
-    data_bytevalidall <= 
-        data_bytevalid3 & data_bytevalid2 &
-        data_bytevalid1 & data_bytevalid0;
+    data_byteenaall <= 
+        data_byteena3 & data_byteena2 &
+        data_byteena1 & data_byteena0;
 
     cache_write_data <= 
-        cache_write_data_bytevalid3 & cache_write_data_b3 &
-        cache_write_data_bytevalid2 & cache_write_data_b2 &
-        cache_write_data_bytevalid1 & cache_write_data_b1 &
-        cache_write_data_bytevalid0 & cache_write_data_b0;
+        cache_write_data_byteena3 & cache_write_data_b3 &
+        cache_write_data_byteena2 & cache_write_data_b2 &
+        cache_write_data_byteena1 & cache_write_data_b1 &
+        cache_write_data_byteena0 & cache_write_data_b0;
 
     -- XXX: Init (via file) meta ram values to 0 on start
-    meta_ram: entity work.ram1p_256x32
+    meta_ram: entity work.ram1p_256x16
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),
@@ -150,17 +148,13 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    line_hit <= '1' 
-        when meta(31 downto 3) = (addr(31 downto 4) & "1")
-        else '0';
+    line_hit <= '1' when meta(15 downto 3) = addr(24 downto 12) else '0';
 
     hit <= '1' 
-        when (line_hit = '1' and (data_bytevalidall and byteena) = byteena)
+        when (line_hit = '1' and (data_byteenaall and byteena) = byteena)
         else '0';
 
-    meta_write <= 
-        addr(31 downto 4) & meta_write_line_valid & 
-        meta_write_line_dirty & "00";
+    meta_write <= addr(24 downto 12) & meta_write_line_dirty & "00";
         
     write_strobe <= write_strobe_save;
 
@@ -188,17 +182,16 @@ begin
                             -- Write data to line
                             start_save <= not start_save;
                             write_strobe_save <= not write_strobe_save;
-                            cache_write_data_bytevalid0 <= '1';
-                            cache_write_data_bytevalid1 <= '1';
-                            cache_write_data_bytevalid2 <= '1';
-                            cache_write_data_bytevalid3 <= '1';
+                            cache_write_data_byteena0 <= '1';
+                            cache_write_data_byteena1 <= '1';
+                            cache_write_data_byteena2 <= '1';
+                            cache_write_data_byteena3 <= '1';
                             cache_write_data_b0 <= write_data(7 downto 0);
                             cache_write_data_b1 <= write_data(15 downto 8);
                             cache_write_data_b2 <= write_data(23 downto 16);
                             cache_write_data_b3 <= write_data(31 downto 24);
                             cache_byteena <= byteena;
                             meta_write_line_dirty <= '1';
-                            meta_write_line_valid <= '1';
                             meta_wren <= '1';
                             case addr(3 downto 2) is
                                 when "00" =>
@@ -212,17 +205,17 @@ begin
                             end case;
                         elsif (hit = '0') then
                             -- Cache miss
-                            if ((line_valid and line_dirty) = '1') then
+                            if (line_dirty = '1') then
                                 -- Store line
                                 mc_op_start <= not mc_op_start;
-                                mc_in.op_addr <= meta(24 downto 4) & "000";
+                                mc_in.op_addr <= meta(15 downto 3) & addr(11 downto 4) & "000";
                                 mc_in.op_wren <= '1';
                                 mc_in.op_dqm <= 
                                         (not data0(17)) & (not data0(8));
                                 mc_in.write_data <= 
                                         data0(16 downto 9) & data0(7 downto 0);
                                 -- After storing, store should reset the
-                                -- line dirty and valid bits
+                                -- line dirty 
                                 state <= STORE_LINE;
                                 counter <= (others => '0');
                             elsif (wren = '0') then
@@ -233,25 +226,23 @@ begin
                                 mc_in.op_addr <= addr(24 downto 4) & "000";
                                 mc_in.op_wren <= '0';
                                 mc_in.op_dqm <= "00";
-                                meta_write_line_valid <= '1';
                                 meta_write_line_dirty <= '0';
-                                cache_write_data_bytevalid0 <= '1';
-                                cache_write_data_bytevalid1 <= '1';
-                                cache_write_data_bytevalid2 <= '1';
-                                cache_write_data_bytevalid3 <= '1';
+                                cache_write_data_byteena0 <= '1';
+                                cache_write_data_byteena1 <= '1';
+                                cache_write_data_byteena2 <= '1';
+                                cache_write_data_byteena3 <= '1';
                                 cache_byteena <= "1111";
                                 state <= LOAD_LINE;
                                 counter <= (others => '0');
                             else
                                 -- INITIALIZE LINE
                                 -- XXX Invariant: Must be followed by write
-                                meta_write_line_valid <= '1';
                                 meta_write_line_dirty <= '0';
-                                -- XXX Data we don't care as bytevalid are 0
-                                cache_write_data_bytevalid0 <= '0';
-                                cache_write_data_bytevalid1 <= '0';
-                                cache_write_data_bytevalid2 <= '0';
-                                cache_write_data_bytevalid3 <= '0';
+                                -- XXX Data we don't care as byteena are 0
+                                cache_write_data_byteena0 <= '0';
+                                cache_write_data_byteena1 <= '0';
+                                cache_write_data_byteena2 <= '0';
+                                cache_write_data_byteena3 <= '0';
                                 cache_byteena <= "1111";
                                 data0_wren <= '1';
                                 data1_wren <= '1';

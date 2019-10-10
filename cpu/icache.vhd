@@ -22,6 +22,7 @@ end entity;
 architecture synth of icache is
     signal meta:                std_logic_vector(15 downto 0);
     signal meta_wren:           std_logic := '0';
+    alias meta_line_valid:      std_logic is meta(2);
 
     signal data0:               std_logic_vector(31 downto 0);
     signal data1:               std_logic_vector(31 downto 0);
@@ -98,9 +99,8 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    hit <= '1' when meta = addr(24 downto 12) & "000" else '0';
-        
-    meta_data <= addr(24 downto 12) & "000";
+    hit <= '1' when meta(15 downto 2) = (addr(24 downto 12) & "1") else '0';
+    meta_data <= addr(24 downto 12) & "100" ;
  
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);

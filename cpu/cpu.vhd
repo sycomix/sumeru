@@ -29,7 +29,7 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
+    signal pc:                  std_logic_vector(31 downto 0) := x"00000000";
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -151,7 +151,7 @@ begin
             sys_clk => sys_clk,
             mem_clk => mem_clk,
 
-            addr => pc,
+            addr => pc(24 downto 0),
             start => dcache_start,
             
             hit => dcache_hit,
@@ -170,20 +170,16 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (dcache_data = x"0500006F") then
+            if (dcache_data = icache_data) then
                 led <= '0';
             else
                 led <= '1';
             end if;
             if (icache_hit = '1') then
-                if (icache_data = x"0500006F") then
-                    dcache_start <= '1';
-                    dcache_wren <= '1';
-                    dcache_write_data <= icache_data;
-                    dcache_byteena <= "1111";
-                else
-                    pc <= std_logic_vector(unsigned(pc) + 4);
-                end if;
+                dcache_start <= '1';
+                dcache_wren <= '0';
+                dcache_write_data <= icache_data;
+                dcache_byteena <= "1111";
             end if;
         end if;
     end process;
