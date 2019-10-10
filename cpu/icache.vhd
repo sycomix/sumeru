@@ -9,7 +9,7 @@ port(
         cache_clk:              in std_logic;
         enable:                 in std_logic;
 
-        addr:                   in std_logic_vector(31 downto 0);
+        addr:                   in std_logic_vector(24 downto 0);
         hit:                    out std_logic;
         data:                   out std_logic_vector(31 downto 0);
 
@@ -98,9 +98,9 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    hit <= '1' when meta = addr(31 downto 16) else '0';
+    hit <= '1' when meta = addr(24 downto 12) & "000" else '0';
         
-    meta_data <= addr(31 downto 16);
+    meta_data <= addr(24 downto 12) & "000";
  
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);

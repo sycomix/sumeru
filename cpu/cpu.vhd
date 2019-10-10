@@ -136,7 +136,7 @@ begin
             cache_clk => mem_clk,
             enable => bootcode_load_done,
 
-            addr => pc,
+            addr => pc(24 downto 0),
             hit => icache_hit,
             data => icache_data,
 
