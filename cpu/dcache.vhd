@@ -154,13 +154,11 @@ begin
                 data3 when others;
 
     line_hit <= '1' 
-        when meta(31 downto 4) = addr(31 downto 4)
+        when meta(31 downto 3) = (addr(31 downto 4) & "1")
         else '0';
 
     hit <= '1' 
-        when (line_hit = '1' and 
-                meta(3) = '1' and 
-                (data_bytevalidall and byteena) = byteena)
+        when (line_hit = '1' and (data_bytevalidall and byteena) = byteena)
         else '0';
 
     meta_write <= 
@@ -217,7 +215,7 @@ begin
                             end case;
                         elsif (hit = '0') then
                             -- Cache miss
-                            if (line_dirty = '1') then
+                            if ((line_valid and line_dirty) = '1') then
                                 -- Store line
                                 mc_op_start <= not mc_op_start;
                                 mc_in.op_addr <= meta(24 downto 4) & "000";
