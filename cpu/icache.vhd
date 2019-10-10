@@ -52,10 +52,7 @@ architecture synth of icache is
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
-    meta_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    meta_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),
@@ -63,10 +60,7 @@ begin
             wren => meta_wren,
             q => meta);
 
-    data0_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    data0_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),
@@ -74,10 +68,7 @@ begin
             wren => data0_wren,
             q => data0);
 
-    data1_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    data1_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),
@@ -85,10 +76,7 @@ begin
             wren => data1_wren,
             q => data1);
 
-    data2_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    data2_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),
@@ -96,10 +84,7 @@ begin
             wren => data2_wren,
             q => data2);
 
-    data3_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    data3_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),

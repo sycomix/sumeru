@@ -96,10 +96,7 @@ begin
         cache_write_data_bytevalid0 & cache_write_data_b0;
 
     -- XXX: Init (via file) meta ram values to 0 on start
-    meta_ram: entity work.alt_ram
-        generic map(
-            AWIDTH => 8,
-            DWIDTH => 32)
+    meta_ram: entity work.ram1p_256x32
         port map(
             clock => mem_clk,
             address => addr(11 downto 4),

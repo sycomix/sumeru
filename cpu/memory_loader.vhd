@@ -38,7 +38,7 @@ begin
     mc_in.op_dqm <= "00";
     mc_in.write_data <= rom_data;
 
-    rom: entity work.alt_rom
+    rom: entity work.rom_512x16
         generic map(
             AWIDTH => 9,
             DWIDTH => 16,

@@ -4,7 +4,7 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
-ENTITY alt_rom IS
+ENTITY rom_512x16 IS
         GENERIC
         (
                 AWIDTH          : INTEGER;
@@ -17,10 +17,10 @@ ENTITY alt_rom IS
 		clock		: IN STD_LOGIC  := '1';
 		q		: OUT STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0)
 	);
-END alt_rom;
+END rom_512x16;
 
 
-ARCHITECTURE SYN OF alt_rom IS
+ARCHITECTURE SYN OF rom_512x16 IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (15 DOWNTO 0);
 
