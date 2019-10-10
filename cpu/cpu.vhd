@@ -177,7 +177,7 @@ begin
             end if;
             if (icache_hit = '1') then
                 dcache_start <= '1';
-                dcache_wren <= '0';
+                dcache_wren <= '1';
                 dcache_write_data <= icache_data;
                 dcache_byteena <= "1111";
             end if;
