@@ -20,7 +20,7 @@ port(
 end entity;
 
 architecture synth of icache is
-    signal meta:                std_logic_vector(31 downto 0);
+    signal meta:                std_logic_vector(15 downto 0);
     signal meta_wren:           std_logic := '0';
 
     signal data0:               std_logic_vector(31 downto 0);
@@ -48,11 +48,11 @@ architecture synth of icache is
 
     signal state:               cache_state_t := IDLE;
 
-    signal meta_data:           std_logic_vector(31 downto 0);
+    signal meta_data:           std_logic_vector(15 downto 0);
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
-    meta_ram: entity work.ram1p_256x32
+    meta_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
             address => addr(11 downto 4),
@@ -98,9 +98,9 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    hit <= '1' when (meta(31 downto 3) = (addr(31 downto 4) & "1")) else '0';
+    hit <= '1' when meta = addr(31 downto 16) else '0';
         
-    meta_data <= addr(31 downto 4) & "1000";
+    meta_data <= addr(31 downto 16);
  
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);
