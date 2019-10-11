@@ -1,20 +1,20 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Thu Oct 10 10:11:21 2019
+[*] Thu Oct 10 10:16:17 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
-[dumpfile_mtime] "Thu Oct 10 10:08:12 2019"
-[dumpfile_size] 4783241
+[dumpfile_mtime] "Thu Oct 10 10:13:19 2019"
+[dumpfile_size] 4783524
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
-[timestart] 26080200000
+[timestart] 25960500000
 [size] 1912 1043
 [pos] -1 -1
-*-26.745234 26256500000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-26.745234 26320000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.cpu_tb.
 [treeopen] top.cpu_tb.cpu.
 [treeopen] top.cpu_tb.cpu.bootcode_loader.mc_in.
-[treeopen] top.cpu_tb.cpu.icache.
+[treeopen] top.cpu_tb.cpu.dcache.
 [treeopen] top.cpu_tb.cpu.icache.mc_in.
 [sst_width] 325
 [signals_width] 261
@@ -37,5 +37,9 @@ top.cpu_tb.cpu.dcache_start
 top.cpu_tb.cpu.dcache_hit
 @22
 #{top.cpu_tb.cpu.dcache_data[31:0]} top.cpu_tb.cpu.dcache_data[31] top.cpu_tb.cpu.dcache_data[30] top.cpu_tb.cpu.dcache_data[29] top.cpu_tb.cpu.dcache_data[28] top.cpu_tb.cpu.dcache_data[27] top.cpu_tb.cpu.dcache_data[26] top.cpu_tb.cpu.dcache_data[25] top.cpu_tb.cpu.dcache_data[24] top.cpu_tb.cpu.dcache_data[23] top.cpu_tb.cpu.dcache_data[22] top.cpu_tb.cpu.dcache_data[21] top.cpu_tb.cpu.dcache_data[20] top.cpu_tb.cpu.dcache_data[19] top.cpu_tb.cpu.dcache_data[18] top.cpu_tb.cpu.dcache_data[17] top.cpu_tb.cpu.dcache_data[16] top.cpu_tb.cpu.dcache_data[15] top.cpu_tb.cpu.dcache_data[14] top.cpu_tb.cpu.dcache_data[13] top.cpu_tb.cpu.dcache_data[12] top.cpu_tb.cpu.dcache_data[11] top.cpu_tb.cpu.dcache_data[10] top.cpu_tb.cpu.dcache_data[9] top.cpu_tb.cpu.dcache_data[8] top.cpu_tb.cpu.dcache_data[7] top.cpu_tb.cpu.dcache_data[6] top.cpu_tb.cpu.dcache_data[5] top.cpu_tb.cpu.dcache_data[4] top.cpu_tb.cpu.dcache_data[3] top.cpu_tb.cpu.dcache_data[2] top.cpu_tb.cpu.dcache_data[1] top.cpu_tb.cpu.dcache_data[0]
+@28
+top.cpu_tb.cpu.dcache.mc_in.op_start
+top.cpu_tb.cpu.dcache.mc_out.op_strobe
+top.cpu_tb.cpu.dcache.line_hit
 [pattern_trace] 1
 [pattern_trace] 0
