@@ -216,6 +216,7 @@ begin
                                         data0(16 downto 9) & data0(7 downto 0);
                                 -- After storing, store should reset the
                                 -- line dirty 
+                                meta_write_line_dirty <= '0';
                                 state <= STORE_LINE;
                                 counter <= (others => '0');
                             elsif (wren = '0') then
@@ -273,9 +274,36 @@ begin
                         end case;
                     end if;
                 when STORE_LINE =>
+                    if (mc_out.op_strobe = mc_op_start) then
+                        counter <= std_logic_vector(unsigned(counter) + 1);
+                        case counter is
+                            when "000" =>
+                                mc_in.op_dqm <= (not data0(35)) & (not data0(26));
+                                mc_in.write_data <= data0(34 downto 27) & data0(25 downto 18);
+                            when "001" =>
+                                mc_in.op_dqm <= (not data1(17)) & (not data1(8));
+                                mc_in.write_data <= data1(16 downto 9) & data1(7 downto 0);
+                            when "010" =>
+                                mc_in.op_dqm <= (not data1(35)) & (not data1(26));
+                                mc_in.write_data <= data1(34 downto 27) & data1(25 downto 18);
+                            when "011" =>
+                                mc_in.op_dqm <= (not data2(17)) & (not data2(8));
+                                mc_in.write_data <= data2(16 downto 9) & data2(7 downto 0);
+                            when "100" =>
+                                mc_in.op_dqm <= (not data2(35)) & (not data2(26));
+                                mc_in.write_data <= data2(34 downto 27) & data2(25 downto 18);
+                            when "101" =>
+                                mc_in.op_dqm <= (not data3(17)) & (not data3(8));
+                                mc_in.write_data <= data3(16 downto 9) & data3(7 downto 0);
+                            when "110" =>
+                                mc_in.op_dqm <= (not data3(35)) & (not data3(26));
+                                mc_in.write_data <= data3(34 downto 27) & data3(25 downto 18);
+                                meta_wren <= '1';
+                                state <= IDLE;
+                            when others =>
+                        end case;
+                    end if;
             end case;
         end if;
     end process;
 end architecture;
-
-

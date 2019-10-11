@@ -59,12 +59,12 @@ architecture synth of cpu is
     signal dcache_write_data:   std_logic_vector(31 downto 0);
 
     type state_t is (
-        INIT,
-        IDLE,
-        WAIT_STROBE,
-        WAIT_BUSY);
+        S1,
+        S2,
+        S3,
+        S4);
         
-    signal state:               state_t := INIT;
+    signal state:               state_t := S1;
 
 begin
     spi0_sck <= '0';
@@ -166,24 +166,30 @@ begin
             mc_out => mc2_out,
             sdc_data_out => sdc_data_out);
 
+    dcache_wren <= '1';
+    dcache_write_data <= icache_data;
+    dcache_byteena <= "1111";
 
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (dcache_data = icache_data) then
-                led <= '0';
-            else
-                led <= '1';
-            end if;
-            if (icache_hit = '1') then
-                dcache_start <= '1';
-                dcache_wren <= '1';
-                dcache_write_data <= icache_data;
-                dcache_byteena <= "1111";
-            end if;
+            case state is 
+                when S1 => 
+                    if (icache_hit = '1') then
+                        dcache_start <= not dcache_start;
+                        state <= S2;
+                    end if;
+                when S2 =>
+                    if (dcache_hit = '1') then
+                        pc <= x"00010000";
+                        dcache_start <= not dcache_start;
+                        state <= S3;
+                    end if;
+                when S3 =>
+                when S4 =>
+            end case;
         end if;
     end process;
-
 end architecture;
 
 
