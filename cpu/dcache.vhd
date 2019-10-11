@@ -260,13 +260,13 @@ begin
                     if (mc_out.op_strobe = mc_op_start) then
                         counter <= std_logic_vector(unsigned(counter) + 1);
                         case counter is
-                            when "000" =>
+                            when "001" =>
                                 data0_wren <= '1';
-                            when "010" =>
+                            when "011" =>
                                 data1_wren <= '1';
-                            when "100" =>
+                            when "101" =>
                                 data2_wren <= '1';
-                            when "110" =>
+                            when "111" =>
                                 data3_wren <= '1';
                                 meta_wren <= '1';
                                 state <= IDLE;

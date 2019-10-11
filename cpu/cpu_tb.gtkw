@@ -1,21 +1,22 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Fri Oct 11 06:47:50 2019
+[*] Fri Oct 11 17:03:19 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
-[dumpfile_mtime] "Fri Oct 11 06:41:30 2019"
-[dumpfile_size] 4788230
+[dumpfile_mtime] "Fri Oct 11 17:02:14 2019"
+[dumpfile_size] 4789473
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
-[timestart] 26500100000
+[timestart] 21269500000
 [size] 1912 1043
 [pos] -1 -1
-*-24.745234 26580000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-25.745234 21435000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.cpu_tb.
 [treeopen] top.cpu_tb.cpu.
 [treeopen] top.cpu_tb.cpu.bootcode_loader.mc_in.
 [treeopen] top.cpu_tb.cpu.dcache.
 [treeopen] top.cpu_tb.cpu.dcache.mc_in.
+[treeopen] top.cpu_tb.cpu.icache.
 [treeopen] top.cpu_tb.cpu.icache.mc_in.
 [treeopen] top.cpu_tb.cpu.sdram_controller.
 [sst_width] 325
@@ -39,23 +40,29 @@ top.cpu_tb.cpu.icache_hit
 top.cpu_tb.cpu.dcache_start
 top.cpu_tb.cpu.dcache_hit
 @22
-#{top.cpu_tb.cpu.dcache_data[31:0]} top.cpu_tb.cpu.dcache_data[31] top.cpu_tb.cpu.dcache_data[30] top.cpu_tb.cpu.dcache_data[29] top.cpu_tb.cpu.dcache_data[28] top.cpu_tb.cpu.dcache_data[27] top.cpu_tb.cpu.dcache_data[26] top.cpu_tb.cpu.dcache_data[25] top.cpu_tb.cpu.dcache_data[24] top.cpu_tb.cpu.dcache_data[23] top.cpu_tb.cpu.dcache_data[22] top.cpu_tb.cpu.dcache_data[21] top.cpu_tb.cpu.dcache_data[20] top.cpu_tb.cpu.dcache_data[19] top.cpu_tb.cpu.dcache_data[18] top.cpu_tb.cpu.dcache_data[17] top.cpu_tb.cpu.dcache_data[16] top.cpu_tb.cpu.dcache_data[15] top.cpu_tb.cpu.dcache_data[14] top.cpu_tb.cpu.dcache_data[13] top.cpu_tb.cpu.dcache_data[12] top.cpu_tb.cpu.dcache_data[11] top.cpu_tb.cpu.dcache_data[10] top.cpu_tb.cpu.dcache_data[9] top.cpu_tb.cpu.dcache_data[8] top.cpu_tb.cpu.dcache_data[7] top.cpu_tb.cpu.dcache_data[6] top.cpu_tb.cpu.dcache_data[5] top.cpu_tb.cpu.dcache_data[4] top.cpu_tb.cpu.dcache_data[3] top.cpu_tb.cpu.dcache_data[2] top.cpu_tb.cpu.dcache_data[1] top.cpu_tb.cpu.dcache_data[0]
-@28
-top.cpu_tb.cpu.dcache.state
-#{top.cpu_tb.cpu.dcache.counter[2:0]} top.cpu_tb.cpu.dcache.counter[2] top.cpu_tb.cpu.dcache.counter[1] top.cpu_tb.cpu.dcache.counter[0]
-top.cpu_tb.cpu.dcache.line_hit
-top.cpu_tb.cpu.dcache.mc_op_start
-top.cpu_tb.cpu.dcache.mc_out.op_strobe
-@22
 #{top.cpu_tb.sdram_data[15:0]} top.cpu_tb.sdram_data[15] top.cpu_tb.sdram_data[14] top.cpu_tb.sdram_data[13] top.cpu_tb.sdram_data[12] top.cpu_tb.sdram_data[11] top.cpu_tb.sdram_data[10] top.cpu_tb.sdram_data[9] top.cpu_tb.sdram_data[8] top.cpu_tb.sdram_data[7] top.cpu_tb.sdram_data[6] top.cpu_tb.sdram_data[5] top.cpu_tb.sdram_data[4] top.cpu_tb.sdram_data[3] top.cpu_tb.sdram_data[2] top.cpu_tb.sdram_data[1] top.cpu_tb.sdram_data[0]
-@28
-#{top.cpu_tb.sdram_dqm[1:0]} top.cpu_tb.sdram_dqm[1] top.cpu_tb.sdram_dqm[0]
-@29
-top.cpu_tb.cpu.sdram_controller.mc_out.op_strobe
-@22
+#{top.cpu_tb.cpu.icache.sdc_data_out[15:0]} top.cpu_tb.cpu.icache.sdc_data_out[15] top.cpu_tb.cpu.icache.sdc_data_out[14] top.cpu_tb.cpu.icache.sdc_data_out[13] top.cpu_tb.cpu.icache.sdc_data_out[12] top.cpu_tb.cpu.icache.sdc_data_out[11] top.cpu_tb.cpu.icache.sdc_data_out[10] top.cpu_tb.cpu.icache.sdc_data_out[9] top.cpu_tb.cpu.icache.sdc_data_out[8] top.cpu_tb.cpu.icache.sdc_data_out[7] top.cpu_tb.cpu.icache.sdc_data_out[6] top.cpu_tb.cpu.icache.sdc_data_out[5] top.cpu_tb.cpu.icache.sdc_data_out[4] top.cpu_tb.cpu.icache.sdc_data_out[3] top.cpu_tb.cpu.icache.sdc_data_out[2] top.cpu_tb.cpu.icache.sdc_data_out[1] top.cpu_tb.cpu.icache.sdc_data_out[0]
 #{top.cpu_tb.cpu.sdram_controller.command[3:0]} top.cpu_tb.cpu.sdram_controller.command[3] top.cpu_tb.cpu.sdram_controller.command[2] top.cpu_tb.cpu.sdram_controller.command[1] top.cpu_tb.cpu.sdram_controller.command[0]
+@28
+top.cpu_tb.cpu.sdram_controller.strobe
+@29
+top.cpu_tb.cpu.icache.state
+@22
+#{top.cpu_tb.cpu.icache.write_data[31:0]} top.cpu_tb.cpu.icache.write_data[31] top.cpu_tb.cpu.icache.write_data[30] top.cpu_tb.cpu.icache.write_data[29] top.cpu_tb.cpu.icache.write_data[28] top.cpu_tb.cpu.icache.write_data[27] top.cpu_tb.cpu.icache.write_data[26] top.cpu_tb.cpu.icache.write_data[25] top.cpu_tb.cpu.icache.write_data[24] top.cpu_tb.cpu.icache.write_data[23] top.cpu_tb.cpu.icache.write_data[22] top.cpu_tb.cpu.icache.write_data[21] top.cpu_tb.cpu.icache.write_data[20] top.cpu_tb.cpu.icache.write_data[19] top.cpu_tb.cpu.icache.write_data[18] top.cpu_tb.cpu.icache.write_data[17] top.cpu_tb.cpu.icache.write_data[16] top.cpu_tb.cpu.icache.write_data[15] top.cpu_tb.cpu.icache.write_data[14] top.cpu_tb.cpu.icache.write_data[13] top.cpu_tb.cpu.icache.write_data[12] top.cpu_tb.cpu.icache.write_data[11] top.cpu_tb.cpu.icache.write_data[10] top.cpu_tb.cpu.icache.write_data[9] top.cpu_tb.cpu.icache.write_data[8] top.cpu_tb.cpu.icache.write_data[7] top.cpu_tb.cpu.icache.write_data[6] top.cpu_tb.cpu.icache.write_data[5] top.cpu_tb.cpu.icache.write_data[4] top.cpu_tb.cpu.icache.write_data[3] top.cpu_tb.cpu.icache.write_data[2] top.cpu_tb.cpu.icache.write_data[1] top.cpu_tb.cpu.icache.write_data[0]
+@28
+top.cpu_tb.cpu.icache.data3_wren
+top.cpu_tb.cpu.icache.data2_wren
+top.cpu_tb.cpu.icache.data1_wren
+top.cpu_tb.cpu.icache.data0_wren
+top.cpu_tb.cpu.icache.meta_wren
+top.cpu_tb.cpu.dcache.state
+@22
 #{top.cpu_tb.cpu.dcache.mc_in.write_data[15:0]} top.cpu_tb.cpu.dcache.mc_in.write_data[15] top.cpu_tb.cpu.dcache.mc_in.write_data[14] top.cpu_tb.cpu.dcache.mc_in.write_data[13] top.cpu_tb.cpu.dcache.mc_in.write_data[12] top.cpu_tb.cpu.dcache.mc_in.write_data[11] top.cpu_tb.cpu.dcache.mc_in.write_data[10] top.cpu_tb.cpu.dcache.mc_in.write_data[9] top.cpu_tb.cpu.dcache.mc_in.write_data[8] top.cpu_tb.cpu.dcache.mc_in.write_data[7] top.cpu_tb.cpu.dcache.mc_in.write_data[6] top.cpu_tb.cpu.dcache.mc_in.write_data[5] top.cpu_tb.cpu.dcache.mc_in.write_data[4] top.cpu_tb.cpu.dcache.mc_in.write_data[3] top.cpu_tb.cpu.dcache.mc_in.write_data[2] top.cpu_tb.cpu.dcache.mc_in.write_data[1] top.cpu_tb.cpu.dcache.mc_in.write_data[0]
 @28
-#{top.cpu_tb.cpu.dcache.mc_in.op_dqm[1:0]} top.cpu_tb.cpu.dcache.mc_in.op_dqm[1] top.cpu_tb.cpu.dcache.mc_in.op_dqm[0]
+top.cpu_tb.cpu.dcache.data3_wren
+top.cpu_tb.cpu.dcache.data2_wren
+top.cpu_tb.cpu.dcache.data1_wren
+top.cpu_tb.cpu.dcache.data0_wren
+top.cpu_tb.cpu.dcache.meta_wren
 [pattern_trace] 1
 [pattern_trace] 0

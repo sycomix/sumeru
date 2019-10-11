@@ -44,7 +44,8 @@ architecture synth of icache is
         WAIT_B4,
         WAIT_B5,
         WAIT_B6,
-        WAIT_B7
+        WAIT_B7,
+        WAIT_B8
     );
 
     signal state:               cache_state_t := IDLE;
@@ -128,21 +129,23 @@ begin
                 when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then
                         state <= WAIT_B2;
-                        data0_wren <= '1';
                     end if;
                 when WAIT_B2 =>
                     state <= WAIT_B3;
+                    data0_wren <= '1';
                 when WAIT_B3 =>
                     state <= WAIT_B4;
-                    data1_wren <= '1';
                 when WAIT_B4 =>
                     state <= WAIT_B5;
+                    data1_wren <= '1';
                 when WAIT_B5 =>
                     state <= WAIT_B6;
-                    data2_wren <= '1';
                 when WAIT_B6 =>
                     state <= WAIT_B7;
+                    data2_wren <= '1';
                 when WAIT_B7 =>
+                    state <= WAIT_B8;
+                when WAIT_B8 =>
                     state <= IDLE;
                     data3_wren <= '1';
                     meta_wren <= '1';

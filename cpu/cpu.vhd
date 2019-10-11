@@ -166,13 +166,13 @@ begin
             mc_out => mc2_out,
             sdc_data_out => sdc_data_out);
 
-    dcache_wren <= '1';
+    dcache_wren <= '0';
     dcache_write_data <= icache_data;
     dcache_byteena <= "1111";
 
     process(sys_clk)
     begin
-        if (rising_edge(sys_clk)) then
+        if (rising_edge(sys_clk) and bootcode_load_done = '1') then
             case state is 
                 when S1 => 
                     if (icache_hit = '1') then
