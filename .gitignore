@@ -1,3 +1,6 @@
 sw/vhdl/*/*/*.ghw
+sw/vhdl/*/*/*.gtkw
 sw/vhdl/*/*.ghw
+sw/vhdl/*/*.gtkw
 cpu/*.ghw
+cpu/*.gtkw
