@@ -66,7 +66,7 @@ begin
     mc_in.op_addr <= 
             std_logic_vector(
                 unsigned(page_table_baseaddr(24 downto 1)) + 
-                unsigned("0000000" & addr & "0"));
+                unsigned("00000000" & addr));
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '0';
@@ -83,9 +83,6 @@ begin
                     if (hit = '0' and enable = '1') then
                         op_start <= not op_start;
                         state <= WAIT_B1;
-                        -- Invalidate line till it is fully loaded
-                        meta_data_line_valid <= '0';
-                        meta_wren <= '1';
                     end if;
                 when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then

@@ -200,16 +200,16 @@ begin
 
     process(sys_clk)
     begin
-        if (rising_edge(sys_clk) and bootcode_load_done = '1') then
+        if (rising_edge(sys_clk) and (icache_hit = '1' and tlb_hit = '1')) then
             case state is 
                 when S1 => 
-                    if (icache_hit = '1') then
+                    if ((icache_hit = '1' and tlb_hit = '1')) then
                         dcache_start <= not dcache_start;
                         state <= S2;
                     end if;
                 when S2 =>
                     if (dcache_hit = '1') then
-                        pc <= x"00010000";
+                        pc <= x"00020000";
                         dcache_start <= not dcache_start;
                         state <= S3;
                     end if;
