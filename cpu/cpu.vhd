@@ -29,7 +29,7 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0) := x"00000000";
+    signal pc:                  std_logic_vector(31 downto 0) := x"00000004";
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;

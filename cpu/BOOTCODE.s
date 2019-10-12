@@ -1,7 +1,7 @@
 .global _start
 _start:
 page_table:
-.word   0xdeadc0de
+.word   0
 
 .set STATE_RXCMD, 0
 .set STATE_RXADDR, 1
