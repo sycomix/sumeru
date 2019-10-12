@@ -30,7 +30,7 @@ architecture synth of dcache is
 
     signal meta:                std_logic_vector(15 downto 0);
     signal meta_wren:           std_logic := '0';
-    alias line_dirty:           std_logic is meta(2);
+    alias line_dirty:           std_logic is meta(1);
 
     signal data0:               std_logic_vector(35 downto 0);
     signal data1:               std_logic_vector(35 downto 0);
@@ -55,6 +55,7 @@ architecture synth of dcache is
     signal line_hit:            std_logic;
 
     signal meta_write:              std_logic_vector(15 downto 0);
+    signal meta_write_line_valid:   std_logic;
     signal meta_write_line_dirty:   std_logic;
 
     signal cache_byteena:       std_logic_vector(3 downto 0);
@@ -148,13 +149,17 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    line_hit <= '1' when meta(15 downto 3) = addr(24 downto 12) else '0';
+    line_hit <= 
+        '1' when meta(15 downto 2) = (addr(24 downto 12) & "1") else '0';
 
     hit <= '1' 
         when (line_hit = '1' and (data_byteenaall and byteena) = byteena)
         else '0';
 
-    meta_write <= addr(24 downto 12) & meta_write_line_dirty & "00";
+    meta_write <= addr(24 downto 12) & 
+                    meta_write_line_valid & 
+                    meta_write_line_dirty & 
+                    "0";
         
     write_strobe <= write_strobe_save;
 
@@ -169,6 +174,7 @@ begin
             data2_wren <= '0';
             data3_wren <= '0';
             meta_wren <= '0';
+            meta_write_line_valid <= '1';
 
             cache_write_data_b0 <= cache_write_data_b2;
             cache_write_data_b1 <= cache_write_data_b3;
@@ -235,6 +241,9 @@ begin
                                 cache_byteena <= "1111";
                                 state <= LOAD_LINE;
                                 counter <= (others => '0');
+                                -- Set line to be invalid till fully loaded
+                                meta_write_line_valid <= '0';
+                                meta_wren <= '1';
                             else
                                 -- INITIALIZE LINE
                                 -- XXX Invariant: Must be followed by write

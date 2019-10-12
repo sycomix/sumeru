@@ -166,7 +166,7 @@ begin
             mc_out => mc2_out,
             sdc_data_out => sdc_data_out);
 
-    dcache_wren <= '0';
+    dcache_wren <= '1';
     dcache_write_data <= icache_data;
     dcache_byteena <= "1111";
 

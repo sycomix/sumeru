@@ -51,6 +51,8 @@ architecture synth of icache is
     signal state:               cache_state_t := IDLE;
 
     signal meta_data:           std_logic_vector(15 downto 0);
+    signal meta_data_line_valid: std_logic;
+
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
@@ -101,7 +103,7 @@ begin
                 data3 when others;
 
     hit <= '1' when meta(15 downto 2) = (addr(24 downto 12) & "1") else '0';
-    meta_data <= addr(24 downto 12) & "100" ;
+    meta_data <= addr(24 downto 12) & meta_data_line_valid & "00" ;
  
     mc_in.op_start <= op_start;
     mc_in.op_addr <= addr(24 downto 1);
@@ -117,6 +119,7 @@ begin
             data2_wren <= '0';
             data3_wren <= '0';
             meta_wren <= '0';
+            meta_data_line_valid <= '1';
             write_data(15 downto 0) <= write_data(31 downto 16);
             write_data(31 downto 16) <= sdc_data_out;
             
@@ -125,6 +128,9 @@ begin
                     if (hit = '0' and enable = '1') then
                         op_start <= not op_start;
                         state <= WAIT_B1;
+                        -- Invalidate line till it is fully loaded
+                        meta_data_line_valid <= '0';
+                        meta_wren <= '1';
                     end if;
                 when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then
