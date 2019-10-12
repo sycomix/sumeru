@@ -139,7 +139,7 @@ begin
             mc_in => mc1_in,
             mc_out => mc1_out);
 
-    page_tlb: entity work.page_tlb
+    icache_tlb: entity work.page_tlb
         port map(
             sys_clk => sys_clk,
             cache_clk => mem_clk,
@@ -200,7 +200,7 @@ begin
 
     process(sys_clk)
     begin
-        if (rising_edge(sys_clk) and (icache_hit = '1' and tlb_hit = '1')) then
+        if (rising_edge(sys_clk)) then
             case state is 
                 when S1 => 
                     if ((icache_hit = '1' and tlb_hit = '1')) then
@@ -208,7 +208,7 @@ begin
                         state <= S2;
                     end if;
                 when S2 =>
-                    if (dcache_hit = '1') then
+                    if (dcache_write_strobe = '1') then
                         pc <= x"00020000";
                         dcache_start <= not dcache_start;
                         state <= S3;

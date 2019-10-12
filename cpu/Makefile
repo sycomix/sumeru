@@ -7,6 +7,7 @@ SRCS = pll.vhd \
         ${LIBSRC_DIR}/ram1p_256x36.vhd \
         ${LIBSRC_DIR}/ram1p_256x32.vhd \
         ${LIBSRC_DIR}/ram1p_256x16.vhd \
+        ${LIBSRC_DIR}/ram1p_256x8.vhd \
         cpu_types.vhd \
         memory_channel_types.vhd \
         sdram_controller_simlowdelay.vhd \

@@ -21,9 +21,9 @@ port(
 end entity;
 
 architecture synth of page_tlb is
-    signal meta:                std_logic_vector(15 downto 0);
+    signal meta:                std_logic_vector(7 downto 0);
     signal meta_wren:           std_logic := '0';
-    alias meta_line_valid:      std_logic is meta(7);
+    alias meta_line_valid:      std_logic is meta(0);
 
     signal data0:               std_logic_vector(15 downto 0);
     signal data0_wren:          std_logic := '0';
@@ -37,13 +37,13 @@ architecture synth of page_tlb is
 
     signal state:               cache_state_t := IDLE;
 
-    signal meta_data:           std_logic_vector(15 downto 0);
+    signal meta_data:           std_logic_vector(7 downto 0);
     signal meta_data_line_valid: std_logic;
 
     signal write_data:          std_logic_vector(31 downto 0);
 
 begin
-    meta_ram: entity work.ram1p_256x16
+    meta_ram: entity work.ram1p_256x8
         port map(
             clock => cache_clk,
             address => addr(7 downto 0),
@@ -59,8 +59,8 @@ begin
             wren => data0_wren,
             q => data);
 
-    hit <= '1' when meta(15 downto 7) = (addr(15 downto 8) & "1") else '0';
-    meta_data <= addr(15 downto 8) & meta_data_line_valid & "0000000";
+    hit <= '1' when meta = (addr(14 downto 8) & "1") else '0';
+    meta_data <= addr(14 downto 8) & meta_data_line_valid;
  
     mc_in.op_start <= op_start;
     mc_in.op_addr <= 
