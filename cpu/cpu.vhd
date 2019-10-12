@@ -45,6 +45,9 @@ architecture synth of cpu is
     signal mc2_in:              mem_channel_in_t;
     signal mc2_out:             mem_channel_out_t;
 
+    signal mc3_in:              mem_channel_in_t;
+    signal mc3_out:             mem_channel_out_t;
+
     signal bootcode_load_done:  std_logic;
 
     signal icache_hit:          std_logic;
@@ -57,6 +60,11 @@ architecture synth of cpu is
     signal dcache_byteena:      std_logic_vector(3 downto 0);
     signal dcache_write_strobe: std_logic;
     signal dcache_write_data:   std_logic_vector(31 downto 0);
+
+    signal tlb_hit:             std_logic;
+    signal tlb_data:            std_logic_vector(15 downto 0);
+    signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
+    signal translated_addr:     std_logic_vector(24 downto 0);        
 
     type state_t is (
         S1,
@@ -113,9 +121,10 @@ begin
 
             mc2_in => mc2_in,
             mc2_out => mc2_out,
-        
-            mc3_in => ((others => '0'), '0', '0', '0', 
-                       (others => '0'), (others => '0')));
+
+            mc3_in => mc3_in,
+            mc3_out => mc3_out
+        );
 
     bootcode_loader: entity work.memory_loader
         generic map(
@@ -130,13 +139,32 @@ begin
             mc_in => mc1_in,
             mc_out => mc1_out);
 
-    icache: entity work.icache
+    page_tlb: entity work.page_tlb
         port map(
             sys_clk => sys_clk,
             cache_clk => mem_clk,
             enable => bootcode_load_done,
 
-            addr => pc(24 downto 0),
+            addr => pc(31 downto 16),
+            hit => tlb_hit,
+            data => tlb_data,
+            page_table_baseaddr => page_table_baseaddr,
+
+            mc_in => mc3_in,
+            mc_out => mc3_out,
+
+            sdc_data_out => sdc_data_out
+            );
+
+    translated_addr <= tlb_data(8 downto 0) & pc(15 downto 0);
+
+    icache: entity work.icache
+        port map(
+            sys_clk => sys_clk,
+            cache_clk => mem_clk,
+            enable => tlb_hit,
+
+            addr => translated_addr,
             hit => icache_hit,
             data => icache_data,
 

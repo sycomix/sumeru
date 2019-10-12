@@ -1,22 +1,7 @@
 .global _start
 _start:
-ivector:
-    j main
-    nop
-    nop
-    nop
-    la ra, exn_invalid_instr
-    jalr zero, 0(ra)
-    nop
-    la ra, exn_pc_align
-    jalr zero, 0(ra)
-    nop
-    la ra, intr_timer
-    jalr zero, 0(ra)
-    nop
-    la ra, intr_uart
-    jalr zero, 0(ra)
-    nop
+page_table:
+.word   0xdeadc0de
 
 .set STATE_RXCMD, 0
 .set STATE_RXADDR, 1

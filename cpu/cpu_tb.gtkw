@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
-[*] Fri Oct 11 17:43:18 2019
+[*] Sat Oct 12 05:48:53 2019
 [*]
 [dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.ghw"
-[dumpfile_mtime] "Fri Oct 11 17:41:17 2019"
-[dumpfile_size] 4791762
+[dumpfile_mtime] "Sat Oct 12 05:45:28 2019"
+[dumpfile_size] 4861467
 [savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb.gtkw"
-[timestart] 20822000000
+[timestart] 21050100000
 [size] 1912 1043
-[pos] -1 -1
-*-27.745234 21245000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -46 -21
+*-24.745234 21140000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] top.
 [treeopen] top.cpu_tb.
 [treeopen] top.cpu_tb.cpu.
@@ -17,7 +17,6 @@
 [treeopen] top.cpu_tb.cpu.dcache.
 [treeopen] top.cpu_tb.cpu.dcache.mc_in.
 [treeopen] top.cpu_tb.cpu.dcache.meta_ram.
-[treeopen] top.cpu_tb.cpu.icache.
 [treeopen] top.cpu_tb.cpu.icache.mc_in.
 [treeopen] top.cpu_tb.cpu.memory_arbitrator.
 [treeopen] top.cpu_tb.cpu.sdram_controller.
@@ -34,6 +33,10 @@ top.cpu_tb.cpu.led
 top.cpu_tb.cpu.bootcode_load_done
 @22
 #{top.cpu_tb.cpu.pc[31:0]} top.cpu_tb.cpu.pc[31] top.cpu_tb.cpu.pc[30] top.cpu_tb.cpu.pc[29] top.cpu_tb.cpu.pc[28] top.cpu_tb.cpu.pc[27] top.cpu_tb.cpu.pc[26] top.cpu_tb.cpu.pc[25] top.cpu_tb.cpu.pc[24] top.cpu_tb.cpu.pc[23] top.cpu_tb.cpu.pc[22] top.cpu_tb.cpu.pc[21] top.cpu_tb.cpu.pc[20] top.cpu_tb.cpu.pc[19] top.cpu_tb.cpu.pc[18] top.cpu_tb.cpu.pc[17] top.cpu_tb.cpu.pc[16] top.cpu_tb.cpu.pc[15] top.cpu_tb.cpu.pc[14] top.cpu_tb.cpu.pc[13] top.cpu_tb.cpu.pc[12] top.cpu_tb.cpu.pc[11] top.cpu_tb.cpu.pc[10] top.cpu_tb.cpu.pc[9] top.cpu_tb.cpu.pc[8] top.cpu_tb.cpu.pc[7] top.cpu_tb.cpu.pc[6] top.cpu_tb.cpu.pc[5] top.cpu_tb.cpu.pc[4] top.cpu_tb.cpu.pc[3] top.cpu_tb.cpu.pc[2] top.cpu_tb.cpu.pc[1] top.cpu_tb.cpu.pc[0]
+@28
+top.cpu_tb.cpu.tlb_hit
+@23
+#{top.cpu_tb.cpu.tlb_data[15:0]} top.cpu_tb.cpu.tlb_data[15] top.cpu_tb.cpu.tlb_data[14] top.cpu_tb.cpu.tlb_data[13] top.cpu_tb.cpu.tlb_data[12] top.cpu_tb.cpu.tlb_data[11] top.cpu_tb.cpu.tlb_data[10] top.cpu_tb.cpu.tlb_data[9] top.cpu_tb.cpu.tlb_data[8] top.cpu_tb.cpu.tlb_data[7] top.cpu_tb.cpu.tlb_data[6] top.cpu_tb.cpu.tlb_data[5] top.cpu_tb.cpu.tlb_data[4] top.cpu_tb.cpu.tlb_data[3] top.cpu_tb.cpu.tlb_data[2] top.cpu_tb.cpu.tlb_data[1] top.cpu_tb.cpu.tlb_data[0]
 @28
 top.cpu_tb.cpu.icache_hit
 @22
@@ -73,5 +76,7 @@ top.cpu_tb.cpu.dcache.line_hit
 #{top.cpu_tb.cpu.dcache.data_byteenaall[3:0]} top.cpu_tb.cpu.dcache.data_byteenaall[3] top.cpu_tb.cpu.dcache.data_byteenaall[2] top.cpu_tb.cpu.dcache.data_byteenaall[1] top.cpu_tb.cpu.dcache.data_byteenaall[0]
 #{top.cpu_tb.cpu.dcache.addr[24:0]} top.cpu_tb.cpu.dcache.addr[24] top.cpu_tb.cpu.dcache.addr[23] top.cpu_tb.cpu.dcache.addr[22] top.cpu_tb.cpu.dcache.addr[21] top.cpu_tb.cpu.dcache.addr[20] top.cpu_tb.cpu.dcache.addr[19] top.cpu_tb.cpu.dcache.addr[18] top.cpu_tb.cpu.dcache.addr[17] top.cpu_tb.cpu.dcache.addr[16] top.cpu_tb.cpu.dcache.addr[15] top.cpu_tb.cpu.dcache.addr[14] top.cpu_tb.cpu.dcache.addr[13] top.cpu_tb.cpu.dcache.addr[12] top.cpu_tb.cpu.dcache.addr[11] top.cpu_tb.cpu.dcache.addr[10] top.cpu_tb.cpu.dcache.addr[9] top.cpu_tb.cpu.dcache.addr[8] top.cpu_tb.cpu.dcache.addr[7] top.cpu_tb.cpu.dcache.addr[6] top.cpu_tb.cpu.dcache.addr[5] top.cpu_tb.cpu.dcache.addr[4] top.cpu_tb.cpu.dcache.addr[3] top.cpu_tb.cpu.dcache.addr[2] top.cpu_tb.cpu.dcache.addr[1] top.cpu_tb.cpu.dcache.addr[0]
 #{top.cpu_tb.cpu.dcache.meta[15:0]} top.cpu_tb.cpu.dcache.meta[15] top.cpu_tb.cpu.dcache.meta[14] top.cpu_tb.cpu.dcache.meta[13] top.cpu_tb.cpu.dcache.meta[12] top.cpu_tb.cpu.dcache.meta[11] top.cpu_tb.cpu.dcache.meta[10] top.cpu_tb.cpu.dcache.meta[9] top.cpu_tb.cpu.dcache.meta[8] top.cpu_tb.cpu.dcache.meta[7] top.cpu_tb.cpu.dcache.meta[6] top.cpu_tb.cpu.dcache.meta[5] top.cpu_tb.cpu.dcache.meta[4] top.cpu_tb.cpu.dcache.meta[3] top.cpu_tb.cpu.dcache.meta[2] top.cpu_tb.cpu.dcache.meta[1] top.cpu_tb.cpu.dcache.meta[0]
+@28
+#{top.cpu_tb.cpu.memory_arbitrator.chan[1:0]} top.cpu_tb.cpu.memory_arbitrator.chan[1] top.cpu_tb.cpu.memory_arbitrator.chan[0]
 [pattern_trace] 1
 [pattern_trace] 0
