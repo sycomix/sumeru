@@ -198,10 +198,11 @@ begin
                             cache_write_data_b2 <= write_data(23 downto 16);
                             cache_write_data_b3 <= write_data(31 downto 24);
                             cache_byteena <= byteena;
-                            -- cache is flushed by writing to an alternate
-                            -- line with byteena = "0000" and the check 
+                            -- An address is flushed by writing to an 
+                            -- alternate address that maps to the same 
+                            -- cache line with byteena = "0000". The check 
                             -- below will avoid setting line_dirty on these
-                            -- alternative (flush) writes
+                            -- alternative (flush) writes.
                             meta_write_line_dirty <=
                                 line_dirty or 
                                 byteena(0) or byteena(1) or
