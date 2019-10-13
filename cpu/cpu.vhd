@@ -71,6 +71,8 @@ architecture synth of cpu is
     signal dcache_translated_addr: std_logic_vector(24 downto 0);        
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
+    signal dcache_tlb_enable:   std_logic := '0';
+
     type state_t is (
         S1,
         S2,
@@ -148,7 +150,9 @@ begin
         port map(
             sys_clk => sys_clk,
             cache_clk => mem_clk,
-            enable => bootcode_load_done,
+
+            chan0_tlb_enable => bootcode_load_done,
+            chan1_tlb_enable => dcache_tlb_enable,
 
             chan0_addr => pc(31 downto 16),
             chan0_hit => icache_tlb_hit,
@@ -222,8 +226,8 @@ begin
         if (rising_edge(sys_clk)) then
             case state is 
                 when S1 => 
-                    if ((icache_hit = '1' and icache_tlb_hit = '1' and
-                         dcache_tlb_hit = '1')) then
+                    if (icache_hit = '1' and icache_tlb_hit = '1') then
+                        dcache_tlb_enable <= '1';
                         dcache_addr <= x"00010000";
                         dcache_start <= not dcache_start;
                         dcache_byteena <= "1111";

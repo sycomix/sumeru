@@ -7,7 +7,9 @@ entity page_tlb is
 port(
         sys_clk:                in std_logic;
         cache_clk:              in std_logic;
-        enable:                 in std_logic;
+
+        chan0_tlb_enable:       in std_logic;
+        chan1_tlb_enable:       in std_logic;
 
         page_table_baseaddr:    in std_logic_vector(24 downto 0);
 
@@ -128,14 +130,14 @@ begin
             
             case state is
                 when IDLE =>
-                    if (chan0_hit = '0' and enable = '1') then
+                    if (chan0_hit = '0' and chan0_tlb_enable = '1') then
                         mc_in.op_addr <= 
                             std_logic_vector(
                                 unsigned(page_table_baseaddr(24 downto 1)) + 
                                 unsigned("00000000" & chan0_addr));
                         op_start <= not op_start;
                         state <= WAIT_CHAN0;
-                    elsif (chan1_hit = '0' and enable = '1') then
+                    elsif (chan1_hit = '0' and chan1_tlb_enable = '1') then
                         mc_in.op_addr <= 
                             std_logic_vector(
                                 unsigned(page_table_baseaddr(24 downto 1)) + 
