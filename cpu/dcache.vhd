@@ -316,6 +316,8 @@ begin
                             when "110" =>
                                 mc_in.op_dqm <= (not data3(35)) & (not data3(26));
                                 mc_in.write_data <= data3(34 downto 27) & data3(25 downto 18);
+                                -- set line to invalid to avoid triggering hit
+                                meta_write_line_valid <= '0';
                                 meta_wren <= '1';
                                 state <= IDLE;
                             when others =>
