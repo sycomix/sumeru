@@ -160,6 +160,9 @@ begin
 
             page_table_baseaddr => page_table_baseaddr,
 
+            flush => '0',
+            flush_line => (others => '0'),
+
             mc_in => mc3_in,
             mc_out => mc3_out,
 
