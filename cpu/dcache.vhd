@@ -198,7 +198,14 @@ begin
                             cache_write_data_b2 <= write_data(23 downto 16);
                             cache_write_data_b3 <= write_data(31 downto 24);
                             cache_byteena <= byteena;
-                            meta_write_line_dirty <= '1';
+                            -- cache is flushed by writing to an alternate
+                            -- line with byteena = "0000" and the check 
+                            -- below will avoid setting line_dirty on these
+                            -- alternative (flush) writes
+                            meta_write_line_dirty <=
+                                line_dirty or 
+                                byteena(0) or byteena(1) or
+                                byteena(2) or byteena(3);
                             meta_wren <= '1';
                             case addr(3 downto 2) is
                                 when "00" =>

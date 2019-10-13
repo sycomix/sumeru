@@ -29,7 +29,7 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0) := x"00000004";
+    signal pc:                  std_logic_vector(31 downto 0) := x"00000010";
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -215,26 +215,33 @@ begin
             sdc_data_out => sdc_data_out);
 
     dcache_wren <= '1';
-    dcache_write_data <= icache_data;
-    dcache_byteena <= "1111";
+    dcache_write_data <= x"1CEB00DA";
 
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
             case state is 
                 when S1 => 
-                    if ((icache_hit = '1' and icache_tlb_hit = '1')) then
-                        dcache_addr <= pc;
+                    if ((icache_hit = '1' and icache_tlb_hit = '1' and
+                         dcache_tlb_hit = '1')) then
+                        dcache_addr <= x"00010000";
                         dcache_start <= not dcache_start;
+                        dcache_byteena <= "1111";
                         state <= S2;
                     end if;
                 when S2 =>
                     if (dcache_write_strobe = '1') then
-                        pc <= x"00020000";
-                        -- dcache_start <= not dcache_start;
+                        dcache_addr <= x"00000000";
+                        dcache_start <= not dcache_start;
+                        dcache_byteena <= "0000";
                         state <= S3;
                     end if;
                 when S3 =>
+                    if (dcache_write_strobe = '1') then
+                        pc <= x"00010000";
+                        -- dcache_start <= not dcache_start;
+                        state <= S4;
+                    end if;
                 when S4 =>
             end case;
         end if;
