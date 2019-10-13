@@ -124,6 +124,7 @@ begin
             chan1_data0_wren <= '0';
             chan1_meta_wren <= '0';
             meta_write_line_valid <= '1';
+            flush_enable <= '0';
             
             case state is
                 when IDLE =>
