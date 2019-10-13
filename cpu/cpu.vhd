@@ -184,6 +184,9 @@ begin
             hit => icache_hit,
             data => icache_data,
 
+            flush => '0',
+            flush_line => (others => '0'),
+
             mc_in => mc0_in,
             mc_out => mc0_out,
 

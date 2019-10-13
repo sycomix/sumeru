@@ -13,6 +13,9 @@ port(
         hit:                    out std_logic;
         data:                   out std_logic_vector(31 downto 0);
 
+        flush:                  in std_logic;
+        flush_line:             in std_logic_vector(7 downto 0);
+
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
         sdc_data_out:           in std_logic_vector(15 downto 0)
@@ -54,12 +57,17 @@ architecture synth of icache is
     signal meta_data_line_valid: std_logic;
 
     signal write_data:          std_logic_vector(31 downto 0);
+    signal flush_enable:        std_logic := '0';
+    signal meta_addr:           std_logic_vector(7 downto 0);
 
 begin
+    meta_addr <= 
+        addr(11 downto 4) when flush_enable = '0' else flush_line;
+
     meta_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
-            address => addr(11 downto 4),
+            address => meta_addr,
             data => meta_data,
             wren => meta_wren,
             q => meta);
@@ -122,6 +130,7 @@ begin
             meta_data_line_valid <= '1';
             write_data(15 downto 0) <= write_data(31 downto 16);
             write_data(31 downto 16) <= sdc_data_out;
+            flush_enable <= '0';
             
             case state is
                 when IDLE =>
@@ -129,6 +138,10 @@ begin
                         op_start <= not op_start;
                         state <= WAIT_B1;
                         -- Invalidate line till it is fully loaded
+                        meta_data_line_valid <= '0';
+                        meta_wren <= '1';
+                    elsif (flush = '1') then
+                        flush_enable <= '1';
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                     end if;
