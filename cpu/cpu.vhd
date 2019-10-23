@@ -45,12 +45,15 @@ architecture synth of cpu is
     signal mc2_in:              mem_channel_in_t;
     signal mc2_out:             mem_channel_out_t;
 
+    signal mc3_in:              mem_channel_in_t;
+    signal mc3_out:             mem_channel_out_t;
+
     signal bootcode_load_done:  std_logic;
 
     signal icache_hit:          std_logic;
     signal icache_data:         std_logic_vector(31 downto 0);
 
-    signal dcache_addr:         std_logic_vector(24 downto 0) := (others => '0');
+    signal dcache_addr:         std_logic_vector(31 downto 0) := (others => '0');
 
     signal dcache_start:        std_logic := '0';
     signal dcache_hit:          std_logic;
@@ -59,6 +62,21 @@ architecture synth of cpu is
     signal dcache_byteena:      std_logic_vector(3 downto 0);
     signal dcache_write_strobe: std_logic;
     signal dcache_write_data:   std_logic_vector(31 downto 0);
+
+    signal chan0_tlb_hit:       std_logic;
+    signal chan1_tlb_hit:       std_logic;
+    signal chan0_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
+    signal chan1_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
+
+    signal icache_tlb_hit:      std_logic;
+    signal icache_tlb_data:     std_logic_vector(15 downto 0);
+    signal icache_translated_addr: std_logic_vector(24 downto 0);        
+    signal dcache_tlb_hit:      std_logic;
+    signal dcache_tlb_data:     std_logic_vector(15 downto 0);
+    signal dcache_translated_addr: std_logic_vector(24 downto 0);        
+    signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
+
+    signal dcache_tlb_enable:   std_logic := '0';
 
     type state_t is (
         S1,
@@ -116,7 +134,8 @@ begin
             mc2_in => mc2_in,
             mc2_out => mc2_out,
 
-            mc3_in => ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'))
+            mc3_in => mc3_in,
+            mc3_out => mc3_out
         );
 
     bootcode_loader: entity work.memory_loader
@@ -132,13 +151,56 @@ begin
             mc_in => mc1_in,
             mc_out => mc1_out);
 
+    page_tlb: entity work.page_tlb
+        port map(
+            sys_clk => sys_clk,
+            cache_clk => mem_clk,
+
+            chan0_tlb_enable => bootcode_load_done,
+            chan1_tlb_enable => dcache_tlb_enable,
+
+            chan0_addr => pc(31 downto 16),
+            chan0_hit => chan0_tlb_hit,
+            chan0_data => icache_tlb_data,
+
+            chan1_addr => dcache_addr(31 downto 16),
+            chan1_hit => chan1_tlb_hit,
+            chan1_data => dcache_tlb_data,
+
+            page_table_baseaddr => page_table_baseaddr,
+
+            flush => '0',
+            flush_line => (others => '0'),
+
+            mc_in => mc3_in,
+            mc_out => mc3_out,
+
+            sdc_data_out => sdc_data_out
+            );
+
+
+    icache_tlb_hit <= 
+        '1' when (chan0_tlb_lastaddr = pc(31 downto 16) and 
+                  chan0_tlb_hit = '1')
+        else '0';
+
+    dcache_tlb_hit <= 
+        '1' when (chan1_tlb_lastaddr = dcache_addr(31 downto 16) and 
+                  chan1_tlb_hit = '1')
+        else '0';
+
+    icache_translated_addr <= icache_tlb_data(8 downto 0) & pc(15 downto 0);
+
+    dcache_translated_addr <= 
+        dcache_tlb_data(8 downto 0) & dcache_addr(15 downto 0);
+
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
             cache_clk => mem_clk,
-            enable => bootcode_load_done,
+            enable => icache_tlb_hit,
 
-            addr => pc(24 downto 0),
+            addr => icache_translated_addr,
             hit => icache_hit,
             data => icache_data,
 
@@ -155,8 +217,9 @@ begin
         port map(
             sys_clk => sys_clk,
             mem_clk => mem_clk,
+            enable => dcache_tlb_hit,
 
-            addr => dcache_addr,
+            addr => dcache_translated_addr,
             start => dcache_start,
             
             hit => dcache_hit,
@@ -179,17 +242,20 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            chan0_tlb_lastaddr <= pc(31 downto 16);
+            chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
             case state is 
                 when S1 => 
-                    if (icache_hit = '1') then
-                        dcache_addr <= "0000000010000000000000000";
+                    if (icache_hit = '1' and icache_tlb_hit = '1') then
+                        dcache_tlb_enable <= '1';
+                        dcache_addr <= x"00010000";
                         dcache_start <= not dcache_start;
                         dcache_byteena <= "1111";
                         state <= S2;
                     end if;
                 when S2 =>
                     if (dcache_write_strobe = '1') then
-                        dcache_addr <= "0000000000000000000000000";
+                        dcache_addr <= x"00000000";
                         dcache_start <= not dcache_start;
                         dcache_byteena <= "0000";
                         state <= S3;

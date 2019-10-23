@@ -7,6 +7,7 @@ entity dcache is
 port(
         sys_clk:                in std_logic;
         mem_clk:                in std_logic;
+        enable:                 in std_logic; 
         
         addr:                   in std_logic_vector(24 downto 0);
         start:                  in std_logic;
@@ -183,7 +184,7 @@ begin
 
             case state is
                 when IDLE =>
-                    if (start /= start_save) then
+                    if (enable = '1' and start /= start_save) then
                         if (wren = '1' and line_hit = '1') then
                             -- Write data to line
                             start_save <= not start_save;
