@@ -63,6 +63,11 @@ architecture synth of cpu is
     signal dcache_write_strobe: std_logic;
     signal dcache_write_data:   std_logic_vector(31 downto 0);
 
+    signal chan0_tlb_hit:       std_logic;
+    signal chan1_tlb_hit:       std_logic;
+    signal chan0_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
+    signal chan1_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
+
     signal icache_tlb_hit:      std_logic;
     signal icache_tlb_data:     std_logic_vector(15 downto 0);
     signal icache_translated_addr: std_logic_vector(24 downto 0);        
@@ -155,11 +160,11 @@ begin
             chan1_tlb_enable => dcache_tlb_enable,
 
             chan0_addr => pc(31 downto 16),
-            chan0_hit => icache_tlb_hit,
+            chan0_hit => chan0_tlb_hit,
             chan0_data => icache_tlb_data,
 
             chan1_addr => dcache_addr(31 downto 16),
-            chan1_hit => dcache_tlb_hit,
+            chan1_hit => chan1_tlb_hit,
             chan1_data => dcache_tlb_data,
 
             page_table_baseaddr => page_table_baseaddr,
@@ -172,6 +177,17 @@ begin
 
             sdc_data_out => sdc_data_out
             );
+
+
+    icache_tlb_hit <= 
+        '1' when (chan0_tlb_lastaddr = pc(31 downto 16) and 
+                  chan0_tlb_hit = '1')
+        else '0';
+
+    dcache_tlb_hit <= 
+        '1' when (chan1_tlb_lastaddr = dcache_addr(31 downto 16) and 
+                  chan1_tlb_hit = '1')
+        else '0';
 
     icache_translated_addr <= icache_tlb_data(8 downto 0) & pc(15 downto 0);
 
@@ -221,9 +237,13 @@ begin
     dcache_wren <= '1';
     dcache_write_data <= x"1CEB00DA";
 
+    led <= '0' when icache_data = x"1CEB00DA" else '1';
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            chan0_tlb_lastaddr <= pc(31 downto 16);
+            chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
             case state is 
                 when S1 => 
                     if (icache_hit = '1' and icache_tlb_hit = '1') then
