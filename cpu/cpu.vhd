@@ -242,8 +242,12 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            chan0_tlb_lastaddr <= pc(31 downto 16);
-            chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
+            if (chan0_tlb_hit) then
+                chan0_tlb_lastaddr <= pc(31 downto 16);
+            end if;
+            if (chan1_tlb_hit) then
+                chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
+            end if;
             case state is 
                 when S1 => 
                     if (icache_hit = '1' and icache_tlb_hit = '1') then
@@ -261,12 +265,15 @@ begin
                         state <= S3;
                     end if;
                 when S3 =>
-                    if (dcache_write_strobe = '1') then
+                    if (dcache_write_strobe = '0') then
                         pc <= x"00010000";
                         -- dcache_start <= not dcache_start;
                         state <= S4;
                     end if;
                 when S4 =>
+                    if (icache_hit = '1' and icache_tlb_hit = '1') then
+                        pc <= pc(31 downto 8) & std_logic_vector(unsigned(pc(7 downto 0)) + 4);
+                    end if;
             end case;
         end if;
     end process;

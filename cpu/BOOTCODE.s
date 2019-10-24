@@ -2,13 +2,13 @@
 _start:
 page_table:
 .short   0x0000
-.short   0x0001
-.short   0x0002
-.short   0x0003
-.short   0x0004
-.short   0x0005
-.short   0x0006
 .short   0x0007
+.short   0x0006
+.short   0x0005
+.short   0x0004
+.short   0x0003
+.short   0x0002
+.short   0x0001
 
 .set STATE_RXCMD, 0
 .set STATE_RXADDR, 1
