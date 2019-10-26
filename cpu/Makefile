@@ -17,6 +17,7 @@ SRCS = pll.vhd \
         icache.vhd \
 	dcache.vhd \
 	page_tlb.vhd \
+	register_file.vhd \
         ${TOPLEVEL}.vhd \
         simulation/sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
