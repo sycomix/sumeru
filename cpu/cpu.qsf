@@ -48,6 +48,7 @@ set_global_assignment -name VHDL_FILE sdram_controller.vhd
 set_global_assignment -name VHDL_FILE icache.vhd
 set_global_assignment -name VHDL_FILE dcache.vhd
 set_global_assignment -name VHDL_FILE page_tlb.vhd
+set_global_assignment -name VHDL_FILE ram2p_32x32.vhd
 set_global_assignment -name SDC_FILE cpu.sdc
 
 
