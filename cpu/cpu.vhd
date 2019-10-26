@@ -237,11 +237,15 @@ begin
     dcache_wren <= '1';
     dcache_write_data <= x"1CEB00DA";
 
-    led <= '0' when icache_data = x"1CEB00DA" else '1';
 
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            if (icache_data = x"1CEB00DA") then
+                led <= '0';
+            else
+                led <= '1';
+            end if;
             if (chan0_tlb_hit) then
                 chan0_tlb_lastaddr <= pc(31 downto 16);
             end if;
