@@ -29,7 +29,7 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0) := x"00000010";
+    signal pc:                  std_logic_vector(31 downto 0) := x"00010000";
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -53,7 +53,7 @@ architecture synth of cpu is
     signal icache_hit:          std_logic;
     signal icache_data:         std_logic_vector(31 downto 0);
 
-    signal dcache_addr:         std_logic_vector(31 downto 0) := (others => '0');
+    signal dcache_addr:         std_logic_vector(31 downto 0) :=  x"00010000";
 
     signal dcache_start:        std_logic := '0';
     signal dcache_hit:          std_logic;
@@ -61,6 +61,7 @@ architecture synth of cpu is
     signal dcache_wren:         std_logic := '0';
     signal dcache_byteena:      std_logic_vector(3 downto 0);
     signal dcache_write_strobe: std_logic;
+    signal dcache_write_strobe_save: std_logic := '0';
     signal dcache_write_data:   std_logic_vector(31 downto 0);
 
     signal chan0_tlb_hit:       std_logic;
@@ -80,9 +81,7 @@ architecture synth of cpu is
 
     type state_t is (
         S1,
-        S2,
-        S3,
-        S4);
+        S2);
         
     signal state:               state_t := S1;
 
@@ -234,53 +233,54 @@ begin
             mc_out => mc2_out,
             sdc_data_out => sdc_data_out);
 
-    dcache_wren <= '1';
-    dcache_write_data <= x"1CEB00DA";
-
 
     process(sys_clk)
     begin
-        if (rising_edge(sys_clk)) then
-            if (icache_data = x"1CEB00DA") then
-                led <= '0';
-            else
-                led <= '1';
-            end if;
             if (chan0_tlb_hit) then
                 chan0_tlb_lastaddr <= pc(31 downto 16);
             end if;
             if (chan1_tlb_hit) then
                 chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
             end if;
+    end process;
+
+    process(sys_clk)
+    begin
+        if (rising_edge(sys_clk)) then
+            if (icache_hit = '1' and icache_tlb_hit = '1') then
+                if (icache_data(9 downto 0) = pc(9 downto 0)) then
+                    led <= '0';
+                else
+                    led <= '1';
+                end if;
+                pc <= pc(31 downto 17) & 
+                        "1000" & 
+                        std_logic_vector(unsigned(pc(12 downto 0)) + 4);
+            end if;
+        end if;
+    end process;
+
+    dcache_wren <= '1';
+    dcache_tlb_enable <= '1';
+    dcache_write_data <= dcache_addr;
+
+    process(sys_clk)
+    begin
+        if (rising_edge(sys_clk)) then
             case state is 
                 when S1 => 
-                    if (icache_hit = '1' and icache_tlb_hit = '1') then
-                        dcache_tlb_enable <= '1';
-                        dcache_addr <= x"00010000";
-                        dcache_start <= not dcache_start;
-                        dcache_byteena <= "1111";
-                        state <= S2;
-                    end if;
+                    dcache_start <= not dcache_start;
+                    dcache_byteena <= "1111";
+                    state <= S2;
                 when S2 =>
-                    if (dcache_write_strobe = '1') then
-                        dcache_addr <= x"00000000";
-                        dcache_start <= not dcache_start;
-                        dcache_byteena <= "0000";
-                        state <= S3;
+                    if (dcache_write_strobe /= dcache_write_strobe_save) then
+                        dcache_write_strobe_save <= dcache_write_strobe;
+                        dcache_addr <= dcache_addr(31 downto 17) & 
+                                "1000" & 
+                                std_logic_vector(unsigned(dcache_addr(12 downto 0)) + 4);
+                        state <= S1;
                     end if;
-                when S3 =>
-                    if (dcache_write_strobe = '0') then
-                        pc <= x"00010000";
-                        -- dcache_start <= not dcache_start;
-                        state <= S4;
-                    end if;
-                when S4 =>
-                    if (icache_hit = '1' and icache_tlb_hit = '1') then
-                        pc <= pc(31 downto 8) & std_logic_vector(unsigned(pc(7 downto 0)) + 4);
-                    end if;
-            end case;
+            end case; 
         end if;
     end process;
 end architecture;
-
-
