@@ -244,6 +244,10 @@ begin
             end if;
     end process;
 
+-- ---------------------
+-- CPU Decode & Dispatch
+-- ---------------------
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
