@@ -14,7 +14,7 @@ port(
         data:                   out std_logic_vector(31 downto 0);
 
         flush:                  in std_logic;
-        flush_line:             in std_logic_vector(7 downto 0);
+        flush_strobe:           out std_logic;
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
@@ -41,6 +41,7 @@ architecture synth of icache is
 
     type cache_state_t is (
         IDLE,
+        FLUSH_CACHE,
         WAIT_B1,
         WAIT_B2,
         WAIT_B3,
@@ -57,12 +58,17 @@ architecture synth of icache is
     signal meta_data_line_valid: std_logic;
 
     signal write_data:          std_logic_vector(31 downto 0);
-    signal flush_enable:        std_logic := '0';
     signal meta_addr:           std_logic_vector(7 downto 0);
 
+    signal flush_enable:        std_logic := '0';
+    signal flush_strobe_r:      std_logic := '0';
+    signal flush_addr:          std_logic_vector(7 downto 0);
+
 begin
+    flush_strobe <= flush_strobe_r;
+
     meta_addr <= 
-        addr(11 downto 4) when flush_enable = '0' else flush_line;
+        addr(11 downto 4) when flush_enable = '0' else flush_addr;
 
     meta_ram: entity work.ram1p_256x16
         port map(
@@ -130,20 +136,29 @@ begin
             meta_data_line_valid <= '1';
             write_data(15 downto 0) <= write_data(31 downto 16);
             write_data(31 downto 16) <= sdc_data_out;
-            flush_enable <= '0';
             
             case state is
                 when IDLE =>
-                    if (hit = '0' and enable = '1') then
+                    if (flush = '1') then
+                        flush_enable <= '1';
+                        flush_addr <= (others => '1');
+                        meta_data_line_valid <= '0';
+                        meta_wren <= '1';
+                        state <= FLUSH_CACHE;
+                    elsif (hit = '0' and enable = '1') then
                         op_start <= not op_start;
                         state <= WAIT_B1;
                         -- Invalidate line till it is fully loaded
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
-                    elsif (flush = '1') then
-                        flush_enable <= '1';
-                        meta_data_line_valid <= '0';
-                        meta_wren <= '1';
+                    end if;
+                when FLUSH_CACHE =>
+                    if (flush_addr = x"00") then
+                        flush_enable <= '0';
+                        flush_strobe_r <= not flush_strobe_r;
+                        state <= IDLE;
+                    else
+                        flush_addr <= std_logic_vector(unsigned(flush_addr) - 1);
                     end if;
                 when WAIT_B1 =>
                     if (mc_out.op_strobe = op_start) then

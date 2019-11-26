@@ -22,7 +22,7 @@ port(
         chan1_data:             out std_logic_vector(15 downto 0);
 
         flush:                  in std_logic;
-        flush_line:             in std_logic_vector(7 downto 0);
+        flush_strobe:           out std_logic;
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
@@ -49,6 +49,7 @@ architecture synth of page_tlb is
 
     type cache_state_t is (
         IDLE,
+        FLUSH_CACHE,
         WAIT_CHAN0,
         WAIT_CHAN1
     );
@@ -64,15 +65,20 @@ architecture synth of page_tlb is
     signal chan0_meta_addr:     std_logic_vector(7 downto 0);
     signal chan1_meta_addr:     std_logic_vector(7 downto 0);
 
-    signal flush_enable:        std_logic := '0';
     signal meta_write_line_valid: std_logic;
 
+    signal flush_enable:        std_logic := '0';
+    signal flush_strobe_r:      std_logic := '0';
+    signal flush_addr:          std_logic_vector(7 downto 0);
+
 begin
+    flush_strobe <= flush_strobe_r;
+
     chan0_meta_addr <= 
-        chan0_addr(7 downto 0) when flush_enable = '0' else flush_line;
+        chan0_addr(7 downto 0) when flush_enable = '0' else flush_addr;
 
     chan1_meta_addr <= 
-        chan1_addr(7 downto 0) when flush_enable = '0' else flush_line;
+        chan1_addr(7 downto 0) when flush_enable = '0' else flush_addr;
 
     chan0_meta_ram: entity work.ram1p_256x8
         port map(
@@ -126,11 +132,17 @@ begin
             chan1_data0_wren <= '0';
             chan1_meta_wren <= '0';
             meta_write_line_valid <= '1';
-            flush_enable <= '0';
             
             case state is
                 when IDLE =>
-                    if (chan0_hit = '0' and chan0_tlb_enable = '1') then
+                    if (flush = '1') then
+                        flush_enable <= '1';
+                        flush_addr <= (others => '1');
+                        meta_write_line_valid <= '0';
+                        chan0_meta_wren <= '1';
+                        chan1_meta_wren <= '1';
+                        state <= FLUSH_CACHE;
+                    elsif (chan0_hit = '0' and chan0_tlb_enable = '1') then
                         mc_in.op_addr <= 
                             std_logic_vector(
                                 unsigned(page_table_baseaddr(24 downto 1)) + 
@@ -144,11 +156,14 @@ begin
                                 unsigned("00000000" & chan1_addr));
                         op_start <= not op_start;
                         state <= WAIT_CHAN1;
-                    elsif (flush = '1') then
-                        flush_enable <= '1';
-                        meta_write_line_valid <= '0';
-                        chan0_meta_wren <= '1';
-                        chan1_meta_wren <= '1';
+                    end if;
+                when FLUSH_CACHE =>
+                    if (flush_addr = x"00") then
+                        flush_enable <= '0';
+                        flush_strobe_r <= not flush_strobe_r;
+                        state <= IDLE;
+                    else
+                        flush_addr <= std_logic_vector(unsigned(flush_addr) - 1);
                     end if;
                 when WAIT_CHAN0 =>
                     if (mc_out.op_strobe = op_start) then
