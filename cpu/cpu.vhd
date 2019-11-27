@@ -48,6 +48,9 @@ architecture synth of cpu is
     signal mc3_in:              mem_channel_in_t;
     signal mc3_out:             mem_channel_out_t;
 
+    signal bc_mc1_in:           mem_channel_in_t;
+    signal pbus_mc1_in:         mem_channel_in_t := ( (others => '0'), '0', '0', '0', (others => '0'), (others => '0') );
+
     signal bootcode_load_done:  std_logic;
 
     signal icache_hit:          std_logic;
@@ -137,6 +140,8 @@ begin
             mc3_out => mc3_out
         );
 
+    mc1_in <= bc_mc1_in when bootcode_load_done = '0' else pbus_mc1_in;
+
     bootcode_loader: entity work.memory_loader
         generic map(
             DATA_FILE => "BOOTCODE.hex"
@@ -147,7 +152,7 @@ begin
             reset_n => reset_n,
 
             load_done => bootcode_load_done,
-            mc_in => mc1_in,
+            mc_in => bc_mc1_in,
             mc_out => mc1_out);
 
     page_tlb: entity work.page_tlb
