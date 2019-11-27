@@ -92,9 +92,9 @@ architecture synth of cpu is
     signal icache_flush:        std_logic;
     signal icache_flush_strobe: std_logic;
     signal iexec_in:            iexec_channel_in;
-    signal iexec_out:           iexec_channel_out;
+    signal iexec_out:           iexec_channel_out := ('0', '0', '0', (others => '0'), '0', (others => '0')); 
     signal intr_in:             interrupt_channel_in;      
-    signal intr_out:            interrupt_channel_out;      
+    signal intr_out:            interrupt_channel_out;
 
     signal csr_cycle_counter:   std_logic_vector(63 downto 0) := (others => '0');
     signal exception_pc_save:   std_logic_vector(31 downto 0);
@@ -280,44 +280,4 @@ begin
             intr_in => intr_in,
             intr_out => intr_out);
 
-
-    process(sys_clk)
-    begin
-        if (rising_edge(sys_clk)) then
-            if (icache_hit = '1' and icache_tlb_hit = '1') then
-                if (icache_data(9 downto 0) = pc(9 downto 0)) then
-                    led <= '0';
-                else
-                    led <= '1';
-                end if;
-                pc <= pc(31 downto 17) & 
-                        "1000" & 
-                        std_logic_vector(unsigned(pc(12 downto 0)) + 4);
-            end if;
-        end if;
-    end process;
-
-    dcache_wren <= '1';
-    dcache_tlb_enable <= '1';
-    dcache_write_data <= dcache_addr;
-
-    process(sys_clk)
-    begin
-        if (rising_edge(sys_clk)) then
-            case state is 
-                when S1 => 
-                    dcache_start <= not dcache_start;
-                    dcache_byteena <= "1111";
-                    state <= S2;
-                when S2 =>
-                    if (dcache_write_strobe /= dcache_write_strobe_save) then
-                        dcache_write_strobe_save <= dcache_write_strobe;
-                        dcache_addr <= dcache_addr(31 downto 17) & 
-                                "1000" & 
-                                std_logic_vector(unsigned(dcache_addr(12 downto 0)) + 4);
-                        state <= S1;
-                    end if;
-            end case; 
-        end if;
-    end process;
 end architecture;
