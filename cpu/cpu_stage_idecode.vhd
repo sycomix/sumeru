@@ -53,6 +53,8 @@ architecture synth of cpu_stage_idecode is
     signal pc_p4:               std_logic_vector(31 downto 0);
     signal cache_flush_strobe_save: std_logic := '0';
 
+    signal pc_r:                std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET;
+
     signal exception_start_save: std_logic := '0';
     signal iexec_exception_start_save: std_logic := '0';
     signal exception_start:     std_logic := '0';
@@ -64,7 +66,8 @@ architecture synth of cpu_stage_idecode is
     signal intr_freeze_flag:    std_logic;
     
 begin
-    pc_p4 <= pc + 4;
+    pc <= pc_r;
+    pc_p4 <= std_logic_vector(unsigned(pc_r) + 4);
 
     i_type_i_imm <= 
         ins(31) & ins(31) & ins(31) & ins(31) & ins(31) & ins(31) & ins(31) & 
@@ -91,7 +94,7 @@ begin
         variable vx: std_logic_vector(31 downto 0);
     begin
         if (n_reset = '0') then
-            pc <= intr_out.intr_vector_addr & BOOT_OFFSET;
+            pc_r <= intr_out.intr_vector_addr & BOOT_OFFSET;
             iexec_in.bus_valid <= '0';
             state <= IDLE;
             csr_cycle_counter <= (others => '0');
@@ -106,8 +109,8 @@ begin
                     if (icache_hit = '0') then
                         iexec_in.bus_valid <= '0';
                     else
-                        csr_cycle_counter <= csr_cycle_counter + 1;
-                        pc <= pc_p4;
+                        csr_cycle_counter <= std_logic_vector(unsigned(csr_cycle_counter) + 1);
+                        pc_r <= pc_p4;
                         iexec_in.cmd <= "0" & i_funct3;
                         iexec_in.rs1 <= i_rs1;
                         iexec_in.rs2 <= i_rs2;
@@ -154,12 +157,12 @@ begin
                                 iexec_in.immediate <= i_type_u_imm; 
                                 iexec_in.cmd <= CMD_WR_RS2;
                            when OP_TYPE_U_AUIPC =>
-                                iexec_in.immediate <= (pc + i_type_u_imm);
+                                iexec_in.immediate <= std_logic_vector(unsigned(pc_r) + unsigned(i_type_u_imm));
                                 iexec_in.cmd <= CMD_WR_RS2;
                            when OP_TYPE_JAL =>
                                 iexec_in.immediate <= pc_p4;
                                 iexec_in.cmd <= CMD_WR_RS2;
-                                pc <= pc + i_type_j_imm;
+                                pc_r <= std_logic_vector(unsigned(pc_r) + unsigned(i_type_j_imm));
                                 -- This optimisation is useful only when
                                 -- iexec_bus_busy = '1'
                                 -- XXX we should optimize all cases where i_rd = 0??
@@ -170,15 +173,15 @@ begin
                                 iexec_in.immediate <= pc_p4;
                                 iexec_in.meta_cmd <= META_CMD_JALR;
                                 iexec_in.cmd <= CMD_JALR;
-                                pc <= pc;      -- don't update PC as it can cause a cache miss
+                                pc_r <= pc_r;      -- don't update PC as it can cause a cache miss
                                 imm_save <= i_type_i_imm;
                                 state <= WAIT_JALR_PC_UPDATE;
                            when OP_TYPE_B =>
                                 -- set cmd to type of branch
                                 iexec_in.cmd_r2_imm <= '0';
-                                imm_save <= pc + i_type_b_imm;
+                                imm_save <= std_logic_vector(unsigned(pc_r) + unsigned(i_type_b_imm));
                                 iexec_in.meta_cmd <= META_CMD_BRANCH;
-                                pc <= pc;      -- don't update PC as it can cause a cache miss
+                                pc_r <= pc_r;      -- don't update PC as it can cause a cache miss
                                 state <= WAIT_BR_PC_UPDATE;
                            when OP_TYPE_R =>
                                 iexec_in.cmd_r2_imm <= '0';
@@ -196,7 +199,7 @@ begin
                                 -- raise exception, branch ??
                                 iexec_in.bus_valid <= '0';
                                 delayed_exception <= '1';
-                                delayed_exception_pc <= pc;
+                                delayed_exception_pc <= pc_r;
                                 delayed_exception_offset <= 
                                     intr_out.intr_vector_addr & EXN_UNKNOWN_INSTR_OFFSET;
                            end case;
@@ -210,17 +213,17 @@ begin
                     iexec_in.bus_valid <= '0';
                     if (iexec_out.pc_update_done = '1') then
                         -- XXX set pc(0) to zero as required by spec
-                        vx := iexec_out.jalr_branch_addr + imm_save;
-                        pc <= vx(31 downto 1) & '0';
+                        vx := std_logic_vector(unsigned(iexec_out.jalr_branch_addr) + unsigned(imm_save));
+                        pc_r <= vx(31 downto 1) & '0';
                         state <= IDLE;
                     end if;
                 when WAIT_BR_PC_UPDATE =>
                     iexec_in.bus_valid <= '0';
                     if (iexec_out.pc_update_done = '1') then
                         if (iexec_out.pc_branch_taken) then
-                            pc <= imm_save;
+                            pc_r <= imm_save;
                         else
-                            pc <= pc_p4;
+                            pc_r <= pc_p4;
                         end if;
                         state <= IDLE;
                     end if;
@@ -228,7 +231,7 @@ begin
 
             if (exception_start_save /= exception_start) then
                 exception_start_save <= exception_start;
-                pc <= exception_offset;
+                pc_r <= exception_offset;
                 iexec_in.bus_valid <= '0';
                 delayed_exception <= '0';
                 state <= IDLE;
@@ -247,9 +250,9 @@ begin
         elsif (falling_edge(sys_clk)) then
             toggle_intr_freeze <= '1';
             intr_freeze_flag <= '1';
-            if (pc(1 downto 0) /= "00") then
+            if (pc_r(1 downto 0) /= "00") then
                 exception_start <= not exception_start;
-                exception_pc_save <= pc;
+                exception_pc_save <= pc_r;
                 exception_offset <= intr_out.intr_vector_addr & EXN_UNALIGNED_PC_OFFSET;
             elsif (iexec_exception_start_save /= iexec_out.exception_start) then
                 iexec_exception_start_save <= iexec_out.exception_start;
@@ -265,7 +268,7 @@ begin
                 intr_in.idecode_intr_start_save <= intr_out.intr_start;
                 exception_start <= not exception_start;
                 exception_offset <= intr_out.intr_vector_addr & intr_out.intr_vector_offset & "0000";
-                exception_pc_save <= pc;
+                exception_pc_save <= pc_r;
                 -- interrupts already disabled by interrupt controller hence no toggle required
                 toggle_intr_freeze <= '0';
             end if;
