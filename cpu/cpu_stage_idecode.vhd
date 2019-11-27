@@ -9,16 +9,18 @@ port(
     sys_clk:                    in std_logic;
 
     pc:                         out std_logic_vector(31 downto 0);
-    icache_data:                in std_logic_vector(31 downto 0);
+
+    icache_tlb_hit:             in std_logic;
     icache_hit:                 in std_logic;
+    icache_data:                in std_logic_vector(31 downto 0);
 
     iexec_in:                   out iexec_channel_in;                    
     iexec_out:                  in iexec_channel_out;                    
 
     csr_cycle_counter:          out std_logic_vector(63 downto 0);
 
-    cache_flush:                out std_logic;
-    cache_flush_strobe:         in std_logic;
+    icache_flush:               out std_logic;
+    icache_flush_strobe:        in std_logic;
 
     exception_pc_save:          out std_logic_vector(31 downto 0);
 
@@ -50,7 +52,7 @@ architecture synth of cpu_stage_idecode is
     signal i_type_j_imm:        std_logic_vector(31 downto 0);
     signal imm_save:            std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
-    signal cache_flush_strobe_save: std_logic := '0';
+    signal icache_flush_strobe_save: std_logic := '0';
 
     signal exception_start_save: std_logic := '0';
     signal iexec_exception_start_save: std_logic := '0';
@@ -63,15 +65,17 @@ architecture synth of cpu_stage_idecode is
     signal intr_freeze_flag:    std_logic;
 
     signal pc_r:                std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET;
+    signal icache_flush_r:      std_logic := '0';
     signal bus_valid:           std_logic := '0';
-    signal cache_flush_r:       std_logic := '0';
+    signal intr_start_save:     std_logic := '0';
     signal intr_freeze:         std_logic := '0';
 
     
 begin
     pc <= pc_r;
-    cache_flush <= cache_flush_r;
+    icache_flush <= icache_flush_r;
     iexec_in.bus_valid <= bus_valid;
+    intr_in.idecode_intr_start_save <= intr_start_save;
     intr_in.intr_freeze <= intr_freeze;
 
     pc_p4 <= std_logic_vector(unsigned(pc_r) + 4);
@@ -103,9 +107,7 @@ begin
         if (rising_edge(sys_clk) and iexec_out.bus_busy = '0') then
             case state is
                 when IDLE =>
-                    if (icache_hit = '0') then
-                        bus_valid <= '0';
-                    else
+                    if (icache_tlb_hit = '1' and icache_hit = '1') then
                         csr_cycle_counter <= std_logic_vector(unsigned(csr_cycle_counter) + 1);
                         pc_r <= pc_p4;
                         iexec_in.cmd <= "0" & i_funct3;
@@ -121,7 +123,7 @@ begin
                                 -- Only FENCE.I is applicable to us ATM
                                 -- therefore FENCE is a NOP
                                 if (i_funct3(0) = '1') then
-                                    cache_flush_r <= not cache_flush_r;
+                                    icache_flush_r <= not icache_flush_r;
                                     state <= WAIT_CACHE_FLUSH;
                                 end if;
                                 bus_valid <= '0';
@@ -200,10 +202,12 @@ begin
                                 delayed_exception_offset <= 
                                     intr_out.intr_vector_addr & EXN_UNKNOWN_INSTR_OFFSET;
                            end case;
+                    else
+                        bus_valid <= '0';
                     end if;
                 when WAIT_CACHE_FLUSH =>
-                    if (cache_flush_strobe_save /= cache_flush_strobe) then
-                        cache_flush_strobe_save <= cache_flush_strobe;
+                    if (icache_flush_strobe_save /= icache_flush_strobe) then
+                        icache_flush_strobe_save <= icache_flush_strobe;
                         state <= IDLE;
                     end if;
                 when WAIT_JALR_PC_UPDATE =>
@@ -240,11 +244,7 @@ begin
 
     process(sys_clk)
     begin
-        if (n_reset = '0') then
-            exception_start <= '0';
-            iexec_exception_start_save <= '0';
-            intr_in.idecode_intr_start_save <= '0';
-        elsif (falling_edge(sys_clk)) then
+        if (falling_edge(sys_clk)) then
             toggle_intr_freeze <= '1';
             intr_freeze_flag <= '1';
             if (pc_r(1 downto 0) /= "00") then
@@ -261,8 +261,8 @@ begin
                 exception_start <= not exception_start;
                 exception_offset <= delayed_exception_offset;
                 exception_pc_save <= delayed_exception_pc;
-            elsif (intr_in.idecode_intr_start_save /= intr_out.intr_start) then
-                intr_in.idecode_intr_start_save <= intr_out.intr_start;
+            elsif (intr_start_save /= intr_out.intr_start) then
+                intr_start_save <= intr_out.intr_start;
                 exception_start <= not exception_start;
                 exception_offset <= intr_out.intr_vector_addr & intr_out.intr_vector_offset & "0000";
                 exception_pc_save <= pc_r;

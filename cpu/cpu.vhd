@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use work.memory_channel_types.ALL;
+use work.cpu_types.ALL;
 
 entity cpu is
 port(
@@ -29,7 +30,7 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0) := x"00010000";
+    signal pc:                  std_logic_vector(31 downto 0);
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -87,6 +88,16 @@ architecture synth of cpu is
         S2);
         
     signal state:               state_t := S1;
+
+    signal icache_flush:        std_logic;
+    signal icache_flush_strobe: std_logic;
+    signal iexec_in:            iexec_channel_in;
+    signal iexec_out:           iexec_channel_out;
+    signal intr_in:             interrupt_channel_in;      
+    signal intr_out:            interrupt_channel_out;      
+
+    signal csr_cycle_counter:   std_logic_vector(63 downto 0) := (others => '0');
+    signal exception_pc_save:   std_logic_vector(31 downto 0);
 
 begin
     spi0_sck <= '0';
@@ -208,8 +219,8 @@ begin
             hit => icache_hit,
             data => icache_data,
 
-            flush => '0',
-            -- flush_strobe =>
+            flush => icache_flush,
+            flush_strobe => icache_flush_strobe,
 
             mc_in => mc0_in,
             mc_out => mc0_out,
@@ -252,6 +263,23 @@ begin
 -- ---------------------
 -- CPU Decode & Dispatch
 -- ---------------------
+
+    idecode: entity work.cpu_stage_idecode
+        port map(
+            sys_clk => sys_clk,
+            pc => pc,
+            icache_tlb_hit => icache_tlb_hit,
+            icache_hit => icache_hit,
+            icache_data => icache_data,
+            iexec_in => iexec_in,
+            iexec_out => iexec_out,
+            csr_cycle_counter => csr_cycle_counter,
+            icache_flush => icache_flush,
+            icache_flush_strobe => icache_flush_strobe,
+            exception_pc_save => exception_pc_save,
+            intr_in => intr_in,
+            intr_out => intr_out);
+
 
     process(sys_clk)
     begin
