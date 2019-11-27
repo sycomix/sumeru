@@ -37,20 +37,20 @@ architecture synth of cpu is
     signal sdc_data_out:        std_logic_vector(15 downto 0);
     signal sdc_busy:            std_logic;
 
-    signal mc0_in:              mem_channel_in_t;
+    signal mc0_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal mc0_out:             mem_channel_out_t;
 
-    signal mc1_in:              mem_channel_in_t;
+    signal mc1_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal mc1_out:             mem_channel_out_t;
 
-    signal mc2_in:              mem_channel_in_t;
+    signal mc2_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal mc2_out:             mem_channel_out_t;
 
-    signal mc3_in:              mem_channel_in_t;
+    signal mc3_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal mc3_out:             mem_channel_out_t;
 
-    signal bc_mc1_in:           mem_channel_in_t;
-    signal pbus_mc1_in:         mem_channel_in_t := ( (others => '0'), '0', '0', '0', (others => '0'), (others => '0') );
+    signal bc_mc1_in:           mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal pbus_mc1_in:         mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
     signal bootcode_load_done:  std_logic;
 
