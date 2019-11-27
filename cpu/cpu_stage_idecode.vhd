@@ -7,7 +7,6 @@ use work.cpu_types.all;
 entity cpu_stage_idecode is
 port(
     sys_clk:                    in std_logic;
-    n_reset:                    in std_logic;
 
     pc:                         out std_logic_vector(31 downto 0);
     icache_data:                in std_logic_vector(31 downto 0);
@@ -53,8 +52,6 @@ architecture synth of cpu_stage_idecode is
     signal pc_p4:               std_logic_vector(31 downto 0);
     signal cache_flush_strobe_save: std_logic := '0';
 
-    signal pc_r:                std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET;
-
     signal exception_start_save: std_logic := '0';
     signal iexec_exception_start_save: std_logic := '0';
     signal exception_start:     std_logic := '0';
@@ -64,9 +61,19 @@ architecture synth of cpu_stage_idecode is
     signal delayed_exception_pc: std_logic_vector(31 downto 0);
     signal toggle_intr_freeze:  std_logic;
     signal intr_freeze_flag:    std_logic;
+
+    signal pc_r:                std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET;
+    signal bus_valid:           std_logic := '0';
+    signal cache_flush_r:       std_logic := '0';
+    signal intr_freeze:         std_logic := '0';
+
     
 begin
     pc <= pc_r;
+    cache_flush <= cache_flush_r;
+    iexec_in.bus_valid <= bus_valid;
+    intr_in.intr_freeze <= intr_freeze;
+
     pc_p4 <= std_logic_vector(unsigned(pc_r) + 4);
 
     i_type_i_imm <= 
@@ -93,21 +100,11 @@ begin
     process(sys_clk)
         variable vx: std_logic_vector(31 downto 0);
     begin
-        if (n_reset = '0') then
-            pc_r <= intr_out.intr_vector_addr & BOOT_OFFSET;
-            iexec_in.bus_valid <= '0';
-            state <= IDLE;
-            csr_cycle_counter <= (others => '0');
-            cache_flush <= '0';
-            cache_flush_strobe_save <= '0';
-            exception_start_save <= '0';
-            delayed_exception <= '0';
-            intr_in.intr_freeze <= '0';
-        elsif (rising_edge(sys_clk) and iexec_out.bus_busy = '0') then
+        if (rising_edge(sys_clk) and iexec_out.bus_busy = '0') then
             case state is
                 when IDLE =>
                     if (icache_hit = '0') then
-                        iexec_in.bus_valid <= '0';
+                        bus_valid <= '0';
                     else
                         csr_cycle_counter <= std_logic_vector(unsigned(csr_cycle_counter) + 1);
                         pc_r <= pc_p4;
@@ -115,7 +112,7 @@ begin
                         iexec_in.rs1 <= i_rs1;
                         iexec_in.rs2 <= i_rs2;
                         iexec_in.rd <= i_rd;
-                        iexec_in.bus_valid <= '1';
+                        bus_valid <= '1';
                         iexec_in.cmd_r2_imm <= '1';
                         iexec_in.immediate <= i_type_i_imm;
                         iexec_in.meta_cmd <= META_CMD_MISC;
@@ -124,10 +121,10 @@ begin
                                 -- Only FENCE.I is applicable to us ATM
                                 -- therefore FENCE is a NOP
                                 if (i_funct3(0) = '1') then
-                                    cache_flush <= not cache_flush;
+                                    cache_flush_r <= not cache_flush_r;
                                     state <= WAIT_CACHE_FLUSH;
                                 end if;
-                                iexec_in.bus_valid <= '0';
+                                bus_valid <= '0';
                             when OP_TYPE_CSR =>
                                 -- i_funct3 is zero for ECALL and EBREAK instructions
                                 -- and i_funct3 is valid for CSRXXX therefore
@@ -167,7 +164,7 @@ begin
                                 -- iexec_bus_busy = '1'
                                 -- XXX we should optimize all cases where i_rd = 0??
                                 -- if (i_rd = "00000") then
-                                -- iexec_in.bus_valid <= '0';
+                                -- bus_valid <= '0';
                                 -- end if;
                            when OP_TYPE_JALR =>
                                 iexec_in.immediate <= pc_p4;
@@ -197,7 +194,7 @@ begin
                            when others =>
                                 -- XXX Handle invalid instruction exceptions here
                                 -- raise exception, branch ??
-                                iexec_in.bus_valid <= '0';
+                                bus_valid <= '0';
                                 delayed_exception <= '1';
                                 delayed_exception_pc <= pc_r;
                                 delayed_exception_offset <= 
@@ -210,7 +207,7 @@ begin
                         state <= IDLE;
                     end if;
                 when WAIT_JALR_PC_UPDATE =>
-                    iexec_in.bus_valid <= '0';
+                    bus_valid <= '0';
                     if (iexec_out.pc_update_done = '1') then
                         -- XXX set pc(0) to zero as required by spec
                         vx := std_logic_vector(unsigned(iexec_out.jalr_branch_addr) + unsigned(imm_save));
@@ -218,7 +215,7 @@ begin
                         state <= IDLE;
                     end if;
                 when WAIT_BR_PC_UPDATE =>
-                    iexec_in.bus_valid <= '0';
+                    bus_valid <= '0';
                     if (iexec_out.pc_update_done = '1') then
                         if (iexec_out.pc_branch_taken) then
                             pc_r <= imm_save;
@@ -232,10 +229,10 @@ begin
             if (exception_start_save /= exception_start) then
                 exception_start_save <= exception_start;
                 pc_r <= exception_offset;
-                iexec_in.bus_valid <= '0';
+                bus_valid <= '0';
                 delayed_exception <= '0';
                 state <= IDLE;
-                intr_in.intr_freeze <= intr_in.intr_freeze xor toggle_intr_freeze; 
+                intr_freeze <= intr_freeze xor toggle_intr_freeze; 
                 intr_in.intr_freeze_flag <= intr_freeze_flag;
             end if;
         end if;
