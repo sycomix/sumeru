@@ -30,8 +30,6 @@ architecture synth of cpu is
     signal mem_clk:             std_logic;
     signal reset_n:             std_logic;
 
-    signal pc:                  std_logic_vector(31 downto 0);
-
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
     signal sdc_data_out:        std_logic_vector(15 downto 0);
@@ -57,7 +55,8 @@ architecture synth of cpu is
     signal icache_hit:          std_logic;
     signal icache_data:         std_logic_vector(31 downto 0);
 
-    signal dcache_addr:         std_logic_vector(31 downto 0) :=  x"00010000";
+    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
+    signal dcache_addr:         std_logic_vector(31 downto 0) := (others => '0');
 
     signal dcache_start:        std_logic := '0';
     signal dcache_hit:          std_logic;
