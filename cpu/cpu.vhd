@@ -93,9 +93,9 @@ architecture synth of cpu is
     signal iexec_in:            iexec_channel_in;
     signal iexec_out:           iexec_channel_out := ('0', '0', '0', (others => '0'), '0', (others => '0')); 
     signal intr_in:             interrupt_channel_in;      
-    signal intr_out:            interrupt_channel_out;
+    signal intr_out:            interrupt_channel_out := ('0', (others => '0'), (others => '0'));
 
-    signal csr_cycle_counter:   std_logic_vector(63 downto 0) := (others => '0');
+    signal csr_cycle_counter:   std_logic_vector(63 downto 0);
     signal exception_pc_save:   std_logic_vector(31 downto 0);
 
 begin
@@ -258,6 +258,12 @@ begin
                 chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
             end if;
     end process;
+
+-- ---------------------
+-- Debug
+-- ---------------------
+
+    led <= '0' when pc = x"00000034" else '1';
 
 -- ---------------------
 -- CPU Decode & Dispatch
