@@ -16,7 +16,6 @@ SRCS = pll.vhd \
         memory_loader.vhd \
         icache.vhd \
 	dcache.vhd \
-	page_tlb.vhd \
 	sumeru_constants.vhd \
 	cpu_stage_idecode.vhd \
         ${TOPLEVEL}.vhd \
