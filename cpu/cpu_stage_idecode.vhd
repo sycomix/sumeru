@@ -66,6 +66,7 @@ architecture synth of cpu_stage_idecode is
 
     signal pc_r:                std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET;
     signal icache_flush_r:      std_logic := '0';
+    signal csr_cycle_counter_r: std_logic_vector(63 downto 0) := (others => '0');
     signal bus_valid:           std_logic := '0';
     signal intr_start_save:     std_logic := '0';
     signal intr_freeze:         std_logic := '0';
@@ -77,6 +78,7 @@ begin
     iexec_in.bus_valid <= bus_valid;
     intr_in.idecode_intr_start_save <= intr_start_save;
     intr_in.intr_freeze <= intr_freeze;
+    csr_cycle_counter <= csr_cycle_counter_r;
 
     pc_p4 <= std_logic_vector(unsigned(pc_r) + 4);
 
@@ -108,7 +110,7 @@ begin
             case state is
                 when IDLE =>
                     if (icache_tlb_hit = '1' and icache_hit = '1') then
-                        csr_cycle_counter <= std_logic_vector(unsigned(csr_cycle_counter) + 1);
+                        csr_cycle_counter_r <= std_logic_vector(unsigned(csr_cycle_counter_r) + 1);
                         pc_r <= pc_p4;
                         iexec_in.cmd <= "0" & i_funct3;
                         iexec_in.rs1 <= i_rs1;
