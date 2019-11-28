@@ -6,12 +6,12 @@ use work.memory_channel_types.ALL;
 entity dcache is
 port(
         sys_clk:                in std_logic;
-        cache_clk:              in std_logic;
+        mem_clk:                in std_logic;
+        enable:                 in std_logic; 
         
-        daddr:                  in std_logic_vector(31 downto 0);
+        addr:                   in std_logic_vector(24 downto 0);
         start:                  in std_logic;
 
-        tlb_hit:                out std_logic;
         hit:                    out std_logic;
         read_data:              out std_logic_vector(31 downto 0);
 
@@ -22,9 +22,7 @@ port(
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
-        sdc_data_out:           in std_logic_vector(15 downto 0);
-
-        page_table_baseaddr:    in std_logic_vector(24 downto 0)
+        sdc_data_out:           in std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -49,7 +47,6 @@ architecture synth of dcache is
 
     type cache_state_t is (
           IDLE
-        , WAIT_TLB
         , STORE_LINE
         , LOAD_LINE
     );
@@ -87,55 +84,7 @@ architecture synth of dcache is
     signal write_strobe_save:   std_logic := '0';
     signal counter:             std_logic_vector(2 downto 0);
 
-    alias tlb_addr:             std_logic_vector(15 downto 0) is daddr(31 downto 16);
-    alias tlb_meta_addr:        std_logic_vector(7 downto 0) is tlb_addr(7 downto 0);
-    signal tlb_meta_data:       std_logic_vector(7 downto 0);
-    signal tlb_meta:            std_logic_vector(7 downto 0);
-    signal tlb_meta_wren:       std_logic := '0';
-    signal tlb_data:            std_logic_vector(15 downto 0);
-    signal tlb_data_wren:       std_logic := '0';
-    signal tlb_hit0:            std_logic;
-    signal tlb_meta_data_line_valid: std_logic;
-    signal tlb_lastaddr:        std_logic_vector(15 downto 0) := (others => '1');
-
-    signal addr:                std_logic_vector(24 downto 0);
-
 begin
-    -- TLB Stuff
-
-    tlb_meta_ram: entity work.ram1p_256x8
-        port map(
-            clock => cache_clk,
-            address => tlb_meta_addr,
-            data => tlb_meta_data,
-            wren => tlb_meta_wren,
-            q => tlb_meta);
-
-    tlb_data_ram: entity work.ram1p_256x16
-        port map(
-            clock => cache_clk,
-            address => tlb_meta_addr,
-            data => sdc_data_out,
-            wren => tlb_data_wren,
-            q => tlb_data);
-
-    tlb_hit0 <= '1' when tlb_meta = (tlb_addr(14 downto 8) & "1") else '0';
-
-    tlb_hit <= '1' when (tlb_lastaddr = tlb_addr and tlb_hit0 = '1') else '0';
-
-    tlb_meta_data <= tlb_addr(14 downto 8) & tlb_meta_data_line_valid;
-
-    process(sys_clk)
-    begin
-            if (tlb_hit0) then
-                tlb_lastaddr <= tlb_addr;
-            end if;
-    end process;
-
-    -- End TLB Stuff
-
-    addr <= tlb_data(8 downto 0) & daddr(15 downto 0);
-
     data_byteenaall <= 
         data_byteena3 & data_byteena2 &
         data_byteena1 & data_byteena0;
@@ -149,7 +98,7 @@ begin
     -- XXX: Init (via file) meta ram values to 0 on start
     meta_ram: entity work.ram1p_256x16
         port map(
-            clock => cache_clk,
+            clock => mem_clk,
             address => addr(11 downto 4),
             data => meta_write,
             wren => meta_wren,
@@ -157,7 +106,7 @@ begin
 
     data0_ram: entity work.ram1p_256x36_byteena
         port map(
-            clock => cache_clk,
+            clock => mem_clk,
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data0_wren,
@@ -166,7 +115,7 @@ begin
 
     data1_ram: entity work.ram1p_256x36_byteena
         port map(
-            clock => cache_clk,
+            clock => mem_clk,
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data1_wren,
@@ -175,7 +124,7 @@ begin
 
     data2_ram: entity work.ram1p_256x36_byteena
         port map(
-            clock => cache_clk,
+            clock => mem_clk,
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data2_wren,
@@ -184,7 +133,7 @@ begin
 
     data3_ram: entity work.ram1p_256x36_byteena
         port map(
-            clock => cache_clk,
+            clock => mem_clk,
             address => addr(11 downto 4),
             data => cache_write_data,
             wren => data3_wren,
@@ -215,6 +164,7 @@ begin
         
     write_strobe <= write_strobe_save;
 
+    mc_in.op_burst <= '1';
     mc_in.op_start <= mc_op_start;
 
     process(sys_clk)
@@ -227,10 +177,6 @@ begin
             meta_wren <= '0';
             meta_write_line_valid <= '1';
 
-            tlb_data_wren <= '0';
-            tlb_meta_wren <= '0';
-            tlb_meta_data_line_valid <= '1';
-
             cache_write_data_b0 <= cache_write_data_b2;
             cache_write_data_b1 <= cache_write_data_b3;
             cache_write_data_b2 <= sdc_data_out(7 downto 0);
@@ -238,18 +184,8 @@ begin
 
             case state is
                 when IDLE =>
-                    if (start /= start_save) then
-                        if (tlb_hit = '0') then
-                            mc_in.op_addr <= 
-                                std_logic_vector(
-                                    unsigned(page_table_baseaddr(24 downto 1)) + 
-                                    unsigned(tlb_addr));
-                            mc_op_start <= not mc_op_start;
-                            mc_in.op_wren <= '0';
-                            state <= WAIT_TLB;
-                            mc_in.op_burst <= '0';
-                            mc_in.op_dqm <= "00";
-                        elsif (wren = '1' and line_hit = '1') then
+                    if (enable = '1' and start /= start_save) then
+                        if (wren = '1' and line_hit = '1') then
                             -- Write data to line
                             start_save <= not start_save;
                             write_strobe_save <= not write_strobe_save;
@@ -286,7 +222,6 @@ begin
                             -- Cache miss
                             if (line_dirty = '1') then
                                 -- Store line
-                                mc_in.op_burst <= '1';
                                 mc_op_start <= not mc_op_start;
                                 mc_in.op_addr <= meta(15 downto 3) & addr(11 downto 4) & "000";
                                 mc_in.op_wren <= '1';
@@ -303,7 +238,6 @@ begin
                                 -- Load line
                                 -- hit going high will signify completion
                                 start_save <= not start_save;
-                                mc_in.op_burst <= '1';
                                 mc_op_start <= not mc_op_start;
                                 mc_in.op_addr <= addr(24 downto 4) & "000";
                                 mc_in.op_wren <= '0';
@@ -339,12 +273,6 @@ begin
                             -- NOP: Cahe-hit Read
                             start_save <= not start_save;
                         end if;
-                    end if;
-                when WAIT_TLB =>
-                    if (mc_out.op_strobe = mc_op_start) then
-                        state <= IDLE;
-                        tlb_data_wren <= '1';
-                        tlb_meta_wren <= '1';
                     end if;
                 when LOAD_LINE =>
                     if (mc_out.op_strobe = mc_op_start) then
