@@ -261,6 +261,13 @@ begin
                 exception_start <= not exception_start;
                 exception_offset <= delayed_exception_offset;
                 exception_pc_save <= delayed_exception_pc;
+            elsif (intr_start_save /= intr_out.intr_start) then
+                intr_start_save <= intr_out.intr_start;
+                exception_start <= not exception_start;
+                exception_offset <= intr_out.intr_vector_addr & intr_out.intr_vector_offset & "0000";
+                exception_pc_save <= pc;
+                -- interrupts already disabled by interrupt controller hence no toggle required
+                toggle_intr_freeze <= '0';
             end if;
         end if;
     end process;
