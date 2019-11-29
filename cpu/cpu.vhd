@@ -28,6 +28,7 @@ end entity;
 architecture synth of cpu is
     signal sys_clk:             std_logic;
     signal mem_clk:             std_logic;
+    signal cache_clk:           std_logic;
     signal reset_n:             std_logic;
 
     signal sdc_in:              mem_channel_in_t;
@@ -67,20 +68,9 @@ architecture synth of cpu is
     signal dcache_write_strobe_save: std_logic := '0';
     signal dcache_write_data:   std_logic_vector(31 downto 0);
 
-    signal chan0_tlb_hit:       std_logic;
-    signal chan1_tlb_hit:       std_logic;
-    signal chan0_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
-    signal chan1_tlb_lastaddr:  std_logic_vector(15 downto 0) := (others => '1');
-
     signal icache_tlb_hit:      std_logic;
-    signal icache_tlb_data:     std_logic_vector(15 downto 0);
-    signal icache_translated_addr: std_logic_vector(24 downto 0);        
     signal dcache_tlb_hit:      std_logic;
-    signal dcache_tlb_data:     std_logic_vector(15 downto 0);
-    signal dcache_translated_addr: std_logic_vector(24 downto 0);        
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
-
-    signal dcache_tlb_enable:   std_logic := '0';
 
     type state_t is (
         S1,
@@ -108,6 +98,7 @@ begin
             inclk0 => clk_50m,
             c0 => sys_clk,
             c1 => mem_clk,
+            c2 => cache_clk,
             locked => reset_n);
 
     sdram_controller: entity work.sdram_controller
@@ -165,56 +156,15 @@ begin
             mc_in => bc_mc1_in,
             mc_out => mc1_out);
 
-    page_tlb: entity work.page_tlb
-        port map(
-            sys_clk => sys_clk,
-            cache_clk => mem_clk,
-
-            chan0_tlb_enable => bootcode_load_done,
-            chan1_tlb_enable => dcache_tlb_enable,
-
-            chan0_addr => pc(31 downto 16),
-            chan0_hit => chan0_tlb_hit,
-            chan0_data => icache_tlb_data,
-
-            chan1_addr => dcache_addr(31 downto 16),
-            chan1_hit => chan1_tlb_hit,
-            chan1_data => dcache_tlb_data,
-
-            page_table_baseaddr => page_table_baseaddr,
-
-            flush => '0',
-            -- flush_strobe =>
-
-            mc_in => mc3_in,
-            mc_out => mc3_out,
-
-            sdc_data_out => sdc_data_out
-            );
-
-
-    icache_tlb_hit <= 
-        '1' when (chan0_tlb_lastaddr = pc(31 downto 16) and 
-                  chan0_tlb_hit = '1')
-        else '0';
-
-    dcache_tlb_hit <= 
-        '1' when (chan1_tlb_lastaddr = dcache_addr(31 downto 16) and 
-                  chan1_tlb_hit = '1')
-        else '0';
-
-    icache_translated_addr <= icache_tlb_data(8 downto 0) & pc(15 downto 0);
-
-    dcache_translated_addr <= 
-        dcache_tlb_data(8 downto 0) & dcache_addr(15 downto 0);
-
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
-            cache_clk => mem_clk,
-            enable => icache_tlb_hit,
+            cache_clk => cache_clk,
+            enable => bootcode_load_done,
 
-            addr => icache_translated_addr,
+            pc => pc,
+
+            tlb_hit => icache_tlb_hit,
             hit => icache_hit,
             data => icache_data,
 
@@ -224,18 +174,20 @@ begin
             mc_in => mc0_in,
             mc_out => mc0_out,
 
-            sdc_data_out => sdc_data_out
+            sdc_data_out => sdc_data_out,
+
+            page_table_baseaddr => page_table_baseaddr
             );
 
     dcache: entity work.dcache
         port map(
             sys_clk => sys_clk,
-            mem_clk => mem_clk,
-            enable => dcache_tlb_hit,
+            cache_clk => cache_clk,
 
-            addr => dcache_translated_addr,
+            daddr => dcache_addr,
             start => dcache_start,
-            
+           
+            tlb_hit => dcache_tlb_hit,
             hit => dcache_hit,
             read_data => dcache_data,
 
@@ -246,18 +198,10 @@ begin
 
             mc_in => mc2_in,
             mc_out => mc2_out,
-            sdc_data_out => sdc_data_out);
+            sdc_data_out => sdc_data_out,
 
-
-    process(sys_clk)
-    begin
-            if (chan0_tlb_hit) then
-                chan0_tlb_lastaddr <= pc(31 downto 16);
-            end if;
-            if (chan1_tlb_hit) then
-                chan1_tlb_lastaddr <= dcache_addr(31 downto 16);
-            end if;
-    end process;
+            page_table_baseaddr => page_table_baseaddr
+            );
 
 -- ---------------------
 -- Debug
