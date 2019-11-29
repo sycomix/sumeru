@@ -21,6 +21,8 @@ SRCS = pll.vhd \
 	divider.vhd \
 	cpu_stage_idecode.vhd \
 	cpu_stage_iexecute.vhd \
+	csr_controller.vhd \
+	csr_cpu_gpio.vhd \
         ${TOPLEVEL}.vhd \
         simulation/sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd

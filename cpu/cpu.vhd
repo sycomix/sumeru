@@ -87,10 +87,13 @@ architecture synth of cpu is
 
     signal csr_cycle_counter:   std_logic_vector(63 downto 0);
     signal csr_instret_counter: std_logic_vector(63 downto 0);
-    signal exception_pc_save:   std_logic_vector(31 downto 0);
+    signal csr_gpio:            std_logic_vector(8 downto 0);
 
     signal csr_in:              csr_channel_in;
-    signal csr_out:             csr_channel_out := ((others => '0'), (others => '0'));
+    signal csr_out:             csr_channel_out;
+    signal csr_module_result:   std_logic_vector(33 downto 0);
+
+    signal exception_pc_save:   std_logic_vector(31 downto 0);
 
 begin
     spi0_sck <= '0';
@@ -187,7 +190,7 @@ begin
 -- Debug
 -- ---------------------
 
-    led <= '0' when pc = x"00000034" else '1';
+    led <= csr_gpio(0);
 
 -- ---------------------
 -- CPU Decode & Dispatch
@@ -223,5 +226,20 @@ begin
             csr_out => csr_out,
             page_table_baseaddr => page_table_baseaddr);
 
+    csr_controller: entity work.csr_controller
+        port map(
+            sys_clk => sys_clk,
+            csr_in => csr_in,
+            csr_out => csr_out,
+            csr_module_result => csr_module_result
+        );
+
+    cpu_gpio: entity work.csr_cpu_gpio
+        port map(
+            sys_clk => sys_clk,
+            gpio => csr_gpio,
+            csr_in => csr_in,
+            csr_result => csr_module_result
+        );
 
 end architecture;
