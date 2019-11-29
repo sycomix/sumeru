@@ -86,7 +86,11 @@ architecture synth of cpu is
     signal intr_out:            interrupt_channel_out := ('0', (others => '0'), (others => '0'));
 
     signal csr_cycle_counter:   std_logic_vector(63 downto 0);
+    signal csr_instret_counter: std_logic_vector(63 downto 0);
     signal exception_pc_save:   std_logic_vector(31 downto 0);
+
+    signal csr_in:              csr_channel_in;
+    signal csr_out:             csr_channel_out := ((others => '0'), (others => '0'));
 
 begin
     spi0_sck <= '0';
@@ -179,30 +183,6 @@ begin
             page_table_baseaddr => page_table_baseaddr
             );
 
-    dcache: entity work.dcache
-        port map(
-            sys_clk => sys_clk,
-            cache_clk => cache_clk,
-
-            daddr => dcache_addr,
-            start => dcache_start,
-           
-            tlb_hit => dcache_tlb_hit,
-            hit => dcache_hit,
-            read_data => dcache_data,
-
-            wren => dcache_wren,
-            byteena => dcache_byteena,
-            write_strobe => dcache_write_strobe,
-            write_data => dcache_write_data,
-
-            mc_in => mc2_in,
-            mc_out => mc2_out,
-            sdc_data_out => sdc_data_out,
-
-            page_table_baseaddr => page_table_baseaddr
-            );
-
 -- ---------------------
 -- Debug
 -- ---------------------
@@ -228,5 +208,20 @@ begin
             exception_pc_save => exception_pc_save,
             intr_in => intr_in,
             intr_out => intr_out);
+
+    iexecute: entity work.cpu_stage_iexecute
+        port map(
+            sys_clk => sys_clk,
+            cache_clk => cache_clk,
+            iexec_in => iexec_in,
+            iexec_out => iexec_out,
+            mc_in => mc2_in,
+            mc_out => mc2_out,
+            sdc_data_out => sdc_data_out,
+            csr_instret_counter => csr_instret_counter,
+            csr_in => csr_in,
+            csr_out => csr_out,
+            page_table_baseaddr => page_table_baseaddr);
+
 
 end architecture;
