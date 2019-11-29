@@ -78,13 +78,13 @@ architecture synth of dcache is
     -- cache data is data bits and byteena bits
     signal cache_data:          std_logic_vector(35 downto 0);
     -- alias for byteena bits
-    alias data_byteena0:      std_logic is cache_data(8);
-    alias data_byteena1:      std_logic is cache_data(17);
-    alias data_byteena2:      std_logic is cache_data(26);
-    alias data_byteena3:      std_logic is cache_data(35);
-    signal data_byteenaall:    std_logic_vector(3 downto 0);
+    alias data_byteena0:        std_logic is cache_data(8);
+    alias data_byteena1:        std_logic is cache_data(17);
+    alias data_byteena2:        std_logic is cache_data(26);
+    alias data_byteena3:        std_logic is cache_data(35);
+    signal data_byteenaall:     std_logic_vector(3 downto 0);
 
-    signal write_strobe_save:   std_logic := '0';
+    signal write_strobe_r:      std_logic := '0';
     signal counter:             std_logic_vector(2 downto 0);
 
     alias tlb_addr:             std_logic_vector(15 downto 0) is daddr(31 downto 16);
@@ -213,7 +213,7 @@ begin
                     meta_write_line_dirty & 
                     "0";
         
-    write_strobe <= write_strobe_save;
+    write_strobe <= write_strobe_r;
 
     mc_in.op_start <= mc_op_start;
 
@@ -236,6 +236,8 @@ begin
             cache_write_data_b2 <= sdc_data_out(7 downto 0);
             cache_write_data_b3 <= sdc_data_out(15 downto 8);
 
+            write_strobe_r <= '0';
+
             case state is
                 when IDLE =>
                     if (start /= start_save) then
@@ -252,7 +254,7 @@ begin
                         elsif (wren = '1' and line_hit = '1') then
                             -- Write data to line
                             start_save <= not start_save;
-                            write_strobe_save <= not write_strobe_save;
+                            write_strobe_r <= '1';
                             cache_write_data_byteena0 <= '1';
                             cache_write_data_byteena1 <= '1';
                             cache_write_data_byteena2 <= '1';
