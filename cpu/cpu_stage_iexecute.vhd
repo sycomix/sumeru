@@ -37,7 +37,6 @@ architecture synth of cpu_stage_iexecute is
         DIV_STAGE2,
         MUL_STAGE2,
         CSRXXX_STAGE2,
-        CLFLUSH_STAGE2,
         EXEC_EXN_STAGE2);
 
     signal state:               execute_state := IDLE;
@@ -381,10 +380,15 @@ begin
                                 -- CSR addr 0
                                 rd_wren_ff := '0';
                                 bus_busy <= '1';
-                                cache_addr <= cache_addr_v;
-                                -- XXX TODO IMPLEMENT CACHE FLUSH
-                                -- cache_line_flush_start <= not cache_line_flush_start;
-                                state <= CLFLUSH_STAGE2;
+                                -- DCACHE LINE EVICTION
+                                cache_addr <= 
+                                    "0000000000000000000" &
+                                    (not cache_addr(12)) & 
+                                    cache_addr_v(11 downto 0);
+                                cache_wren <= '1';
+                                cache_dqm <= "0000";
+                                cache_start <= not cache_start;
+                                state <= STORE_WAIT;
                             when META_CMD_MULDIV =>
                                 rd_wren_ff := '0';
                                 bus_busy <= '1';
@@ -415,6 +419,7 @@ begin
                                 cache_wren <= '0';
                             when META_CMD_STORE =>
                                 cache_addr <= cache_addr_v;
+                                cache_wren <= '1';
                                 state <= STORE_INIT;
                                 rd_wren_ff := '0';
                                 bus_busy <= '1';
@@ -471,12 +476,6 @@ begin
                                 rd_wren_ff := '0';
                         end case;
                     end if;
-                when CLFLUSH_STAGE2 =>
-                    -- XXX TODO IMPLEMENT CACHE FLUSH
-                    -- if (cache_flush_done = '1') then
-                    --    bus_busy <= '0';
-                        state <= IDLE;
-                    -- end if;
                 when CSRXXX_STAGE2 =>
                     csr_valid <= '0';
                     if (csr_out.csr_op(1) = '1') then
@@ -589,7 +588,7 @@ begin
                     rd_wren_ff := stage2_wren_save;
                     state <= IDLE;
                 when LOAD_WAIT =>
-                    if (cache_hit) then
+                    if (cache_tlb_hit = '1' and cache_hit = '1') then
                         state <= IDLE;
                         rd_wren_ff := stage2_wren_save;
                         bus_busy <= '0';
@@ -637,7 +636,7 @@ begin
                     state <= STORE_WAIT;
                     cache_start <= not cache_start;
                 when STORE_WAIT =>
-                    if (cache_write_strobe) then
+                    if (cache_write_strobe = '1') then
                         state <= IDLE;
                         bus_busy <= '0';
                     end if;
