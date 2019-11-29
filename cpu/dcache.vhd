@@ -127,7 +127,7 @@ begin
 
     process(sys_clk)
     begin
-            if (tlb_hit0) then
+            if (rising_edge(sys_clk) and tlb_hit0 = '1') then
                 tlb_lastaddr <= tlb_addr;
             end if;
     end process;
