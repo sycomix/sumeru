@@ -23,7 +23,10 @@ main:
     lui sp, 0x2                 #stack at 0x2000
     la gp, globals              #globals at 0x3000
 
+    addi t0,zero,0
 mainloop:
+    addi t0,t0,1
+    csrrw zero,0xf03,t0         #set gpio(0) led
     j mainloop
 
 .align(8)

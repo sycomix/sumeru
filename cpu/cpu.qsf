@@ -44,17 +44,10 @@ set_global_assignment -name VHDL_FILE cpu_types.vhd
 set_global_assignment -name VHDL_FILE memory_channel_types.vhd
 set_global_assignment -name VHDL_FILE memory_arbitrator.vhd
 set_global_assignment -name VHDL_FILE memory_loader.vhd
+set_global_assignment -name VHDL_FILE icache.vhd
 set_global_assignment -name VHDL_FILE cpu.vhd
 set_global_assignment -name VHDL_FILE sdram_controller.vhd
-set_global_assignment -name VHDL_FILE icache.vhd
-set_global_assignment -name VHDL_FILE dcache.vhd
 set_global_assignment -name VHDL_FILE sumeru_constants.vhd
-set_global_assignment -name VHDL_FILE multiplier.vhd
-set_global_assignment -name VHDL_FILE divider.vhd
-set_global_assignment -name VHDL_FILE cpu_stage_idecode.vhd
-set_global_assignment -name VHDL_FILE cpu_stage_iexecute.vhd
-set_global_assignment -name VHDL_FILE csr_controller.vhd
-set_global_assignment -name VHDL_FILE csr_cpu_gpio.vhd
 set_global_assignment -name SDC_FILE cpu.sdc
 
 
@@ -211,6 +204,8 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[12]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[13]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[14]
 set_instance_assignment -name CURRENT_STRENGTH_NEW 8MA -to sdram_data[15]
+
+
 
 
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

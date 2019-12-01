@@ -14,15 +14,8 @@ SRCS = pll.vhd \
         sdram_controller_simlowdelay.vhd \
         memory_arbitrator.vhd \
         memory_loader.vhd \
-        icache.vhd \
-	dcache.vhd \
 	sumeru_constants.vhd \
-	multiplier.vhd \
-	divider.vhd \
-	cpu_stage_idecode.vhd \
-	cpu_stage_iexecute.vhd \
-	csr_controller.vhd \
-	csr_cpu_gpio.vhd \
+	icache.vhd \
         ${TOPLEVEL}.vhd \
         simulation/sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd

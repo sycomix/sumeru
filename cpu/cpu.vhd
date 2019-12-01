@@ -3,6 +3,7 @@ use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use work.memory_channel_types.ALL;
 use work.cpu_types.ALL;
+use work.sumeru_constants.ALL;
 
 entity cpu is
 port(
@@ -53,47 +54,19 @@ architecture synth of cpu is
 
     signal bootcode_load_done:  std_logic;
 
-    signal icache_hit:          std_logic;
+    signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
+
+    signal icache_meta:         std_logic_vector(15 downto 0);
     signal icache_data:         std_logic_vector(31 downto 0);
-
-    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
-    signal dcache_addr:         std_logic_vector(31 downto 0) := (others => '0');
-
-    signal dcache_start:        std_logic := '0';
-    signal dcache_hit:          std_logic;
-    signal dcache_data:         std_logic_vector(31 downto 0);
-    signal dcache_wren:         std_logic := '0';
-    signal dcache_byteena:      std_logic_vector(3 downto 0);
-    signal dcache_write_strobe: std_logic;
-    signal dcache_write_strobe_save: std_logic := '0';
-    signal dcache_write_data:   std_logic_vector(31 downto 0);
-
-    signal icache_tlb_hit:      std_logic;
-    signal dcache_tlb_hit:      std_logic;
-    signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
+    signal icache_load:         std_logic := '0';
 
     type state_t is (
         S1,
-        S2);
+        S2,
+        S3
+    );
         
     signal state:               state_t := S1;
-
-    signal icache_flush:        std_logic;
-    signal icache_flush_strobe: std_logic;
-    signal iexec_in:            iexec_channel_in;
-    signal iexec_out:           iexec_channel_out := ('0', '0', '0', (others => '0'), '0', (others => '0')); 
-    signal intr_in:             interrupt_channel_in;      
-    signal intr_out:            interrupt_channel_out := ('0', (others => '0'), (others => '0'));
-
-    signal csr_cycle_counter:   std_logic_vector(63 downto 0);
-    signal csr_instret_counter: std_logic_vector(63 downto 0);
-    signal csr_gpio:            std_logic_vector(8 downto 0);
-
-    signal csr_in:              csr_channel_in;
-    signal csr_out:             csr_channel_out;
-    signal csr_module_result:   std_logic_vector(33 downto 0);
-
-    signal exception_pc_save:   std_logic_vector(31 downto 0);
 
 begin
     spi0_sck <= '0';
@@ -105,7 +78,6 @@ begin
             inclk0 => clk_50m,
             c0 => sys_clk,
             c1 => mem_clk,
-            c2 => cache_clk,
             locked => reset_n);
 
     sdram_controller: entity work.sdram_controller
@@ -166,80 +138,40 @@ begin
     icache: entity work.icache
         port map(
             sys_clk => sys_clk,
-            cache_clk => cache_clk,
-            enable => bootcode_load_done,
-
-            pc => pc,
-
-            tlb_hit => icache_tlb_hit,
-            hit => icache_hit,
+            cache_clk => mem_clk,
+            addr => pc(24 downto 0),
+            meta => icache_meta,
             data => icache_data,
-
-            flush => icache_flush,
-            flush_strobe => icache_flush_strobe,
-
+            load => icache_load,
+            flush => '0',
+            -- flush_strobe =>
             mc_in => mc0_in,
             mc_out => mc0_out,
+            sdc_data_out => sdc_data_out);
 
-            sdc_data_out => sdc_data_out,
-
-            page_table_baseaddr => page_table_baseaddr
-            );
-
--- ---------------------
--- Debug
--- ---------------------
-
-    led <= csr_gpio(0);
-
--- ---------------------
--- CPU Decode & Dispatch
--- ---------------------
-
-    idecode: entity work.cpu_stage_idecode
-        port map(
-            sys_clk => sys_clk,
-            pc => pc,
-            icache_tlb_hit => icache_tlb_hit,
-            icache_hit => icache_hit,
-            icache_data => icache_data,
-            iexec_in => iexec_in,
-            iexec_out => iexec_out,
-            csr_cycle_counter => csr_cycle_counter,
-            icache_flush => icache_flush,
-            icache_flush_strobe => icache_flush_strobe,
-            exception_pc_save => exception_pc_save,
-            intr_in => intr_in,
-            intr_out => intr_out);
-
-    iexecute: entity work.cpu_stage_iexecute
-        port map(
-            sys_clk => sys_clk,
-            cache_clk => cache_clk,
-            iexec_in => iexec_in,
-            iexec_out => iexec_out,
-            mc_in => mc2_in,
-            mc_out => mc2_out,
-            sdc_data_out => sdc_data_out,
-            csr_instret_counter => csr_instret_counter,
-            csr_in => csr_in,
-            csr_out => csr_out,
-            page_table_baseaddr => page_table_baseaddr);
-
-    csr_controller: entity work.csr_controller
-        port map(
-            sys_clk => sys_clk,
-            csr_in => csr_in,
-            csr_out => csr_out,
-            csr_module_result => csr_module_result
-        );
-
-    cpu_gpio: entity work.csr_cpu_gpio
-        port map(
-            sys_clk => sys_clk,
-            gpio => csr_gpio,
-            csr_in => csr_in,
-            csr_result => csr_module_result
-        );
+    process(sys_clk)
+    begin
+        if (rising_edge(sys_clk)) then
+            case state is
+                when S1 =>
+                    if (bootcode_load_done = '1') then
+                        icache_load <= '1';
+                        state <= S2;
+                    end if;
+                when S2 =>
+                    icache_load <= '0';
+                    if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) then
+                            if (icache_data = x"0100006F") then 
+                                led <= '0';
+                            else
+                                led <= '1';
+                            end if;
+                            state <= S3;
+                    end if;
+                when S3 =>
+            end case;
+        end if;
+    end process;
+    
 
 end architecture;

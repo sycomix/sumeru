@@ -1,4 +1,4 @@
-library work, ieee;
+library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use work.sumeru_constants.all;
