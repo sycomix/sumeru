@@ -20,7 +20,19 @@ port(
         mc2_out:                out mem_channel_out_t;
 
         mc3_in:                 in mem_channel_in_t;
-        mc3_out:                out mem_channel_out_t
+        mc3_out:                out mem_channel_out_t;
+
+        mc4_in:                 in mem_channel_in_t;
+        mc4_out:                out mem_channel_out_t;
+
+        mc5_in:                 in mem_channel_in_t;
+        mc5_out:                out mem_channel_out_t;
+
+        mc6_in:                 in mem_channel_in_t;
+        mc6_out:                out mem_channel_out_t;
+
+        mc7_in:                 in mem_channel_in_t;
+        mc7_out:                out mem_channel_out_t
     );
 end entity;
 
@@ -33,38 +45,58 @@ architecture synth of memory_arbitrator is
         );
 
     signal state:               arbit_state_t := IDLE;
-    signal chan:                std_logic_vector(1 downto 0) := (others => '0');
+    signal chan:                std_logic_vector(2 downto 0) := (others => '0');
     signal op_start:            std_logic := '0';
 
     signal mc0_strobe_mux:      std_logic := '0';
     signal mc1_strobe_mux:      std_logic := '0';
     signal mc2_strobe_mux:      std_logic := '0';
     signal mc3_strobe_mux:      std_logic := '0';
+    signal mc4_strobe_mux:      std_logic := '0';
+    signal mc5_strobe_mux:      std_logic := '0';
+    signal mc6_strobe_mux:      std_logic := '0';
+    signal mc7_strobe_mux:      std_logic := '0';
     signal mc0_strobe:          std_logic := '0';
     signal mc1_strobe:          std_logic := '0';
     signal mc2_strobe:          std_logic := '0';
     signal mc3_strobe:          std_logic := '0';
+    signal mc4_strobe:          std_logic := '0';
+    signal mc5_strobe:          std_logic := '0';
+    signal mc6_strobe:          std_logic := '0';
+    signal mc7_strobe:          std_logic := '0';
     signal mc0_strobe_reg:      std_logic;
     signal mc1_strobe_reg:      std_logic;
     signal mc2_strobe_reg:      std_logic;
     signal mc3_strobe_reg:      std_logic;
+    signal mc4_strobe_reg:      std_logic;
+    signal mc5_strobe_reg:      std_logic;
+    signal mc6_strobe_reg:      std_logic;
+    signal mc7_strobe_reg:      std_logic;
 
 begin
     sdc_in.op_start <= op_start;
 
     with chan select
         sdc_in.write_data <=
-            mc0_in.write_data when "00",
-            mc1_in.write_data when "01",
-            mc2_in.write_data when "10",
-            mc3_in.write_data when others;
+            mc0_in.write_data when "000",
+            mc1_in.write_data when "001",
+            mc2_in.write_data when "010",
+            mc3_in.write_data when "011",
+            mc4_in.write_data when "100",
+            mc5_in.write_data when "101",
+            mc6_in.write_data when "110",
+            mc7_in.write_data when others;
 
     with chan select
         sdc_in.op_dqm <=
-            mc0_in.op_dqm when "00",
-            mc1_in.op_dqm when "01",
-            mc2_in.op_dqm when "10",
-            mc3_in.op_dqm when others;
+            mc0_in.op_dqm when "000",
+            mc1_in.op_dqm when "001",
+            mc2_in.op_dqm when "010",
+            mc3_in.op_dqm when "011",
+            mc4_in.op_dqm when "100",
+            mc5_in.op_dqm when "101",
+            mc6_in.op_dqm when "110",
+            mc7_in.op_dqm when others;
 
     mc0_out.op_strobe <= 
              (sdc_out.op_strobe xor mc0_strobe_reg) when mc0_strobe_mux = '1'
@@ -78,6 +110,18 @@ begin
     mc3_out.op_strobe <= 
              (sdc_out.op_strobe xor mc3_strobe_reg) when mc3_strobe_mux = '1'
              else mc3_strobe;
+    mc4_out.op_strobe <= 
+             (sdc_out.op_strobe xor mc4_strobe_reg) when mc4_strobe_mux = '1'
+             else mc4_strobe;
+    mc5_out.op_strobe <= 
+             (sdc_out.op_strobe xor mc5_strobe_reg) when mc5_strobe_mux = '1'
+             else mc5_strobe;
+    mc6_out.op_strobe <= 
+             (sdc_out.op_strobe xor mc6_strobe_reg) when mc6_strobe_mux = '1'
+             else mc6_strobe;
+    mc7_out.op_strobe <= 
+             (sdc_out.op_strobe xor mc7_strobe_reg) when mc7_strobe_mux = '1'
+             else mc7_strobe;
 
     process(clk)
     begin
@@ -88,7 +132,7 @@ begin
                         sdc_in.op_addr <= mc0_in.op_addr;
                         sdc_in.op_wren <= mc0_in.op_wren;
                         sdc_in.op_burst <= mc0_in.op_burst;
-                        chan <= "00";
+                        chan <= "000";
                         op_start <= not op_start;
                         state <= WAIT_STROBE;
                         mc0_strobe_mux <= '1';
@@ -99,7 +143,7 @@ begin
                         sdc_in.op_addr <= mc1_in.op_addr;
                         sdc_in.op_wren <= mc1_in.op_wren;
                         sdc_in.op_burst <= mc1_in.op_burst;
-                        chan <= "01";
+                        chan <= "001";
                         op_start <= not op_start;
                         state <= WAIT_STROBE;
                         mc1_strobe_mux <= '1';
@@ -110,7 +154,7 @@ begin
                         sdc_in.op_addr <= mc2_in.op_addr;
                         sdc_in.op_wren <= mc2_in.op_wren;
                         sdc_in.op_burst <= mc2_in.op_burst;
-                        chan <= "10";
+                        chan <= "010";
                         op_start <= not op_start;
                         state <= WAIT_STROBE;
                         mc2_strobe_mux <= '1';
@@ -121,13 +165,57 @@ begin
                         sdc_in.op_addr <= mc3_in.op_addr;
                         sdc_in.op_wren <= mc3_in.op_wren;
                         sdc_in.op_burst <= mc3_in.op_burst;
-                        chan <= "11";
+                        chan <= "011";
                         op_start <= not op_start;
                         state <= WAIT_STROBE;
                         mc3_strobe_mux <= '1';
                         mc3_strobe_reg <= 
                             mc3_strobe xor sdc_out.op_strobe;
                         mc3_strobe <= not mc3_strobe;
+                    elsif (mc4_in.op_start /= mc4_strobe) then
+                        sdc_in.op_addr <= mc4_in.op_addr;
+                        sdc_in.op_wren <= mc4_in.op_wren;
+                        sdc_in.op_burst <= mc4_in.op_burst;
+                        chan <= "100";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                        mc4_strobe_mux <= '1';
+                        mc4_strobe_reg <= 
+                            mc4_strobe xor sdc_out.op_strobe;
+                        mc4_strobe <= not mc4_strobe;
+                    elsif (mc5_in.op_start /= mc5_strobe) then
+                        sdc_in.op_addr <= mc5_in.op_addr;
+                        sdc_in.op_wren <= mc5_in.op_wren;
+                        sdc_in.op_burst <= mc5_in.op_burst;
+                        chan <= "101";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                        mc5_strobe_mux <= '1';
+                        mc5_strobe_reg <= 
+                            mc5_strobe xor sdc_out.op_strobe;
+                        mc5_strobe <= not mc5_strobe;
+                    elsif (mc6_in.op_start /= mc6_strobe) then
+                        sdc_in.op_addr <= mc6_in.op_addr;
+                        sdc_in.op_wren <= mc6_in.op_wren;
+                        sdc_in.op_burst <= mc6_in.op_burst;
+                        chan <= "110";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                        mc6_strobe_mux <= '1';
+                        mc6_strobe_reg <= 
+                            mc6_strobe xor sdc_out.op_strobe;
+                        mc6_strobe <= not mc6_strobe;
+                    elsif (mc7_in.op_start /= mc7_strobe) then
+                        sdc_in.op_addr <= mc7_in.op_addr;
+                        sdc_in.op_wren <= mc7_in.op_wren;
+                        sdc_in.op_burst <= mc7_in.op_burst;
+                        chan <= "111";
+                        op_start <= not op_start;
+                        state <= WAIT_STROBE;
+                        mc7_strobe_mux <= '1';
+                        mc7_strobe_reg <= 
+                            mc7_strobe xor sdc_out.op_strobe;
+                        mc7_strobe <= not mc7_strobe;
                     end if;
                 when WAIT_STROBE =>
                     if (sdc_out.op_strobe = op_start) then
@@ -136,6 +224,10 @@ begin
                         mc1_strobe_mux <= '0';
                         mc2_strobe_mux <= '0';
                         mc3_strobe_mux <= '0';
+                        mc4_strobe_mux <= '0';
+                        mc5_strobe_mux <= '0';
+                        mc6_strobe_mux <= '0';
+                        mc7_strobe_mux <= '0';
                     end if;
                 when WAIT_BUSY =>
                     if (sdc_busy = '0') then

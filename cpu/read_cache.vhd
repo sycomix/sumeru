@@ -3,7 +3,7 @@ use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use work.memory_channel_types.ALL;
 
-entity icache is
+entity read_cache is
 port(
         sys_clk:                in std_logic;
         cache_clk:              in std_logic;
@@ -23,7 +23,7 @@ port(
     );
 end entity;
 
-architecture synth of icache is
+architecture synth of read_cache is
     signal meta_wren:           std_logic := '0';
 
     signal data0:               std_logic_vector(31 downto 0);

@@ -49,6 +49,18 @@ architecture synth of cpu is
     signal mc3_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal mc3_out:             mem_channel_out_t;
 
+    signal mc4_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal mc4_out:             mem_channel_out_t;
+
+    signal mc5_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal mc5_out:             mem_channel_out_t;
+
+    signal mc6_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal mc6_out:             mem_channel_out_t;
+
+    signal mc7_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal mc7_out:             mem_channel_out_t;
+
     signal bc_mc1_in:           mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc1_in:         mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
@@ -117,7 +129,19 @@ memory_arbitrator: entity work.memory_arbitrator
         mc2_out => mc2_out,
 
         mc3_in => mc3_in,
-        mc3_out => mc3_out
+        mc3_out => mc3_out,
+
+        mc4_in => mc4_in,
+        mc4_out => mc4_out,
+
+        mc5_in => mc5_in,
+        mc5_out => mc5_out,
+
+        mc6_in => mc6_in,
+        mc6_out => mc6_out,
+
+        mc7_in => mc7_in,
+        mc7_out => mc7_out
     );
 
 mc1_in <= bc_mc1_in when bootcode_load_done = '0' else pbus_mc1_in;
@@ -135,7 +159,7 @@ bootcode_loader: entity work.memory_loader
             mc_in => bc_mc1_in,
             mc_out => mc1_out);
 
-icache: entity work.icache
+icache: entity work.read_cache
     port map(
         sys_clk => sys_clk,
         cache_clk => mem_clk,
