@@ -80,6 +80,8 @@ architecture synth of cpu is
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
+    signal idecode_in:          idecode_channel_in;
+
     type state_t is (
         IDLE,
         WAIT_ICACHE_LOAD,
@@ -198,6 +200,13 @@ icache: entity work.read_cache_16x32x256
         mc_in => mc1_in,
         mc_out => mc1_out,
         sdc_data_out => sdc_data_out);
+
+idecode_in.insn <= icache_data;
+
+idecode: entity work.cpu_stage_idecode
+    port map(
+        idecode_in => idecode_in
+        );
 
 led <= '0' when icache_data = x"0100006F" else '1';
 

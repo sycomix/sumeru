@@ -95,6 +95,10 @@ package cpu_types is
     constant CMD_REM:           std_logic_vector(3 downto 0) := "0110";
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
 
+    type idecode_channel_in is record
+        insn:                   std_logic_vector(31 downto 0);
+    end record;
+
     type iexec_channel_in is record
         meta_cmd:               std_logic_vector(3 downto 0);
         cmd:                    std_logic_vector(3 downto 0);
