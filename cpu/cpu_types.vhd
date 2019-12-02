@@ -97,6 +97,7 @@ package cpu_types is
 
     type idecode_channel_in is record
         insn:                   std_logic_vector(31 downto 0);
+        bus_valid:              std_logic;
     end record;
 
     type iexec_channel_in is record

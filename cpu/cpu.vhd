@@ -81,6 +81,7 @@ architecture synth of cpu is
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
     signal idecode_in:          idecode_channel_in;
+    signal decode_bus_valid:    std_logic := '0';
 
     type state_t is (
         IDLE,
@@ -202,6 +203,7 @@ icache: entity work.read_cache_16x32x256
         sdc_data_out => sdc_data_out);
 
 idecode_in.insn <= icache_data;
+idecode_in.bus_valid <= decode_bus_valid;
 
 idecode: entity work.cpu_stage_idecode
     port map(
@@ -213,6 +215,9 @@ led <= '0' when icache_data = x"0100006F" else '1';
 process(sys_clk)
 begin
     if (rising_edge(sys_clk) and bootcode_load_done = '1') then
+        decode_bus_valid <= '0';
+        icache_load <= '0';
+        icache_tlb_load <= '0';
         case state is 
             when IDLE =>
                 if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
@@ -222,6 +227,7 @@ begin
                         then 
                             -- ICACHE HIT
                             pc <= std_logic_vector(unsigned(pc) + 4);
+                            decode_bus_valid <= '1';
                         else
                             icache_load <= '1';
                             state <= WAIT_ICACHE_LOAD;
@@ -234,12 +240,10 @@ begin
                     state <= WAIT_ICACHE_TLB_LOAD;
                 end if;
             when WAIT_ICACHE_LOAD =>
-                icache_load <= '0';
                 if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1"))  then
                     state <= IDLE;
                 end if;
             when WAIT_ICACHE_TLB_LOAD =>
-                icache_tlb_load <= '0';
                 icache_tlb_last_idx <= pc(23 downto 16);
                 if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
                     state <= IDLE;
