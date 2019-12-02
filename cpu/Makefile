@@ -30,7 +30,9 @@ LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
 %.o : %.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
-$(TOPLEVEL)_tb: $(OBJS)
+compile: $(TOPLEVEL)_tb
+
+$(TOPLEVEL)_tb: $(OBJS) BOOTCODE.hex
 	ghdl -e --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $(TOPLEVEL)_tb
 
 sdram_controller_simlowdelay.vhd: sdram_controller.vhd
