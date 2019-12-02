@@ -212,7 +212,7 @@ begin
                         if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) 
                         then 
                             -- ICACHE HIT
-                            state <= DONE;
+                            pc <= std_logic_vector(unsigned(pc) + 4);
                         else
                             icache_load <= '1';
                             state <= WAIT_ICACHE_LOAD;
