@@ -159,7 +159,7 @@ bootcode_loader: entity work.memory_loader
             mc_in => bc_mc1_in,
             mc_out => mc1_out);
 
-icache: entity work.read_cache
+icache: entity work.read_cache_16x32x256
     port map(
         sys_clk => sys_clk,
         cache_clk => mem_clk,

@@ -15,8 +15,9 @@ SRCS = pll.vhd \
         memory_arbitrator.vhd \
         memory_loader.vhd \
 	sumeru_constants.vhd \
-	read_cache.vhd \
-        ${TOPLEVEL}.vhd \
+	read_cache_16x32x256.vhd \
+	read_cache_8x16x256.vhd \
+	${TOPLEVEL}.vhd \
         simulation/sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
 
