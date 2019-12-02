@@ -72,21 +72,22 @@ architecture synth of cpu is
     signal icache_meta:         std_logic_vector(15 downto 0);
     signal icache_data:         std_logic_vector(31 downto 0);
     signal icache_load:         std_logic := '0';
+    signal icache_busy:         std_logic := '0';
 
     signal icache_tlb_meta:     std_logic_vector(7 downto 0);
     signal icache_tlb_data:     std_logic_vector(15 downto 0);
     signal icache_tlb_last_idx: std_logic_vector(7 downto 0);
     signal icache_tlb_load:     std_logic := '0';
+    signal icache_tlb_busy:     std_logic := '0';
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
     signal idecode_in:          idecode_channel_in;
+    signal idecode_out:         idecode_channel_out;
     signal decode_bus_valid:    std_logic := '0';
 
     type state_t is (
         IDLE,
-        WAIT_ICACHE_LOAD,
-        WAIT_ICACHE_TLB_LOAD,
         DONE
     );
         
@@ -202,15 +203,17 @@ icache: entity work.read_cache_16x32x256
         mc_out => mc1_out,
         sdc_data_out => sdc_data_out);
 
-idecode_in.insn <= icache_data;
+idecode_in.inst <= icache_data;
 idecode_in.bus_valid <= decode_bus_valid;
 
 idecode: entity work.cpu_stage_idecode
     port map(
-        idecode_in => idecode_in
+        sys_clk => sys_clk,
+        idecode_in => idecode_in,
+        idecode_out => idecode_out
         );
 
-led <= '0' when icache_data = x"0100006F" else '1';
+led <= '0' when icache_data = x"00000013" else '1';
 
 process(sys_clk)
 begin
@@ -223,30 +226,26 @@ begin
                 if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
                     if (icache_tlb_last_idx = pc(23 downto 16)) then
                         -- TLB HIT
+                        icache_tlb_busy <= '0';
                         if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) 
                         then 
                             -- ICACHE HIT
-                            pc <= std_logic_vector(unsigned(pc) + 4);
+                            icache_busy <= '0';
+                            pc <= pc(31 downto 4) & std_logic_vector(unsigned(pc(3 downto 0)) + 4);
                             decode_bus_valid <= '1';
                         else
-                            icache_load <= '1';
-                            state <= WAIT_ICACHE_LOAD;
+                            if (icache_busy = '0') then
+                                icache_load <= '1';
+                                icache_busy <= '1';
+                            end if;
                         end if;
-                    else
-                        icache_tlb_last_idx <= pc(23 downto 16);
                     end if;
+                    icache_tlb_last_idx <= pc(23 downto 16);
                 else
-                    icache_tlb_load <= '1';
-                    state <= WAIT_ICACHE_TLB_LOAD;
-                end if;
-            when WAIT_ICACHE_LOAD =>
-                if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1"))  then
-                    state <= IDLE;
-                end if;
-            when WAIT_ICACHE_TLB_LOAD =>
-                icache_tlb_last_idx <= pc(23 downto 16);
-                if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
-                    state <= IDLE;
+                    if (icache_tlb_busy = '0') then
+                        icache_tlb_load <= '1';
+                        icache_tlb_busy <= '1';
+                    end if;
                 end if;
             when DONE =>
         end case;

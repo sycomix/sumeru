@@ -7,10 +7,14 @@ use work.memory_channel_types.ALL;
 
 entity cpu_stage_idecode is
 port(
-    idecode_in:                 in idecode_channel_in
+    sys_clk:                    in std_logic;
+    idecode_in:                 in idecode_channel_in;
+    idecode_out:                out idecode_channel_out
     );
 end entity;
 
 architecture synth of cpu_stage_idecode is
 begin
+--    if (rising_edge(sys_clk) and idecode_in.bus_valid = '1') then
+--    end if;
 end architecture;

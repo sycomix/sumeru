@@ -96,70 +96,12 @@ package cpu_types is
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
 
     type idecode_channel_in is record
-        insn:                   std_logic_vector(31 downto 0);
+        inst:                   std_logic_vector(31 downto 0);
         bus_valid:              std_logic;
     end record;
-
-    type iexec_channel_in is record
-        meta_cmd:               std_logic_vector(3 downto 0);
-        cmd:                    std_logic_vector(3 downto 0);
-        cmd_r2_imm:             std_logic;
-        immediate:              std_logic_vector(31 downto 0);
-        rs1:                    std_logic_vector(4 downto 0);
-        rs2:                    std_logic_vector(4 downto 0);
-        rd:                     std_logic_vector(4 downto 0);
-        bus_valid:              std_logic;
-        dcache_line_evict:      std_logic;
+    
+    type idecode_channel_out is record
+        pc_update:              std_logic_vector(31 downto 0);
     end record;
 
-    type iexec_channel_out is record
-        bus_busy:               std_logic;
-        pc_update_done:         std_logic;
-        pc_branch_taken:        std_logic;
-        jalr_branch_addr:       std_logic_vector(31 downto 0);
-        exception_start:        std_logic;
-        exception_pc:           std_logic_vector(31 downto 0);
-    end record;
-
-    type csr_channel_in is record
-        valid:              std_logic;
-        funct3:             std_logic_vector(2 downto 0);
-        addr:               std_logic_vector(11 downto 0);          
-        value:              std_logic_vector(31 downto 0);
-    end record;
-
-    type csr_channel_out is record
-        csr_op:             std_logic_vector(1 downto 0);
-        result:             std_logic_vector(31 downto 0);
-    end record;
-
-    type interrupt_channel_in is record
-        intr_freeze:            std_logic;
-        intr_freeze_flag:       std_logic;
-        idecode_intr_start_save: std_logic;
-    end record;
-
-    type interrupt_channel_out is record
-        intr_start:             std_logic;   
-        intr_vector_addr:       std_logic_vector(23 downto 0);
-        intr_vector_offset:     std_logic_vector(3 downto 0);
-    end record;
-
-    type pbus_read_channel_in is record
-        read_addr:              std_logic_vector(23 downto 0);
-        read_burst:             std_logic;
-        read_start:             std_logic;
-    end record;
-
-    type pbus_write_channel_in is record
-        write_addr:             std_logic_vector(23 downto 0);
-        write_data:             std_logic_vector(15 downto 0);
-        write_dqm:              std_logic_vector(1 downto 0);
-        write_burst:            std_logic;
-        write_start:            std_logic;
-    end record;
-       
-    constant CSR_OP_BUSY:   std_logic_vector(1 downto 0) := "10";
-    constant CSR_OP_READ:   std_logic_vector(1 downto 0) := "00";
-    constant CSR_OP_CTXSWITCH: std_logic_vector(1 downto 0) := "01";
 end package;
