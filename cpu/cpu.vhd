@@ -68,17 +68,26 @@ architecture synth of cpu is
 
     signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
 
+    signal icache_addr:         std_logic_vector(24 downto 0);
     signal icache_meta:         std_logic_vector(15 downto 0);
     signal icache_data:         std_logic_vector(31 downto 0);
     signal icache_load:         std_logic := '0';
 
+    signal icache_tlb_meta:     std_logic_vector(7 downto 0);
+    signal icache_tlb_data:     std_logic_vector(15 downto 0);
+    signal icache_tlb_last_idx: std_logic_vector(7 downto 0);
+    signal icache_tlb_load:     std_logic := '0';
+
+    signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
+
     type state_t is (
-        S1,
-        S2,
-        S3
+        IDLE,
+        WAIT_ICACHE_LOAD,
+        WAIT_ICACHE_TLB_LOAD,
+        DONE
     );
         
-    signal state:               state_t := S1;
+    signal state:               state_t := IDLE;
 
 begin
 spi0_sck <= '0';
@@ -144,7 +153,7 @@ memory_arbitrator: entity work.memory_arbitrator
         mc7_out => mc7_out
     );
 
-mc1_in <= bc_mc1_in when bootcode_load_done = '0' else pbus_mc1_in;
+mc7_in <= bc_mc1_in when bootcode_load_done = '0' else pbus_mc1_in;
 
 bootcode_loader: entity work.memory_loader
         generic map(
@@ -156,46 +165,79 @@ bootcode_loader: entity work.memory_loader
         reset_n => reset_n,
 
         load_done => bootcode_load_done,
-            mc_in => bc_mc1_in,
-            mc_out => mc1_out);
+        mc_in => bc_mc1_in,
+        mc_out => mc7_out);
+
+icache_tlb: entity work.read_cache_8x16x256
+    port map(
+        sys_clk => sys_clk,
+        cache_clk => mem_clk,
+        addr => pc(31 downto 16),
+        meta => icache_tlb_meta,
+        data => icache_tlb_data,
+        load => icache_tlb_load,
+        flush => '0',
+        -- flush_strobe =>
+        mc_in => mc0_in,
+        mc_out => mc0_out,
+        sdc_data_out => sdc_data_out,
+        page_table_baseaddr => page_table_baseaddr);
+
+icache_addr <= icache_tlb_data(8 downto 0) & pc(15 downto 0); 
 
 icache: entity work.read_cache_16x32x256
     port map(
         sys_clk => sys_clk,
         cache_clk => mem_clk,
-        addr => pc(24 downto 0),
+        addr => icache_addr,
         meta => icache_meta,
         data => icache_data,
-            load => icache_load,
+        load => icache_load,
         flush => '0',
         -- flush_strobe =>
-        mc_in => mc0_in,
-        mc_out => mc0_out,
+        mc_in => mc1_in,
+        mc_out => mc1_out,
         sdc_data_out => sdc_data_out);
+
+led <= '0' when icache_data = x"0100006F" else '1';
 
 process(sys_clk)
 begin
-    if (rising_edge(sys_clk)) then
-        case state is
-            when S1 =>
-                if (bootcode_load_done = '1') then
-                    icache_load <= '1';
-                    state <= S2;
-                end if;
-            when S2 =>
-                icache_load <= '0';
-                if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) then
-                    if (icache_data = x"0100006F") then 
-                        led <= '0';
+    if (rising_edge(sys_clk) and bootcode_load_done = '1') then
+        case state is 
+            when IDLE =>
+                if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
+                    if (icache_tlb_last_idx = pc(23 downto 16)) then
+                        -- TLB HIT
+                        if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) 
+                        then 
+                            -- ICACHE HIT
+                            state <= DONE;
+                        else
+                            icache_load <= '1';
+                            state <= WAIT_ICACHE_LOAD;
+                        end if;
                     else
-                        led <= '1';
+                        icache_tlb_last_idx <= pc(23 downto 16);
                     end if;
-                    state <= S3;
+                else
+                    icache_tlb_load <= '1';
+                    state <= WAIT_ICACHE_TLB_LOAD;
                 end if;
-            when S3 =>
+            when WAIT_ICACHE_LOAD =>
+                icache_load <= '0';
+                if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1"))  then
+                    state <= IDLE;
+                end if;
+            when WAIT_ICACHE_TLB_LOAD =>
+                icache_tlb_load <= '0';
+                icache_tlb_last_idx <= pc(23 downto 16);
+                if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
+                    state <= IDLE;
+                end if;
+            when DONE =>
         end case;
     end if;
 end process;
-
 
 end architecture;

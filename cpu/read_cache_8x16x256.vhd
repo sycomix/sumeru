@@ -73,7 +73,7 @@ begin
     data0_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
-            address => addr(11 downto 4),
+            address => addr(7 downto 0),
             data => sdc_data_out,
             wren => data0_wren,
             q => data0);
@@ -81,7 +81,7 @@ begin
     data1_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
-            address => addr(11 downto 4),
+            address => addr(7 downto 0),
             data => sdc_data_out,
             wren => data1_wren,
             q => data1);
@@ -89,7 +89,7 @@ begin
     data2_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
-            address => addr(11 downto 4),
+            address => addr(7 downto 0),
             data => sdc_data_out,
             wren => data2_wren,
             q => data2);
@@ -97,7 +97,7 @@ begin
     data3_ram: entity work.ram1p_256x16
         port map(
             clock => cache_clk,
-            address => addr(11 downto 4),
+            address => addr(7 downto 0),
             data => sdc_data_out,
             wren => data3_wren,
             q => data3);
@@ -113,7 +113,7 @@ begin
     mc_in.op_start <= op_start;
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
-    mc_in.op_burst <= '1';
+    mc_in.op_burst <= '0';
     mc_in.op_addr <= std_logic_vector(
                         unsigned(page_table_baseaddr(24 downto 1)) + 
                         unsigned(addr));
