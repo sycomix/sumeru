@@ -76,6 +76,14 @@ architecture synth of cpu is
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
+    signal idecode_fifo_empty:  std_logic;
+    signal idecode_fifo_full:   std_logic;
+    signal idecode_fifo_aclr:   std_logic;
+    signal idecode_fifo_rden:   std_logic;
+    signal idecode_fifo_wren:   std_logic;
+    signal idecode_fifo_write:  std_logic_vector(31 downto 0);
+    signal idecode_fifo_read:   std_logic_vector(31 downto 0);
+
     signal idecode_in:          idecode_channel_in;
     signal idecode_out:         idecode_channel_out;
     signal decode_bus_valid:    std_logic := '0';
@@ -197,6 +205,17 @@ icache: entity work.read_cache_16x32x256
         mc_in => mc1_in,
         mc_out => mc1_out,
         sdc_data_out => sdc_data_out);
+
+idecode_fifo: entity work.idecode_fifo
+    port map(
+        clock => sys_clk,
+        empty => idecode_fifo_empty,
+        full => idecode_fifo_full,
+        aclr => idecode_fifo_aclr,
+        rdreq => idecode_fifo_rden,
+        wrreq => idecode_fifo_wren,
+        data => idecode_fifo_write,
+        q => idecode_fifo_read);
 
 idecode_in.inst <= icache_data;
 idecode_in.bus_valid <= decode_bus_valid;
