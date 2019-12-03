@@ -241,6 +241,10 @@ begin
                                 icache_busy <= '1';
                             end if;
                         end if;
+                    -- else
+                        -- if (icache_tlb_present = '0') then
+                            -- RAISE PAGE NOT PRESENT EXCEPTION
+                        -- end if;
                     end if;
                     icache_tlb_last <= pc(30 downto 16);
                 else
