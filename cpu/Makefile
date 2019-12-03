@@ -18,6 +18,7 @@ SRCS = pll.vhd \
 	read_cache_16x32x256.vhd \
 	read_cache_8x16x256.vhd \
         idecode_fifo.vhd \
+	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \
@@ -83,7 +84,8 @@ memory_arbitrator.o: memory_channel_types.o
 memory_loader..o: memory_channel_types.o
 read_cache_16x32x256.o: memory_channel_types.o
 read_cache_8x16x256.o: memory_channel_types.o
-cpu_stage_idecode.o: memory_channel_types.o cpu_types.o
+cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o
+cpu_stage_idecode.o: cpu_types.o
 ${TOPLEVEL}.o: memory_channel_types.o sumeru_constants.o cpu_types.o cpu_stage_idecode.o
 ${TOPLEVEL}_tb.o: cpu_types.o cpu.o
 

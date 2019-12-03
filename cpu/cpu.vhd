@@ -58,24 +58,6 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-    signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
-
-    signal icache_tlb_meta:     std_logic_vector(7 downto 0);
-    signal icache_tlb_data:     std_logic_vector(15 downto 0);
-    signal icache_tlb_last:     std_logic_vector(14 downto 0) := (others => '1');
-    signal icache_tlb_load:     std_logic := '0';
-    signal icache_tlb_busy:     std_logic := '0';
-
-    signal icache_translated_addr: std_logic_vector(30 downto 0);
-    alias icache_tlb_present:   std_logic is icache_tlb_data(15);
-
-    signal icache_meta:         std_logic_vector(31 downto 0);
-    signal icache_data:         std_logic_vector(31 downto 0);
-    signal icache_load:         std_logic := '0';
-    signal icache_busy:         std_logic := '0';
-
-    signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
-
     signal idecode_fifo_empty:  std_logic;
     signal idecode_fifo_full:   std_logic;
     signal idecode_fifo_aclr:   std_logic;
@@ -170,38 +152,6 @@ bootcode_loader: entity work.memory_loader
         mc_in => bc_mc_in,
         mc_out => mc7_out);
 
-icache_tlb: entity work.read_cache_8x16x256
-    port map(
-        sys_clk => sys_clk,
-        cache_clk => mem_clk,
-        addr => pc(31 downto 16),
-        meta => icache_tlb_meta,
-        data => icache_tlb_data,
-        load => icache_tlb_load,
-        flush => '0',
-        -- flush_strobe =>
-        mc_in => mc0_in,
-        mc_out => mc0_out,
-        sdc_data_out => sdc_data_out,
-        page_table_baseaddr => page_table_baseaddr);
-
--- Bit 31 of page address is reserved as 'present' bit
-icache_translated_addr <= icache_tlb_data(14 downto 0) & pc(15 downto 0); 
-
-icache: entity work.read_cache_16x32x256
-    port map(
-        sys_clk => sys_clk,
-        cache_clk => mem_clk,
-        addr => icache_translated_addr,
-        meta => icache_meta,
-        data => icache_data,
-        load => icache_load,
-        flush => '0',
-        -- flush_strobe =>
-        mc_in => mc1_in,
-        mc_out => mc1_out,
-        sdc_data_out => sdc_data_out);
-
 idecode_fifo: entity work.idecode_fifo
     port map(
         clock => sys_clk,
@@ -213,65 +163,29 @@ idecode_fifo: entity work.idecode_fifo
         data => idecode_fifo_write_data,
         q => idecode_fifo_read_data);
 
+ifetch: entity work.cpu_stage_ifetch
+    port map(
+        sys_clk => sys_clk,
+        cache_clk => mem_clk,
+        enable => reset_n,
+        fifo_full => idecode_fifo_full,
+        fifo_wren => idecode_fifo_wren,
+        fifo_write_data => idecode_fifo_write_data,
+        tlb_mc_in => mc0_in,
+        tlb_mc_out => mc0_out,
+        cache_mc_in => mc1_in,
+        cache_mc_out => mc1_out,
+        sdc_data_out => sdc_data_out
+    );
+
 idecode: entity work.cpu_stage_idecode
     port map(
         sys_clk => sys_clk,
         fifo_empty => idecode_fifo_empty,
         fifo_rden => idecode_fifo_rden,
         fifo_read_data => idecode_fifo_read_data
-        );
+    );
 
-led <= '0' when icache_data = x"00000013" else '1';
-
-process(sys_clk)
-begin
-    if (rising_edge(sys_clk)) then
-        icache_load <= '0';
-        icache_tlb_load <= '0';
-        idecode_fifo_wren <= '0';
-        case state is 
-            when START =>
-                if (reset_n = '1') then
-                    state <= RUNNING;
-                end if;
-            when RUNNING =>
-                if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
-                    -- it takes one cycle delay to switch tlb entries
-                    -- hence this check and delay
-                    if (icache_tlb_last = pc(30 downto 16)) then
-                        -- TLB HIT
-                        icache_tlb_busy <= '0';
-                        if (icache_meta(31 downto 12) = (pc(30 downto 12) & "1")) 
-                        then 
-                            -- ICACHE HIT
-                            icache_busy <= '0';
-                            if (idecode_fifo_full /= '1') then
-                                idecode_fifo_wren <= '1';
-                                idecode_fifo_write_data <= icache_data;
-                                pc <= pc(31 downto 4) & std_logic_vector(unsigned(pc(3 downto 0)) + 4);
-                            end if;
-                        else
-                            -- LOAD CACHE LINE
-                            if (icache_busy = '0') then
-                                icache_load <= '1';
-                                icache_busy <= '1';
-                            end if;
-                        end if;
-                    -- else
-                        -- if (icache_tlb_present = '0') then
-                            -- RAISE PAGE NOT PRESENT EXCEPTION
-                        -- end if;
-                    end if;
-                    icache_tlb_last <= pc(30 downto 16);
-                else
-                    -- LOAD TLB ENTRY
-                    if (icache_tlb_busy = '0') then
-                        icache_tlb_load <= '1';
-                        icache_tlb_busy <= '1';
-                    end if;
-                end if;
-        end case;
-    end if;
-end process;
+led <= '0';
 
 end architecture;

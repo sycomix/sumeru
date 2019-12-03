@@ -3,7 +3,6 @@ use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
 use work.cpu_types.ALL;
-use work.memory_channel_types.ALL;
 
 entity cpu_stage_idecode is
 port(
