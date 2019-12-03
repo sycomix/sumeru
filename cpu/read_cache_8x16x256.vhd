@@ -129,18 +129,18 @@ begin
 
             case state is
                 when IDLE =>
-                    if (load = '1') then
-                        op_start <= not op_start;
-                        state <= WAIT_B1;
-                        -- Invalidate line till it is fully loaded
-                        meta_data_line_valid <= '0';
-                        meta_wren <= '1';
-                    elsif (flush = '1') then
+                    if (flush = '1') then
                         flush_enable <= '1';
                         flush_addr <= (others => '1');
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                         state <= FLUSH_CACHE;
+                    elsif (load = '1') then
+                        op_start <= not op_start;
+                        state <= WAIT_B1;
+                        -- Invalidate line till it is fully loaded
+                        meta_data_line_valid <= '0';
+                        meta_wren <= '1';
                     end if;
                 when FLUSH_CACHE =>
                     if (flush_addr = x"00") then

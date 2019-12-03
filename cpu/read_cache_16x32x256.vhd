@@ -8,9 +8,9 @@ port(
         sys_clk:                in std_logic;
         cache_clk:              in std_logic;
 
-        addr:                   in std_logic_vector(24 downto 0);
+        addr:                   in std_logic_vector(30 downto 0);
 
-        meta:                   out std_logic_vector(15 downto 0);
+        meta:                   out std_logic_vector(31 downto 0);
         data:                   out std_logic_vector(31 downto 0);
 
         load:                   in std_logic;
@@ -53,7 +53,7 @@ architecture synth of read_cache_16x32x256 is
 
     signal state:               cache_state_t := IDLE;
 
-    signal meta_data:           std_logic_vector(15 downto 0);
+    signal meta_data:           std_logic_vector(31 downto 0);
     signal meta_data_line_valid: std_logic;
 
     signal write_data:          std_logic_vector(31 downto 0);
@@ -69,7 +69,7 @@ begin
     meta_addr <= 
         addr(11 downto 4) when flush_enable = '0' else flush_addr;
 
-    meta_ram: entity work.ram1p_256x16
+    meta_ram: entity work.ram1p_256x32
         port map(
             clock => cache_clk,
             address => meta_addr,
@@ -115,7 +115,7 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    meta_data <= addr(24 downto 12) & meta_data_line_valid & "00" ;
+    meta_data <= addr(30 downto 12) & meta_data_line_valid & "000000000000" ;
  
     mc_in.op_start <= op_start;
     mc_in.op_wren <= '0';

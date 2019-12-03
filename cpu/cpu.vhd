@@ -29,7 +29,7 @@ end entity;
 architecture synth of cpu is
     signal sys_clk:             std_logic;
     signal mem_clk:             std_logic;
-    signal cache_clk:           std_logic;
+    signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
 
     signal sdc_in:              mem_channel_in_t;
@@ -38,47 +38,41 @@ architecture synth of cpu is
     signal sdc_busy:            std_logic;
 
     signal mc0_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc0_out:             mem_channel_out_t;
-
     signal mc1_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc1_out:             mem_channel_out_t;
-
     signal mc2_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc2_out:             mem_channel_out_t;
-
     signal mc3_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc3_out:             mem_channel_out_t;
-
     signal mc4_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc4_out:             mem_channel_out_t;
-
     signal mc5_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc5_out:             mem_channel_out_t;
-
     signal mc6_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal mc6_out:             mem_channel_out_t;
-
     signal mc7_in:              mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+
+    signal mc0_out:             mem_channel_out_t;
+    signal mc1_out:             mem_channel_out_t;
+    signal mc2_out:             mem_channel_out_t;
+    signal mc3_out:             mem_channel_out_t;
+    signal mc4_out:             mem_channel_out_t;
+    signal mc5_out:             mem_channel_out_t;
+    signal mc6_out:             mem_channel_out_t;
     signal mc7_out:             mem_channel_out_t;
 
-    signal bc_mc1_in:           mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-    signal pbus_mc1_in:         mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
-
-    signal bootcode_load_done:  std_logic;
+    signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
+    signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
     signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
 
-    signal icache_addr:         std_logic_vector(24 downto 0);
-    signal icache_meta:         std_logic_vector(15 downto 0);
+    signal icache_tlb_meta:     std_logic_vector(7 downto 0);
+    signal icache_tlb_data:     std_logic_vector(15 downto 0);
+    signal icache_tlb_last:     std_logic_vector(14 downto 0) := (others => '1');
+    signal icache_tlb_load:     std_logic := '0';
+    signal icache_tlb_busy:     std_logic := '0';
+
+    signal icache_translated_addr: std_logic_vector(30 downto 0);
+    alias icache_tlb_present:   std_logic is icache_tlb_data(15);
+
+    signal icache_meta:         std_logic_vector(31 downto 0);
     signal icache_data:         std_logic_vector(31 downto 0);
     signal icache_load:         std_logic := '0';
     signal icache_busy:         std_logic := '0';
-
-    signal icache_tlb_meta:     std_logic_vector(7 downto 0);
-    signal icache_tlb_data:     std_logic_vector(15 downto 0);
-    signal icache_tlb_last_idx: std_logic_vector(7 downto 0);
-    signal icache_tlb_load:     std_logic := '0';
-    signal icache_tlb_busy:     std_logic := '0';
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
 
@@ -87,11 +81,11 @@ architecture synth of cpu is
     signal decode_bus_valid:    std_logic := '0';
 
     type state_t is (
-        IDLE,
-        DONE
+        START,
+        RUNNING
     );
         
-    signal state:               state_t := IDLE;
+    signal state:               state_t := START;
 
 begin
 spi0_sck <= '0';
@@ -103,7 +97,7 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => sys_clk,
         c1 => mem_clk,
-        locked => reset_n);
+        locked => pll_locked);
 
 sdram_controller: entity work.sdram_controller
     port map(
@@ -157,7 +151,7 @@ memory_arbitrator: entity work.memory_arbitrator
         mc7_out => mc7_out
     );
 
-mc7_in <= bc_mc1_in when bootcode_load_done = '0' else pbus_mc1_in;
+mc7_in <= bc_mc_in when reset_n = '0' else pbus_mc_in;
 
 bootcode_loader: entity work.memory_loader
         generic map(
@@ -166,10 +160,10 @@ bootcode_loader: entity work.memory_loader
     port map(
         sys_clk => sys_clk,
         mem_clk => mem_clk,
-        reset_n => reset_n,
+        reset_n => pll_locked,
 
-        load_done => bootcode_load_done,
-        mc_in => bc_mc1_in,
+        load_done => reset_n,
+        mc_in => bc_mc_in,
         mc_out => mc7_out);
 
 icache_tlb: entity work.read_cache_8x16x256
@@ -187,13 +181,14 @@ icache_tlb: entity work.read_cache_8x16x256
         sdc_data_out => sdc_data_out,
         page_table_baseaddr => page_table_baseaddr);
 
-icache_addr <= icache_tlb_data(8 downto 0) & pc(15 downto 0); 
+-- Bit 31 of page address is reserved as 'present' bit
+icache_translated_addr <= icache_tlb_data(14 downto 0) & pc(15 downto 0); 
 
 icache: entity work.read_cache_16x32x256
     port map(
         sys_clk => sys_clk,
         cache_clk => mem_clk,
-        addr => icache_addr,
+        addr => icache_translated_addr,
         meta => icache_meta,
         data => icache_data,
         load => icache_load,
@@ -217,37 +212,44 @@ led <= '0' when icache_data = x"00000013" else '1';
 
 process(sys_clk)
 begin
-    if (rising_edge(sys_clk) and bootcode_load_done = '1') then
+    if (rising_edge(sys_clk)) then
         decode_bus_valid <= '0';
         icache_load <= '0';
         icache_tlb_load <= '0';
         case state is 
-            when IDLE =>
+            when START =>
+                if (reset_n = '1') then
+                    state <= RUNNING;
+                end if;
+            when RUNNING =>
                 if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
-                    if (icache_tlb_last_idx = pc(23 downto 16)) then
+                    -- it takes one cycle delay to switch tlb entries
+                    -- hence this check and delay
+                    if (icache_tlb_last = pc(30 downto 16)) then
                         -- TLB HIT
                         icache_tlb_busy <= '0';
-                        if (icache_meta(15 downto 2) = (pc(24 downto 12) & "1")) 
+                        if (icache_meta(31 downto 12) = (pc(30 downto 12) & "1")) 
                         then 
                             -- ICACHE HIT
                             icache_busy <= '0';
                             pc <= pc(31 downto 4) & std_logic_vector(unsigned(pc(3 downto 0)) + 4);
                             decode_bus_valid <= '1';
                         else
+                            -- LOAD CACHE LINE
                             if (icache_busy = '0') then
                                 icache_load <= '1';
                                 icache_busy <= '1';
                             end if;
                         end if;
                     end if;
-                    icache_tlb_last_idx <= pc(23 downto 16);
+                    icache_tlb_last <= pc(30 downto 16);
                 else
+                    -- LOAD TLB ENTRY
                     if (icache_tlb_busy = '0') then
                         icache_tlb_load <= '1';
                         icache_tlb_busy <= '1';
                     end if;
                 end if;
-            when DONE =>
         end case;
     end if;
 end process;
