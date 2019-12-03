@@ -94,14 +94,4 @@ package cpu_types is
     constant CMD_DIVU:          std_logic_vector(3 downto 0) := "0101";
     constant CMD_REM:           std_logic_vector(3 downto 0) := "0110";
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
-
-    type idecode_channel_in is record
-        inst:                   std_logic_vector(31 downto 0);
-        bus_valid:              std_logic;
-    end record;
-    
-    type idecode_channel_out is record
-        pc_update:              std_logic_vector(31 downto 0);
-    end record;
-
 end package;

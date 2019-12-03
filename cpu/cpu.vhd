@@ -81,12 +81,8 @@ architecture synth of cpu is
     signal idecode_fifo_aclr:   std_logic;
     signal idecode_fifo_rden:   std_logic;
     signal idecode_fifo_wren:   std_logic;
-    signal idecode_fifo_write:  std_logic_vector(31 downto 0);
-    signal idecode_fifo_read:   std_logic_vector(31 downto 0);
-
-    signal idecode_in:          idecode_channel_in;
-    signal idecode_out:         idecode_channel_out;
-    signal decode_bus_valid:    std_logic := '0';
+    signal idecode_fifo_write_data: std_logic_vector(31 downto 0);
+    signal idecode_fifo_read_data: std_logic_vector(31 downto 0);
 
     type state_t is (
         START,
@@ -214,17 +210,15 @@ idecode_fifo: entity work.idecode_fifo
         aclr => idecode_fifo_aclr,
         rdreq => idecode_fifo_rden,
         wrreq => idecode_fifo_wren,
-        data => idecode_fifo_write,
-        q => idecode_fifo_read);
-
-idecode_in.inst <= icache_data;
-idecode_in.bus_valid <= decode_bus_valid;
+        data => idecode_fifo_write_data,
+        q => idecode_fifo_read_data);
 
 idecode: entity work.cpu_stage_idecode
     port map(
         sys_clk => sys_clk,
-        idecode_in => idecode_in,
-        idecode_out => idecode_out
+        fifo_empty => idecode_fifo_empty,
+        fifo_rden => idecode_fifo_rden,
+        fifo_read_data => idecode_fifo_read_data
         );
 
 led <= '0' when icache_data = x"00000013" else '1';
@@ -232,9 +226,9 @@ led <= '0' when icache_data = x"00000013" else '1';
 process(sys_clk)
 begin
     if (rising_edge(sys_clk)) then
-        decode_bus_valid <= '0';
         icache_load <= '0';
         icache_tlb_load <= '0';
+        idecode_fifo_wren <= '0';
         case state is 
             when START =>
                 if (reset_n = '1') then
@@ -251,8 +245,11 @@ begin
                         then 
                             -- ICACHE HIT
                             icache_busy <= '0';
-                            pc <= pc(31 downto 4) & std_logic_vector(unsigned(pc(3 downto 0)) + 4);
-                            decode_bus_valid <= '1';
+                            if (idecode_fifo_full /= '1') then
+                                idecode_fifo_wren <= '1';
+                                idecode_fifo_write_data <= icache_data;
+                                pc <= pc(31 downto 4) & std_logic_vector(unsigned(pc(3 downto 0)) + 4);
+                            end if;
                         else
                             -- LOAD CACHE LINE
                             if (icache_busy = '0') then

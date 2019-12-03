@@ -8,13 +8,24 @@ use work.memory_channel_types.ALL;
 entity cpu_stage_idecode is
 port(
     sys_clk:                    in std_logic;
-    idecode_in:                 in idecode_channel_in;
-    idecode_out:                out idecode_channel_out
+    fifo_empty:                 in std_logic;
+    fifo_rden:                  out std_logic;
+    fifo_read_data:             in std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture synth of cpu_stage_idecode is
+    signal inst:        std_logic_vector(31 downto 0);
+
 begin
---    if (rising_edge(sys_clk) and idecode_in.bus_valid = '1') then
---    end if;
+    process(sys_clk)
+    begin
+        if (rising_edge(sys_clk)) then
+            fifo_rden <= '0';
+            if (fifo_empty /= '1') then
+                fifo_rden <= '1';
+                inst <= fifo_read_data;
+            end if;
+        end if;
+    end process;
 end architecture;
