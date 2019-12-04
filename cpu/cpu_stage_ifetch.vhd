@@ -67,7 +67,7 @@ icache_tlb: entity work.read_cache_8x16x256
 -- Bit 31 of page address is reserved as 'present' bit
 icache_translated_addr <= icache_tlb_data(14 downto 0) & pc(15 downto 0); 
 
-icache: entity work.read_cache_16x32x256
+icache: entity work.read_cache_32x32x256
     port map(
         sys_clk => sys_clk,
         cache_clk => cache_clk,
@@ -83,11 +83,11 @@ icache: entity work.read_cache_16x32x256
 
 process(sys_clk)
 begin
-    if (rising_edge(sys_clk) and enable = '1') then
+    if (rising_edge(sys_clk)) then
         icache_load <= '0';
         icache_tlb_load <= '0';
-        -- case state is 
-            -- when RUNNING =>
+        case state is 
+            when RUNNING =>
                 -- it takes one cycle delay to switch tlb entries
                 -- hence this check and delay
                 if (icache_tlb_addr =  pc(31 downto 16)) then
@@ -121,14 +121,14 @@ begin
                         end if;
                     else
                         -- LOAD TLB ENTRY
-                        if (icache_tlb_busy = '0') then
+                        if (icache_tlb_busy = '0' and enable = '1') then
                             icache_tlb_load <= '1';
                             icache_tlb_busy <= '1';
                         end if;
                     end if;
                 end if;
                 icache_tlb_addr <= pc(31 downto 16);
-        -- end case;
+        end case;
     end if;
 end process;
 end architecture;

@@ -15,7 +15,7 @@ SRCS = pll.vhd \
         memory_arbitrator.vhd \
         memory_loader.vhd \
 	sumeru_constants.vhd \
-	read_cache_16x32x256.vhd \
+	read_cache_32x32x256.vhd \
 	read_cache_8x16x256.vhd \
 	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
@@ -81,7 +81,7 @@ BOOTCODE.hex: BOOTCODE.s
 sdram_controller.o: memory_channel_types.o cpu_types.o
 memory_arbitrator.o: memory_channel_types.o 
 memory_loader..o: memory_channel_types.o
-read_cache_16x32x256.o: memory_channel_types.o
+read_cache_32x32x256.o: memory_channel_types.o
 read_cache_8x16x256.o: memory_channel_types.o
 cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o
 cpu_stage_idecode.o: cpu_types.o
