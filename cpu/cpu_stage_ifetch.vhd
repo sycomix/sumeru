@@ -46,9 +46,6 @@ architecture synth of cpu_stage_ifetch is
     signal debug_r:             std_logic := '1';
 
 begin
-
-debug <= debug_r;
-
 icache_tlb: entity work.read_cache_8x16x256
     port map(
         sys_clk => sys_clk,
@@ -81,6 +78,8 @@ icache: entity work.read_cache_32x32x256
         mc_out => cache_mc_out,
         sdc_data_out => sdc_data_out);
 
+debug <= debug_r;
+
 process(sys_clk)
 begin
     if (rising_edge(sys_clk)) then
@@ -96,12 +95,14 @@ begin
                         icache_tlb_busy <= '0';
                         if (icache_meta(19 downto 0) = (icache_translated_addr(30 downto 12) & "1")) 
                         then 
-                            debug_r <= not debug_r;
+                            icache_busy <= '0';
+                            if (icache_data = x"0100006F") then
+                                debug_r <= not debug_r;
+                            end if;
                             -- if (icache_tlb_present = '0') then
                             -- RAISE PAGE NOT PRESENT EXCEPTION
                             -- ICACHE HIT
                             -- end if
-                            icache_busy <= '0';
                             pc <= std_logic_vector(unsigned(pc) + 4);
 --                          case
 --                          (JAL)
