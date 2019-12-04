@@ -85,7 +85,8 @@ read_cache_16x32x256.o: memory_channel_types.o
 read_cache_8x16x256.o: memory_channel_types.o
 cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o
 cpu_stage_idecode.o: cpu_types.o
-${TOPLEVEL}.o: memory_channel_types.o sumeru_constants.o cpu_types.o cpu_stage_idecode.o
+${TOPLEVEL}.o: memory_channel_types.o sumeru_constants.o cpu_types.o \
+                cpu_stage_ifetch.o cpu_stage_idecode.o
 ${TOPLEVEL}_tb.o: cpu_types.o cpu.o
 
 rom_512x16.o: ${LIBSRC_DIR}/rom_512x16.vhd

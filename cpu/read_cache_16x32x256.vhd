@@ -115,7 +115,7 @@ begin
                 data2 when "10",
                 data3 when others;
 
-    meta_data <= addr(30 downto 12) & meta_data_line_valid & "000000000000" ;
+    meta_data <= "000000000000" & addr(30 downto 12) & meta_data_line_valid;
  
     mc_in.op_start <= op_start;
     mc_in.op_wren <= '0';

@@ -148,7 +148,6 @@ bootcode_loader: entity work.memory_loader
 
 ifetch: entity work.cpu_stage_ifetch
     port map(
-        debug => led,
         sys_clk => sys_clk,
         cache_clk => mem_clk,
         enable => reset_n,
@@ -156,7 +155,8 @@ ifetch: entity work.cpu_stage_ifetch
         tlb_mc_out => mc0_out,
         cache_mc_in => mc1_in,
         cache_mc_out => mc1_out,
-        sdc_data_out => sdc_data_out
+        sdc_data_out => sdc_data_out,
+        debug => led
     );
 
 idecode: entity work.cpu_stage_idecode
