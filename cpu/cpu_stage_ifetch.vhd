@@ -101,15 +101,15 @@ begin
                                 fifo_wren <= '1';
                                 fifo_write_data <= icache_data;
                                 pc <= std_logic_vector(unsigned(pc) + 4);
-                                case
-                                 (JAL)
-                                 (JALR)
-                                 (BRANCH)
-                                 (EXCEPTION)
-                                 (INTERRUPT)
-                                 (FENCE.I)
-                                 (TLB FLUSH)
-                                end
+--                                case
+--                                 (JAL)
+--                                 (JALR)
+--                                 (BRANCH)
+--                                 (EXCEPTION)
+--                                 (INTERRUPT)
+--                                 (FENCE.I)
+--                                 (TLB FLUSH)
+--                                end
                             end if;
                         else
                             -- LOAD CACHE LINE

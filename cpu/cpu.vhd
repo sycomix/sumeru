@@ -29,6 +29,7 @@ end entity;
 architecture synth of cpu is
     signal sys_clk:             std_logic;
     signal mem_clk:             std_logic;
+    signal fifo_clk:            std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
 
@@ -83,6 +84,7 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => sys_clk,
         c1 => mem_clk,
+        c2 => fifo_clk,
         locked => pll_locked);
 
 sdram_controller: entity work.sdram_controller
@@ -154,7 +156,7 @@ bootcode_loader: entity work.memory_loader
 
 idecode_fifo: entity work.idecode_fifo
     port map(
-        clock => sys_clk,
+        clock => fifo_clk,
         empty => idecode_fifo_empty,
         full => idecode_fifo_full,
         aclr => idecode_fifo_aclr,
