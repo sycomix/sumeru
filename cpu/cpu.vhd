@@ -59,14 +59,6 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-    signal idecode_fifo_empty:  std_logic;
-    signal idecode_fifo_full:   std_logic;
-    signal idecode_fifo_aclr:   std_logic;
-    signal idecode_fifo_rden:   std_logic;
-    signal idecode_fifo_wren:   std_logic;
-    signal idecode_fifo_write_data: std_logic_vector(31 downto 0);
-    signal idecode_fifo_read_data: std_logic_vector(31 downto 0);
-
     type state_t is (
         START,
         RUNNING
@@ -154,25 +146,12 @@ bootcode_loader: entity work.memory_loader
         mc_in => bc_mc_in,
         mc_out => mc7_out);
 
-idecode_fifo: entity work.idecode_fifo
-    port map(
-        clock => fifo_clk,
-        empty => idecode_fifo_empty,
-        full => idecode_fifo_full,
-        aclr => idecode_fifo_aclr,
-        rdreq => idecode_fifo_rden,
-        wrreq => idecode_fifo_wren,
-        data => idecode_fifo_write_data,
-        q => idecode_fifo_read_data);
-
 ifetch: entity work.cpu_stage_ifetch
     port map(
+        debug => led,
         sys_clk => sys_clk,
         cache_clk => mem_clk,
         enable => reset_n,
-        fifo_full => idecode_fifo_full,
-        fifo_wren => idecode_fifo_wren,
-        fifo_write_data => idecode_fifo_write_data,
         tlb_mc_in => mc0_in,
         tlb_mc_out => mc0_out,
         cache_mc_in => mc1_in,
@@ -182,12 +161,7 @@ ifetch: entity work.cpu_stage_ifetch
 
 idecode: entity work.cpu_stage_idecode
     port map(
-        sys_clk => sys_clk,
-        fifo_empty => idecode_fifo_empty,
-        fifo_rden => idecode_fifo_rden,
-        fifo_read_data => idecode_fifo_read_data
+        sys_clk => sys_clk
     );
-
-led <= '0';
 
 end architecture;

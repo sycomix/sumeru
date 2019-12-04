@@ -7,12 +7,10 @@ use work.sumeru_constants.ALL;
 
 entity cpu_stage_ifetch is
 port(
+    debug:              out std_logic;
     sys_clk:            in std_logic;
     cache_clk:          in std_logic;
     enable:             in std_logic;
-    fifo_full:          in std_logic;
-    fifo_wren:          out std_logic;
-    fifo_write_data:    out std_logic_vector(31 downto 0);
     tlb_mc_in:          out mem_channel_in_t;
     tlb_mc_out:         in mem_channel_out_t;
     cache_mc_in:        out mem_channel_in_t;
@@ -79,12 +77,13 @@ icache: entity work.read_cache_16x32x256
         mc_out => cache_mc_out,
         sdc_data_out => sdc_data_out);
 
+debug <= '0' when icache_data = x"00000013" else '1';
+
 process(sys_clk)
 begin
     if (rising_edge(sys_clk)) then
         icache_load <= '0';
         icache_tlb_load <= '0';
-        fifo_wren <= '0';
         case state is 
             when RUNNING =>
                 if (icache_tlb_meta = (pc(22 downto 16) & "1")) then
@@ -97,20 +96,16 @@ begin
                         then 
                             -- ICACHE HIT
                             icache_busy <= '0';
-                            if (fifo_full /= '1') then
-                                fifo_wren <= '1';
-                                fifo_write_data <= icache_data;
-                                pc <= std_logic_vector(unsigned(pc) + 4);
---                                case
---                                 (JAL)
---                                 (JALR)
---                                 (BRANCH)
---                                 (EXCEPTION)
---                                 (INTERRUPT)
---                                 (FENCE.I)
---                                 (TLB FLUSH)
---                                end
-                            end if;
+                            pc <= std_logic_vector(unsigned(pc) + 4);
+--                          case
+--                          (JAL)
+--                          (JALR)
+--                          (BRANCH)
+--                          (EXCEPTION)
+--                          (INTERRUPT)
+--                          (FENCE.I)
+--                          (TLB FLUSH)
+--                          end
                         else
                             -- LOAD CACHE LINE
                             if (icache_busy = '0') then
