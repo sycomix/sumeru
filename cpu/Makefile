@@ -83,11 +83,15 @@ memory_arbitrator.o: memory_channel_types.o
 memory_loader..o: memory_channel_types.o
 read_cache_32x32x256.o: memory_channel_types.o
 read_cache_8x16x256.o: memory_channel_types.o
-cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o
+cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o \
+                read_cache_8x16x256.o read_cache_32x32x256.o \
+                sumeru_constants.o
 cpu_stage_idecode.o: cpu_types.o
 ${TOPLEVEL}.o: memory_channel_types.o sumeru_constants.o cpu_types.o \
+                cpu_stage_ifetch.o cpu_stage_idecode.o sdram_controller.o \
+                pll.o memory_arbitrator.o memory_loader.o \
                 cpu_stage_ifetch.o cpu_stage_idecode.o
-${TOPLEVEL}_tb.o: cpu_types.o cpu.o
+${TOPLEVEL}_tb.o: cpu.o sim_sdram_mt48lc16m16a2.o
 
 rom_512x16.o: ${LIBSRC_DIR}/rom_512x16.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
