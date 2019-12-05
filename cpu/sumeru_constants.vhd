@@ -16,9 +16,10 @@ constant IVECTOR_RESET_ADDR:    std_logic_vector(31 downto 0) := x"00000000";
 --
 
 constant BOOT_OFFSET:                   std_logic_vector(7 downto 0) := x"10";
-constant EXN_UNALIGNED_PC_OFFSET:       std_logic_vector(7 downto 0) := x"20";
-constant EXN_UNKNOWN_INSTR_OFFSET:      std_logic_vector(7 downto 0) := x"30";
-constant INTR_TIMER_OFFSET:             std_logic_vector(7 downto 0) := x"40";
-constant INTR_UART_OFFSET:              std_logic_vector(7 downto 0) := x"50";
+constant TLB_ABSET:                     std_logic_vector(7 downto 0) := x"20";
+-- constant EXN_UNALIGNED_PC_OFFSET:       std_logic_vector(7 downto 0) := x"20";
+-- constant EXN_UNKNOWN_INSTR_OFFSET:      std_logic_vector(7 downto 0) := x"30";
+-- constant INTR_TIMER_OFFSET:             std_logic_vector(7 downto 0) := x"40";
+-- constant INTR_UART_OFFSET:              std_logic_vector(7 downto 0) := x"50";
 
 end package;

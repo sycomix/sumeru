@@ -29,14 +29,15 @@ architecture synth of cpu_stage_ifetch is
     signal icache_tlb_busy:     std_logic := '0';
 
     signal icache_translated_addr: std_logic_vector(30 downto 0);
-    alias icache_tlb_present:   std_logic is icache_tlb_data(15);
+    alias icache_tlb_absent:    std_logic is icache_tlb_data(15);
 
     signal icache_meta:         std_logic_vector(31 downto 0);
-    signal icache_data:         std_logic_vector(31 downto 0);
+    signal inst:                std_logic_vector(31 downto 0);
     signal icache_load:         std_logic := '0';
     signal icache_busy:         std_logic := '0';
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
+--    signal ivector_baseaddr:    std_logic_vector(23 downto 0) := IVECTOR_RESET_ADDR;
 
     type state_t is (
         RUNNING
@@ -61,7 +62,7 @@ icache_tlb: entity work.read_cache_8x16x256
         sdc_data_out => sdc_data_out,
         page_table_baseaddr => page_table_baseaddr);
 
--- Bit 31 of page address is reserved as 'present' bit
+-- Bit 31 of page address is reserved as 'absent' bit
 icache_translated_addr <= icache_tlb_data(14 downto 0) & pc(15 downto 0); 
 
 icache: entity work.read_cache_32x32x256
@@ -70,7 +71,7 @@ icache: entity work.read_cache_32x32x256
         cache_clk => cache_clk,
         addr => icache_translated_addr,
         meta => icache_meta,
-        data => icache_data,
+        data => inst,
         load => icache_load,
         flush => '0',
         -- flush_strobe =>
@@ -95,15 +96,31 @@ begin
                         icache_tlb_busy <= '0';
                         if (icache_meta(19 downto 0) = (icache_translated_addr(30 downto 12) & "1")) 
                         then 
-                            icache_busy <= '0';
-                            if (icache_data = x"0100006F") then
-                                debug_r <= not debug_r;
-                            end if;
-                            -- if (icache_tlb_present = '0') then
-                            -- RAISE PAGE NOT PRESENT EXCEPTION
                             -- ICACHE HIT
-                            -- end if
-                            pc <= std_logic_vector(unsigned(pc) + 4);
+                            icache_busy <= '0';
+--                            if (cache_tlb_absent = '1') then
+--                                pc_save <= pc;
+--                                pc <= ivector_baseaddr & TLB_ABSENT;
+--                            elsif (switch_ack /= switch) then
+--                                switch_ack <= switch;
+--                                pc <= ifetch_in.switch_pc;
+--                                -- disable / enable intrs based on flags
+--                            elsif (intr_ack /= intr) then
+--                                intr_ack <= intr;
+--                                pc <= ivector_baseaddr & ifetch_in.ivec_idx;
+--                                -- disable interrupts
+--                            else
+--                                case inst(6 downto 2) is
+--                                    when OP_TYPE_JAL =>
+--                                    when OP_TYPE_JALR =>
+--                                    when OP_TYPE_B =>
+--                                    when OP_TYPE_CSR =>
+--                                        TLB FLUSH
+--                                        FENCE.I
+--                                        ENABLE INTRS
+--                                        DISABLE INTRS
+--                            end if;
+--
 --                          case
 --                          (JAL)
 --                          (JALR)
@@ -113,6 +130,7 @@ begin
 --                          (FENCE.I)
 --                          (TLB FLUSH)
 --                          end
+                            pc <= std_logic_vector(unsigned(pc) + 4);
                         else
                             -- LOAD CACHE LINE
                             if (icache_busy = '0') then
