@@ -83,12 +83,10 @@ cpu_stage_idecode.o: cpu_types.o
 cpu_stage_ifetch.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
     read_cache_8x16x256.o read_cache_32x32x256.o
 
-sdram_controller.o: memory_channel_types.o cpu_types.o
-
 ${TOPLEVEL}_tb.o: cpu.o sim_sdram_mt48lc16m16a2.o
 
 ${TOPLEVEL}.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
-                pll.o sdram_controller.o memory_arbitrator.o memory_loader.o \
+                pll.o sdram_controller_simlowdelay.o memory_arbitrator.o memory_loader.o \
                 cpu_stage_ifetch.o cpu_stage_idecode.o
 
 memory_arbitrator.o: memory_channel_types.o 
