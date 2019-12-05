@@ -16,6 +16,7 @@ port(
     cache_mc_in:        out mem_channel_in_t;
     cache_mc_out:       in mem_channel_out_t;
     sdc_data_out:       in std_logic_vector(15 downto 0);
+    ifetch_in:          in ifetch_channel_in_t;
     debug:              out std_logic
     );
 end entity;
@@ -38,7 +39,10 @@ architecture synth of cpu_stage_ifetch is
     signal icache_busy:         std_logic := '0';
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
---    signal ivector_baseaddr:    std_logic_vector(23 downto 0) := IVECTOR_RESET_ADDR;
+    signal pc_save:             std_logic_vector(31 downto 0);
+    signal ivector_baseaddr:    std_logic_vector(23 downto 0) := IVECTOR_RESET_ADDR(31 downto 8);
+    signal switch_pc_ack:       std_logic := '0';
+    signal raise_intr_ack:      std_logic := '0';
 
     type state_t is (
         RUNNING
@@ -99,18 +103,22 @@ begin
                         then 
                             -- ICACHE HIT
                             icache_busy <= '0';
---                            if (cache_tlb_absent = '1') then
---                                pc_save <= pc;
---                                pc <= ivector_baseaddr & TLB_ABSENT;
---                            elsif (switch_ack /= switch) then
---                                switch_ack <= switch;
---                                pc <= ifetch_in.switch_pc;
---                                -- disable / enable intrs based on flags
---                            elsif (intr_ack /= intr) then
---                                intr_ack <= intr;
---                                pc <= ivector_baseaddr & ifetch_in.ivec_idx;
---                                -- disable interrupts
---                            else
+                            if (icache_tlb_absent = '1') then
+                                pc_save <= pc;
+                                pc <= ivector_baseaddr & TLB_ABSENT;
+                            elsif (switch_pc_ack /= ifetch_in.switch_pc) then
+                                -- disable / enable intrs based on flags
+                                switch_pc_ack <= ifetch_in.switch_pc;
+                                -- pc <= ifetch_in.switch_pc;
+                                pc_save <= pc;
+                            elsif (raise_intr_ack /= ifetch_in.raise_intr) then
+                                -- disable interrupts
+                                raise_intr_ack <= ifetch_in.raise_intr;
+                                pc <= ivector_baseaddr & ifetch_in.intr_idx;
+                            else
+                                pc <= std_logic_vector(unsigned(pc) + 4);
+                            end if;
+
 --                                case inst(6 downto 2) is
 --                                    when OP_TYPE_JAL =>
 --                                    when OP_TYPE_JALR =>
@@ -120,7 +128,6 @@ begin
 --                                        FENCE.I
 --                                        ENABLE INTRS
 --                                        DISABLE INTRS
---                            end if;
 --
 --                          case
 --                          (JAL)
@@ -131,7 +138,6 @@ begin
 --                          (FENCE.I)
 --                          (TLB FLUSH)
 --                          end
-                            pc <= std_logic_vector(unsigned(pc) + 4);
                         else
                             -- LOAD CACHE LINE
                             if (icache_busy = '0') then

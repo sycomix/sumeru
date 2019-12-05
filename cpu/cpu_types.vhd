@@ -94,4 +94,10 @@ package cpu_types is
     constant CMD_DIVU:          std_logic_vector(3 downto 0) := "0101";
     constant CMD_REM:           std_logic_vector(3 downto 0) := "0110";
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
+
+    type ifetch_channel_in_t is record
+        switch_pc:              std_logic;
+        raise_intr:             std_logic;
+        intr_idx:               std_logic_vector(8 downto 0);
+    end record;
 end package;
