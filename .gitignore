@@ -4,3 +4,6 @@ sw/vhdl/*/*.ghw
 sw/vhdl/*/*.gtkw
 cpu/*.ghw
 cpu/*.gtkw
+hw/pcb/mark3/mark3.kicad_pcb-bak
+riscv-gnu-toolchain
+
