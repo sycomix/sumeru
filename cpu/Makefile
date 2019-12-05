@@ -78,20 +78,28 @@ BOOTCODE.hex: BOOTCODE.s
 	@riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
 	@../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
 
-sdram_controller.o: memory_channel_types.o cpu_types.o
-memory_arbitrator.o: memory_channel_types.o 
-memory_loader..o: memory_channel_types.o
-read_cache_32x32x256.o: memory_channel_types.o
-read_cache_8x16x256.o: memory_channel_types.o
-cpu_stage_ifetch.o: memory_channel_types.o cpu_types.o \
-                read_cache_8x16x256.o read_cache_32x32x256.o \
-                sumeru_constants.o
 cpu_stage_idecode.o: cpu_types.o
-${TOPLEVEL}.o: memory_channel_types.o sumeru_constants.o cpu_types.o \
-                cpu_stage_ifetch.o cpu_stage_idecode.o sdram_controller.o \
-                pll.o memory_arbitrator.o memory_loader.o \
-                cpu_stage_ifetch.o cpu_stage_idecode.o
+
+cpu_stage_ifetch.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
+    read_cache_8x16x256.o read_cache_32x32x256.o
+
+sdram_controller.o: memory_channel_types.o cpu_types.o
+
 ${TOPLEVEL}_tb.o: cpu.o sim_sdram_mt48lc16m16a2.o
+
+${TOPLEVEL}.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
+                pll.o sdram_controller.o memory_arbitrator.o memory_loader.o \
+                cpu_stage_ifetch.o cpu_stage_idecode.o
+
+memory_arbitrator.o: memory_channel_types.o 
+
+memory_loader.o: memory_channel_types.o
+
+read_cache_32x32x256.o: memory_channel_types.o ram1p_256x32.o
+
+read_cache_8x16x256.o: memory_channel_types.o ram1p_256x8.o ram1p_256x16.o
+
+sdram_controller_simlowdelay.o: sdram_controller.vhd cpu_types.o
 
 rom_512x16.o: ${LIBSRC_DIR}/rom_512x16.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
@@ -116,6 +124,4 @@ ram2p_32x32.o: ${LIBSRC_DIR}/ram2p_32x32.vhd
 
 sim_sdram_mt48lc16m16a2.o: simulation/sim_sdram_mt48lc16m16a2.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
-
-sdram_controller_simlowdelay.o: sdram_controller.vhd cpu_types.o
 
