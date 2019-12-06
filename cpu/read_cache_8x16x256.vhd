@@ -13,6 +13,7 @@ port(
         meta:                   out std_logic_vector(7 downto 0);
         data:                   out std_logic_vector(15 downto 0);
 
+        start:                  in std_logic;
         load:                   in std_logic;
         flush:                  in std_logic;
         flush_strobe:           out std_logic;
@@ -135,10 +136,13 @@ begin
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                         state <= FLUSH_CACHE;
-                    elsif (load = '1') then
-                        op_start <= not op_start;
-                        state <= WAIT_B1;
+                    elsif (start = '1') then
+                        if (load = '1') then
+                            op_start <= not op_start;
+                            state <= WAIT_B1;
+                        end if;
                         -- Invalidate line till it is fully loaded
+                        -- or evict line if load = '0'
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                     end if;
