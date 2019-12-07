@@ -48,7 +48,21 @@ architecture synth of cpu_stage_ifetch is
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
     signal pc_save:             std_logic_vector(31 downto 0);
 
+    signal intr_enabled:        std_logic := '0';
+
+    signal tlb_strobe_save:     std_logic;
+    signal cache_strobe_save:   std_logic;
+
     signal valid:               std_logic := '0';
+
+    type state_t is (
+        RUNNING,
+        JAL_SWITCH,
+        FLUSH_WAIT,
+        CXFER_WAIT,
+        CSR_UPDATE);
+
+    signal state:               state_t := RUNNING;
 
 begin
 icache_tlb: entity work.read_cache_8x16x256
@@ -97,40 +111,86 @@ begin
         if (idecode_out.busy = '0') then
             valid <= '0';
         end if;
-
-        -- it takes one cycle delay to switch tlb entries
-        -- hence this check and delay
-        if (icache_tlb_addr =  pc(31 downto 16)) then
-            if (icache_tlb_meta = (pc(30 downto 24) & "1")) then
-                -- TLB HIT
-                icache_tlb_busy <= '0';
-                if (icache_meta(19 downto 0) = (icache_translated_addr(30 downto 12) & "1")) 
-                then 
-                    -- ICACHE HIT
-                    icache_busy <= '0';
-                    if (idecode_out.busy = '0') then
-                        valid <= '1';
-                        idecode_in.inst <= inst;
-                        idecode_in.pc <= pc;
-                        pc <= std_logic_vector(unsigned(pc) + 4);
-                    end if;
-                else
-                    -- LOAD CACHE LINE
-                    if (icache_busy = '0') then
-                        icache_load <= '1';
-                        icache_busy <= '1';
+        case state is 
+            when JAL_SWITCH =>
+                pc <= std_logic_vector(
+                        signed(idecode_in.pc) + 
+                        signed(idecode_in.inst(31) & idecode_in.inst(19 downto 12) & 
+                               idecode_in.inst(20) & idecode_in.inst(30 downto 21) & "0"));
+                state <= RUNNING;
+            when FLUSH_WAIT =>
+                if (tlb_strobe_save /= icache_tlb_flush_strobe or
+                    cache_strobe_save /= icache_flush_strobe) 
+                then
+                    state <= RUNNING;
+                end if;
+            when CXFER_WAIT =>
+                tlb_strobe_save <= icache_tlb_flush_strobe;
+                cache_strobe_save <= icache_flush_strobe;
+                case inst(16 downto 15) is
+                    when "00" =>
+                        -- TLB FLUSH
+                        icache_tlb_flush <= '1';
+                        state <= FLUSH_WAIT;
+                    when "01" => 
+                        -- FENCE.I ICACHE_FLUSH
+                        icache_flush <= '1';
+                        state <= FLUSH_WAIT;
+                    when "10" =>
+                        -- ENABLE INTRS
+                        intr_enabled <= '1';
+                    when others =>
+                        -- DISABLE INTRS
+                        intr_enabled <= '0';
+                end case;
+            when CSR_UPDATE =>
+            when RUNNING =>
+                -- it takes one cycle delay to switch tlb entries
+                -- hence this check and delay
+                if (icache_tlb_addr =  pc(31 downto 16)) then
+                    if (icache_tlb_meta = (pc(30 downto 24) & "1")) then
+                        -- TLB HIT
+                        icache_tlb_busy <= '0';
+                        if (icache_meta(19 downto 0) = (icache_translated_addr(30 downto 12) & "1")) 
+                        then 
+                            -- ICACHE HIT
+                            icache_busy <= '0';
+                            if (idecode_out.busy = '0') then
+                                valid <= '1';
+                                idecode_in.inst <= inst;
+                                idecode_in.pc <= pc;
+                                pc <= std_logic_vector(unsigned(pc) + 4);
+                                case inst(6 downto 2) is
+                                    when OP_TYPE_JAL =>
+                                        state <= JAL_SWITCH;
+                                    when OP_TYPE_B | OP_TYPE_JALR =>
+                                        state <= CXFER_WAIT;
+                                    when OP_TYPE_CSR =>
+                                        if (inst(31 downto 20) = x"C0D") then
+                                            valid <= '0';
+                                            state <= CSR_UPDATE;
+                                        end if;
+                                    when others =>
+                                end case;
+                            end if;
+                        else
+                            -- LOAD CACHE LINE
+                            if (icache_busy = '0') then
+                                icache_load <= '1';
+                                icache_busy <= '1';
+                            end if;
+                        end if;
+                    else
+                        -- LOAD TLB ENTRY
+                        if (icache_tlb_busy = '0' and enable = '1') then
+                            icache_tlb_start <= '1';
+                            icache_tlb_load <= '1';
+                            icache_tlb_busy <= '1';
+                        end if;
                     end if;
                 end if;
-            else
-                -- LOAD TLB ENTRY
-                if (icache_tlb_busy = '0' and enable = '1') then
-                    icache_tlb_start <= '1';
-                    icache_tlb_load <= '1';
-                    icache_tlb_busy <= '1';
-                end if;
-            end if;
-        end if;
-        icache_tlb_addr <= pc(31 downto 16);
+                icache_tlb_addr <= pc(31 downto 16);
+        end case;
     end if;
 end process;
 end architecture;

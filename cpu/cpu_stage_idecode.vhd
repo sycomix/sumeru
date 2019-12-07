@@ -23,7 +23,7 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (idecode_in.valid <= '1' and idecode_in.pc <= x"00000010") 
+            if (idecode_in.valid <= '1' and idecode_in.pc <= x"00000038") 
             then
                 debug_r <= not debug_r;
             end if;
