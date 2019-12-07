@@ -18,8 +18,7 @@ port(
     sdc_data_out:       in std_logic_vector(15 downto 0);
     ifetch_in:          in ifetch_channel_in_t;
     idecode_in:         out idecode_channel_in_t;
-    idecode_out:        in idecode_channel_out_t;
-    iexec_out:          in iexec_channel_out_t
+    idecode_out:        in idecode_channel_out_t
     );
 end entity;
 
@@ -47,8 +46,6 @@ architecture synth of cpu_stage_ifetch is
 
     signal page_table_baseaddr: std_logic_vector(24 downto 0) := (others => '0');
     signal pc_save:             std_logic_vector(31 downto 0);
-
-    signal intr_enabled:        std_logic := '0';
 
     signal tlb_strobe_save:     std_logic;
     signal cache_strobe_save:   std_logic;
@@ -125,29 +122,37 @@ begin
                     state <= RUNNING;
                 end if;
             when CXFER_WAIT =>
+                if (ifetch_in.cxfer_valid = '1') then
+                    if (ifetch_in.cxfer_branch = '1') then
+                        if (ifetch_in.cxfer_branch_taken = '1') then
+                            pc <= std_logic_vector(
+                                    signed(idecode_in.pc) + 
+                                    signed(idecode_in.inst(31) & inst(7) & 
+                                            idecode_in.inst(30 downto 25) & 
+                                            idecode_in.inst(11 downto 8) & "0"));
+                        end if;
+                    else
+                        -- XXX Provide mechnism for setting intr_enable
+                        pc <= ifetch_in.cxfer_pc;
+                    end if;
+                    state <= RUNNING;
+                end if;
+            when CSR_UPDATE =>
                 tlb_strobe_save <= icache_tlb_flush_strobe;
                 cache_strobe_save <= icache_flush_strobe;
-                case inst(16 downto 15) is
-                    when "00" =>
-                        -- TLB FLUSH
-                        icache_tlb_flush <= '1';
-                        state <= FLUSH_WAIT;
-                    when "01" => 
-                        -- FENCE.I ICACHE_FLUSH
-                        icache_flush <= '1';
-                        state <= FLUSH_WAIT;
-                    when "10" =>
-                        -- ENABLE INTRS
-                        intr_enabled <= '1';
-                    when others =>
-                        -- DISABLE INTRS
-                        intr_enabled <= '0';
-                end case;
-            when CSR_UPDATE =>
+                if (inst(15) = '0') then
+                    -- TLB FLUSH
+                    icache_tlb_flush <= '1';
+                    state <= FLUSH_WAIT;
+                else
+                    -- FENCE.I ICACHE_FLUSH
+                    icache_flush <= '1';
+                    state <= FLUSH_WAIT;
+                end if;
             when RUNNING =>
-                -- it takes one cycle delay to switch tlb entries
-                -- hence this check and delay
                 if (icache_tlb_addr =  pc(31 downto 16)) then
+                    -- it takes one cycle delay to switch tlb entries
+                    -- hence this (above) check and delay
                     if (icache_tlb_meta = (pc(30 downto 24) & "1")) then
                         -- TLB HIT
                         icache_tlb_busy <= '0';

@@ -59,12 +59,12 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-    signal ifetch_in:           ifetch_channel_in_t := ('0', (others => '0'));
+    signal ifetch_in:           ifetch_channel_in_t := ('0', '0', '0', '0', (others => '0'));
 
     signal idecode_in:          idecode_channel_in_t;
     signal idecode_out:         idecode_channel_out_t;
 
-    signal iexec_out:           iexec_channel_out_t := ('0', '0', '0', (others => '0'));
+    signal iexec_out:           iexec_channel_out_t := (dummy => '0');
 
     type state_t is (
         START,
@@ -164,8 +164,7 @@ ifetch: entity work.cpu_stage_ifetch
         sdc_data_out => sdc_data_out,
         ifetch_in => ifetch_in,
         idecode_in => idecode_in,
-        idecode_out => idecode_out,
-        iexec_out => iexec_out
+        idecode_out => idecode_out
     );
 
 idecode: entity work.cpu_stage_idecode

@@ -96,8 +96,11 @@ package cpu_types is
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
 
     type ifetch_channel_in_t is record
-        raise_intr:             std_logic;
-        intr_idx:               std_logic_vector(7 downto 0);
+        cxfer_async:            std_logic;
+        cxfer_valid:            std_logic;
+        cxfer_branch:           std_logic;
+        cxfer_branch_taken:     std_logic;
+        cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
     type idecode_channel_in_t is record
@@ -111,9 +114,6 @@ package cpu_types is
     end record;
 
     type iexec_channel_out_t is record
-        cxfer_valid:            std_logic;
-        cxfer_taken:            std_logic;
-        raise_switch:           std_logic;
-        switch_pc:              std_logic_vector(31 downto 0);
+        dummy:                  std_logic;
     end record;
 end package;
