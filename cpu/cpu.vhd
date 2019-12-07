@@ -165,15 +165,15 @@ ifetch: entity work.cpu_stage_ifetch
         ifetch_in => ifetch_in,
         idecode_in => idecode_in,
         idecode_out => idecode_out,
-        iexec_out => iexec_out,
-        debug => led
+        iexec_out => iexec_out
     );
 
 idecode: entity work.cpu_stage_idecode
     port map(
         sys_clk => sys_clk,
         idecode_in => idecode_in,
-        idecode_out => idecode_out
+        idecode_out => idecode_out,
+        debug => led
     );
 
 end architecture;

@@ -103,7 +103,7 @@ package cpu_types is
     type idecode_channel_in_t is record
         valid:                  std_logic;
         inst:                   std_logic_vector(31 downto 0);
-        inst_data:              std_logic_vector(31 downto 0);
+        pc:                     std_logic_vector(31 downto 0);
     end record;
 
     type idecode_channel_out_t is record
