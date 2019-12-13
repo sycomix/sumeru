@@ -98,8 +98,6 @@ package cpu_types is
     type ifetch_channel_in_t is record
         async_cxfer_strobe:     std_logic;
         sync_cxfer:             std_logic;
-        cxfer_branch:           std_logic;
-        cxfer_branch_taken:     std_logic;
         cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 

@@ -90,18 +90,8 @@ begin
                 --  on the branch not taken path -- akin to a crude static
                 --  branch predictor.
                 if (ifetch_in.sync_cxfer = '1') then
-                    if (ifetch_in.cxfer_branch = '1') then
-                        if (ifetch_in.cxfer_branch_taken = '1') then
-                            pc <= std_logic_vector(
-                                    signed(idecode_in.pc) + 
-                                    signed(idecode_in.inst(31) & inst(7) & 
-                                            idecode_in.inst(30 downto 25) & 
-                                            idecode_in.inst(11 downto 8) & "0"));
-                        end if;
-                    else
-                        -- XXX Provide mechnism for setting intr_enable
-                        pc <= ifetch_in.cxfer_pc;
-                    end if;
+                    pc <= ifetch_in.cxfer_pc;
+                    -- XXX Provide mechnism for setting intr_enable
                     state <= RUNNING;
                 end if;
             when RUNNING =>

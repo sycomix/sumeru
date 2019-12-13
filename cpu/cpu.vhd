@@ -59,7 +59,7 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-    signal ifetch_in:           ifetch_channel_in_t := ('0', '0', '0', '0', (others => '0'));
+    signal ifetch_in:           ifetch_channel_in_t := ('0', '0', (others => '0'));
 
     signal idecode_in:          idecode_channel_in_t;
     signal idecode_out:         idecode_channel_out_t;
