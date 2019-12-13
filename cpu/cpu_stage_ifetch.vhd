@@ -82,6 +82,13 @@ begin
                     state <= RUNNING;
                 end if;
             when CXFER_WAIT =>
+                -- CXFER_WAIT is required to stop fetches when a JALR or
+                --  BRANCH instr is encountered. In another strategy we
+                --  could avoid using sync_cxfer / CXFER_WAIT
+                --  and rely solely on asyn_cxfer. In that case fetch 
+                --  would continue to prefetch instructions
+                --  on the branch not taken path -- akin to a crude static
+                --  branch predictor.
                 if (ifetch_in.sync_cxfer = '1') then
                     if (ifetch_in.cxfer_branch = '1') then
                         if (ifetch_in.cxfer_branch_taken = '1') then
@@ -101,8 +108,7 @@ begin
                 if (ifetch_in.async_cxfer_strobe /= async_cxfer_strobe_save) then
                     async_cxfer_strobe_save <= not async_cxfer_strobe_save;
                     pc <= ifetch_in.cxfer_pc;
-                elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) 
-                then 
+                elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 
                     -- ICACHE HIT
                     icache_busy <= '0';
                     if (idecode_out.busy = '0') then
