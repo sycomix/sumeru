@@ -170,8 +170,17 @@ idecode: entity work.cpu_stage_idecode
         sys_clk => sys_clk,
         idecode_in => idecode_in,
         idecode_out => idecode_out,
+        iexec_in => iexec_in,
         iexec_out => iexec_out_decode,
         debug => led
+    );
+
+iexec: entity work.cpu_stage_iexec
+    port map(
+        sys_clk => sys_clk,
+        iexec_in => iexec_in,
+        iexec_out_fetch => iexec_out_fetch,
+        iexec_out_decode => iexec_out_decode
     );
 
 end architecture;

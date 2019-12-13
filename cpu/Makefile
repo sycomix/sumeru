@@ -18,6 +18,7 @@ SRCS = pll.vhd \
 	read_cache_32x32x256.vhd \
 	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
+	cpu_stage_iexec.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
@@ -78,6 +79,8 @@ BOOTCODE.hex: BOOTCODE.s
 	@../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
 
 cpu_stage_idecode.o: cpu_types.o
+
+cpu_stage_iexec.o: cpu_types.o
 
 cpu_stage_ifetch.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
     read_cache_8x16x256.o read_cache_32x32x256.o
