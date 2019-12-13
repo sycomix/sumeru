@@ -100,7 +100,7 @@ begin
                 end if;
             when CSR_UPDATE =>
                 cache_strobe_save <= icache_flush_strobe;
-                if (inst(15) = '0') then
+                if (idecode_in.inst(15) = '0') then
                     -- FENCE.I ICACHE_FLUSH
                     icache_flush <= '1';
                     state <= FLUSH_WAIT;
