@@ -16,6 +16,8 @@ end entity;
 
 architecture synth of cpu_stage_iexec is
 begin
+    iexec_out_fetch <= ('0', '0', (others =>'0'));
+    iexec_out_decode <= ('0', '0');
 --    process(sys_clk)
 --    begin
 --        if (rising_edge(sys_clk)) then

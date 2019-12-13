@@ -33,19 +33,12 @@ begin
         if (rising_edge(sys_clk)) then
             if (exec_busy = '0') then
                 decode_busy <= '0';
+                exec_valid <= fetch_valid;
                 if (fetch_valid = '1') then
-                    exec_valid <= '1';
                     -- DO DECODE
-
-                else
-                    exec_valid <= '0';
                 end if;
             else
-                if (idecode_in.valid = '1') then
-                    decode_busy <= '1';
-                else
-                    decode_busy <= '0';
-                end if;
+                decode_busy <= idecode_in.valid;
             end if;
         end if;
     end process;
