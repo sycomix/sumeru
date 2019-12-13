@@ -14,9 +14,9 @@ port(
     cache_mc_in:        out mem_channel_in_t;
     cache_mc_out:       in mem_channel_out_t;
     sdc_data_out:       in std_logic_vector(15 downto 0);
-    ifetch_in:          in ifetch_channel_in_t;
     idecode_in:         out idecode_channel_in_t;
-    idecode_out:        in idecode_channel_out_t
+    idecode_out:        in idecode_channel_out_t;
+    iexec_out:          in iexec_channel_out_fetch_t
     );
 end entity;
 
@@ -32,7 +32,7 @@ architecture synth of cpu_stage_ifetch is
 
     signal valid:               std_logic := '0';
     signal cache_strobe_save:   std_logic;
-    signal async_cxfer_strobe_save: std_logic;
+    signal cxfer_strobe_save:   std_logic;
 
     type state_t is (
         RUNNING,
@@ -84,20 +84,20 @@ begin
             when CXFER_WAIT =>
                 -- CXFER_WAIT is required to stop fetches when a JALR or
                 --  BRANCH instr is encountered. In another strategy we
-                --  could avoid using sync_cxfer / CXFER_WAIT
-                --  and rely solely on asyn_cxfer. In that case fetch 
+                --  could avoid using cxfer_sync / CXFER_WAIT
+                --  and rely solely on cxfer_async. In that case fetch 
                 --  would continue to prefetch instructions
                 --  on the branch not taken path -- akin to a crude static
                 --  branch predictor.
-                if (ifetch_in.sync_cxfer = '1') then
-                    pc <= ifetch_in.cxfer_pc;
+                if (iexec_out.cxfer_sync = '1') then
+                    pc <= iexec_out.cxfer_pc;
                     -- XXX Provide mechnism for setting intr_enable
                     state <= RUNNING;
                 end if;
             when RUNNING =>
-                if (ifetch_in.async_cxfer_strobe /= async_cxfer_strobe_save) then
-                    async_cxfer_strobe_save <= not async_cxfer_strobe_save;
-                    pc <= ifetch_in.cxfer_pc;
+                if (iexec_out.cxfer_async_strobe /= cxfer_strobe_save) then
+                    cxfer_strobe_save <= not cxfer_strobe_save;
+                    pc <= iexec_out.cxfer_pc;
                 elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 
                     -- ICACHE HIT
                     icache_busy <= '0';

@@ -9,6 +9,7 @@ port(
     sys_clk:                    in std_logic;
     idecode_in:                 in idecode_channel_in_t;
     idecode_out:                out idecode_channel_out_t;
+    iexec_out:                  in iexec_channel_out_decode_t;
     debug:                      out std_logic
     );
 end entity;

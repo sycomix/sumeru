@@ -95,12 +95,6 @@ package cpu_types is
     constant CMD_REM:           std_logic_vector(3 downto 0) := "0110";
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
 
-    type ifetch_channel_in_t is record
-        async_cxfer_strobe:     std_logic;
-        sync_cxfer:             std_logic;
-        cxfer_pc:               std_logic_vector(31 downto 0);
-    end record;
-
     type idecode_channel_in_t is record
         valid:                  std_logic;
         inst:                   std_logic_vector(31 downto 0);
@@ -111,7 +105,24 @@ package cpu_types is
         busy:                   std_logic;
     end record;
 
-    type iexec_channel_out_t is record
-        dummy:                  std_logic;
+    type iexec_channel_in_t is record
+        valid:                  std_logic;
+        command:                std_logic_vector(4 downto 0);
+        imm:                    std_logic_vector(31 downto 0);
+        rs1:                    std_logic_vector(5 downto 0);
+        rs2:                    std_logic_vector(5 downto 0);
+        rd:                     std_logic_vector(5 downto 0);
     end record;
+
+    type iexec_channel_out_decode_t is record
+        busy:                   std_logic;
+        cxfer_async_strobe:     std_logic;
+    end record;
+
+    type iexec_channel_out_fetch_t is record
+        cxfer_async_strobe:     std_logic;
+        cxfer_sync:             std_logic;
+        cxfer_pc:               std_logic_vector(31 downto 0);
+    end record;
+
 end package;
