@@ -96,8 +96,8 @@ package cpu_types is
     constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
 
     type ifetch_channel_in_t is record
-        cxfer_async:            std_logic;
-        cxfer_valid:            std_logic;
+        async_cxfer_strobe:     std_logic;
+        sync_cxfer:             std_logic;
         cxfer_branch:           std_logic;
         cxfer_branch_taken:     std_logic;
         cxfer_pc:               std_logic_vector(31 downto 0);

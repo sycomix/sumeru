@@ -16,7 +16,6 @@ SRCS = pll.vhd \
         memory_loader.vhd \
 	sumeru_constants.vhd \
 	read_cache_32x32x256.vhd \
-	read_cache_8x16x256.vhd \
 	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
 	${TOPLEVEL}.vhd \
