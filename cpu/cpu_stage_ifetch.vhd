@@ -38,8 +38,7 @@ architecture synth of cpu_stage_ifetch is
         RUNNING,
         JAL_SWITCH,
         FLUSH_WAIT,
-        CXFER_WAIT,
-        CSR_UPDATE);
+        CXFER_WAIT);
     
     signal state:               state_t := RUNNING;
 
@@ -98,13 +97,6 @@ begin
                     end if;
                     state <= RUNNING;
                 end if;
-            when CSR_UPDATE =>
-                cache_strobe_save <= icache_flush_strobe;
-                if (idecode_in.inst(15) = '0') then
-                    -- FENCE.I ICACHE_FLUSH
-                    icache_flush <= '1';
-                    state <= FLUSH_WAIT;
-                end if;
             when RUNNING =>
                 if (ifetch_in.async_cxfer_strobe /= async_cxfer_strobe_save) then
                     async_cxfer_strobe_save <= not async_cxfer_strobe_save;
@@ -123,10 +115,13 @@ begin
                                 state <= JAL_SWITCH;
                             when OP_TYPE_B | OP_TYPE_JALR =>
                                 state <= CXFER_WAIT;
-                            when OP_TYPE_CSR =>
-                                if (inst(31 downto 20) = x"C0D") then
+                            when OP_TYPE_MISC_MEM =>
+                                if (inst(12) = '1') then
+                                    -- FENCE.I
                                     valid <= '0';
-                                    state <= CSR_UPDATE;
+                                    icache_flush <= '1';                                    
+                                    state <= FLUSH_WAIT;
+                                    cache_strobe_save <= icache_flush_strobe;
                                 end if;
                             when others =>
                         end case;
