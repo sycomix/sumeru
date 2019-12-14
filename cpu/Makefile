@@ -8,7 +8,7 @@ SRCS = pll.vhd \
         ram1p_256x32.o \
         ram1p_256x16.o \
         ram1p_256x8.o \
-        ram2p_32x32.o \
+        ram2p_simp_32x32.o \
         cpu_types.vhd \
         memory_channel_types.vhd \
         sdram_controller_simlowdelay.vhd \
@@ -119,7 +119,7 @@ ram1p_256x16.o: ${LIBSRC_DIR}/ram1p_256x16.vhd
 ram1p_256x8.o: ${LIBSRC_DIR}/ram1p_256x8.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
-ram2p_32x32.o: ${LIBSRC_DIR}/ram2p_32x32.vhd
+ram2p_simp_32x32.o: ${LIBSRC_DIR}/ram2p_simp_32x32.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
 sim_sdram_mt48lc16m16a2.o: simulation/sim_sdram_mt48lc16m16a2.vhd

@@ -178,6 +178,7 @@ idecode: entity work.cpu_stage_idecode
 iexec: entity work.cpu_stage_iexec
     port map(
         sys_clk => sys_clk,
+        cache_clk => mem_clk,
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
         iexec_out_decode => iexec_out_decode
