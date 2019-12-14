@@ -74,7 +74,7 @@ begin
                             elsif (inst_funct3(1 downto 0) = "01") then
                                 -- SHIFT
                                 iexec_in.cmd <= CMD_SHIFT;
-                                iexec_in.cmd_op <= inst(30) & inst_funct3(2);
+                                iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                             else
                                 iexec_in.cmd <= CMD_ALU;
                                 iexec_in.cmd_op <= "0" & inst_funct3;
