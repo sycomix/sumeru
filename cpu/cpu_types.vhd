@@ -43,57 +43,10 @@ package cpu_types is
 
     -- COMMANDS
 
-    constant CMD_ADD:           std_logic_vector(3 downto 0) := "0000";
-    constant CMD_SUB:           std_logic_vector(3 downto 0) := "1000";
-    constant CMD_SLL:           std_logic_vector(3 downto 0) := "0001";
-    constant CMD_SLT:           std_logic_vector(3 downto 0) := "0010";
-    constant CMD_SLTU:          std_logic_vector(3 downto 0) := "0011";
-    constant CMD_XOR:           std_logic_vector(3 downto 0) := "0100";
-    constant CMD_SRL:           std_logic_vector(3 downto 0) := "0101";
-    constant CMD_SRA:           std_logic_vector(3 downto 0) := "1101";
-    constant CMD_OR:            std_logic_vector(3 downto 0) := "0110";
-    constant CMD_AND:           std_logic_vector(3 downto 0) := "0111";
+    constant CMD_ALU:           std_logic_vector(2 downto 0) := "000";
+    constant CMD_SHIFT:         std_logic_vector(2 downto 0) := "001";
 
-    constant CMD_BR_EQ:         std_logic_vector(3 downto 0) := "0000";
-    constant CMD_BR_NE:         std_logic_vector(3 downto 0) := "0001";
-    constant CMD_BR_LT:         std_logic_vector(3 downto 0) := "0100";
-    constant CMD_BR_GE:         std_logic_vector(3 downto 0) := "0101";
-    constant CMD_BR_LTU:        std_logic_vector(3 downto 0) := "0110";
-    constant CMD_BR_GEU:        std_logic_vector(3 downto 0) := "0111";
-
-    constant CMD_LOAD_B:        std_logic_vector(3 downto 0) := "0000";
-    constant CMD_LOAD_H:        std_logic_vector(3 downto 0) := "0001";
-    constant CMD_LOAD_W:        std_logic_vector(3 downto 0) := "0010";
-    constant CMD_LOAD_BU:       std_logic_vector(3 downto 0) := "0100";
-    constant CMD_LOAD_HU:       std_logic_vector(3 downto 0) := "0101";
-
-    constant CMD_STORE_B:       std_logic_vector(3 downto 0) := "0000";
-    constant CMD_STORE_H:       std_logic_vector(3 downto 0) := "0001";
-    constant CMD_STORE_W:       std_logic_vector(3 downto 0) := "0010";
-
-    constant CMD_JALR:          std_logic_vector(3 downto 0) := "0000";
-
-    constant CMD_ENV:           std_logic_vector(3 downto 0) := "0000";
-    constant CMD_WR_RS2:        std_logic_vector(3 downto 0) := "0001";
-    -- XUI and JAL are both mapped to WR_RS2 (write rs2)
-    -- constant CMD_XUI:           std_logic_vector(3 downto 0) := "0001";
-    -- constant CMD_JAL:           std_logic_vector(5 downto 0) := "0010";
-
-    constant CMD_CSRW:          std_logic_vector(3 downto 0) := "0001";
-    constant CMD_CSRRS:         std_logic_vector(3 downto 0) := "0010";
-    constant CMD_CSRRC:         std_logic_vector(3 downto 0) := "0011";
-    constant CMD_CSRRWI:        std_logic_vector(3 downto 0) := "0101";
-    constant CMD_CSRRSI:        std_logic_vector(3 downto 0) := "0110";
-    constant CMD_CSRRCI:        std_logic_vector(3 downto 0) := "0111";
-
-    constant CMD_MUL:           std_logic_vector(3 downto 0) := "0000";
-    constant CMD_MULH:          std_logic_vector(3 downto 0) := "0001";
-    constant CMD_MULHSU:        std_logic_vector(3 downto 0) := "0010";
-    constant CMD_MULHU:         std_logic_vector(3 downto 0) := "0011";
-    constant CMD_DIV:           std_logic_vector(3 downto 0) := "0100";
-    constant CMD_DIVU:          std_logic_vector(3 downto 0) := "0101";
-    constant CMD_REM:           std_logic_vector(3 downto 0) := "0110";
-    constant CMD_REMU:          std_logic_vector(3 downto 0) := "0111";
+    constant CMD_ALU_OP_SUB:    std_logic_vector(3 downto 0) := "1000";
 
     type idecode_channel_in_t is record
         valid:                  std_logic;
@@ -107,11 +60,13 @@ package cpu_types is
 
     type iexec_channel_in_t is record
         valid:                  std_logic;
-        command:                std_logic_vector(4 downto 0);
+        cmd:                    std_logic_vector(2 downto 0);
+        cmd_op:                 std_logic_vector(3 downto 0);
+        cmd_use_imm:            std_logic;
         imm:                    std_logic_vector(31 downto 0);
-        rs1:                    std_logic_vector(5 downto 0);
-        rs2:                    std_logic_vector(5 downto 0);
-        rd:                     std_logic_vector(5 downto 0);
+        rs1:                    std_logic_vector(4 downto 0);
+        rs2:                    std_logic_vector(4 downto 0);
+        rd:                     std_logic_vector(4 downto 0);
     end record;
 
     type iexec_channel_out_decode_t is record

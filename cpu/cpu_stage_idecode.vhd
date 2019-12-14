@@ -23,6 +23,30 @@ architecture synth of cpu_stage_idecode is
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
+    alias inst:         std_logic_vector(31 downto 0) is idecode_in.inst;
+    alias inst_opcode:  std_logic_vector(4 downto 0) is inst(6 downto 2);
+    alias inst_funct3:  std_logic_vector(2 downto 0) is inst(14 downto 12);
+    alias inst_rs1:     std_logic_vector(4 downto 0) is inst(19 downto 15);
+    alias inst_rs2:     std_logic_vector(4 downto 0) is inst(24 downto 20);
+    alias inst_rd:      std_logic_vector(4 downto 0) is inst(11 downto 7);
+    alias inst_imm_i:   std_logic_vector(11 downto 0) is inst(31 downto 20);
+
+    pure function sxt(
+                    x:          std_logic_vector;
+                    n:          natural)
+                    return std_logic_vector is
+    begin
+        return std_logic_vector(resize(signed(x), n));
+    end function;
+
+    pure function ext(
+                    x:          std_logic_vector;
+                    n:          natural)
+                    return std_logic_vector is
+    begin
+        return std_logic_vector(resize(unsigned(x), n));
+    end function;
+
 begin
     debug <= debug_r;
     idecode_out.busy <= decode_busy;
@@ -36,6 +60,27 @@ begin
                 exec_valid <= fetch_valid;
                 if (fetch_valid = '1') then
                     -- DO DECODE
+                    iexec_in.rs1 <= inst_rs1;
+                    iexec_in.rs2 <= inst_rs2;
+                    iexec_in.rd <= inst_rd;
+                    case inst_opcode is
+                        when OP_TYPE_R | OP_TYPE_I =>
+                            iexec_in.imm <= sxt(inst_imm_i, 32);
+                            iexec_in.cmd_use_imm <= not inst(5);
+                            if (inst_funct3 = "000" and inst(30) = '1') then
+                                -- SUBTRACT
+                                iexec_in.cmd <= CMD_ALU;
+                                iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                            elsif (inst_funct3(1 downto 0) = "01") then
+                                -- SHIFT
+                                iexec_in.cmd <= CMD_SHIFT;
+                                iexec_in.cmd_op <= inst(30) & inst_funct3(2);
+                            else
+                                iexec_in.cmd <= CMD_ALU;
+                                iexec_in.cmd_op <= "0" & inst_funct3;
+                            end if;
+                        when others =>
+                    end case;
                 end if;
             else
                 decode_busy <= idecode_in.valid;
