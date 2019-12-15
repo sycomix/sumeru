@@ -19,6 +19,7 @@ SRCS = pll.vhd \
 	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
         cpu_alu.vhd \
+        cpu_shift.vhd \
 	cpu_stage_iexec.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \

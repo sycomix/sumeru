@@ -69,7 +69,7 @@ begin
                     case inst_opcode is
                         when OP_TYPE_R | OP_TYPE_I =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
-                            iexec_in.cmd_use_imm <= not inst(5);
+                            iexec_in.cmd_use_reg <= inst(5);
                             if (inst_funct3 = "000" and inst(30) = '1') then
                                 -- SUBTRACT
                                 iexec_in.cmd <= CMD_ALU;

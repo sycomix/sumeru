@@ -63,7 +63,7 @@ package cpu_types is
         valid:                  std_logic;
         cmd:                    std_logic_vector(2 downto 0);
         cmd_op:                 std_logic_vector(3 downto 0);
-        cmd_use_imm:            std_logic;
+        cmd_use_reg:            std_logic;
         imm:                    std_logic_vector(31 downto 0);
         rs1:                    std_logic_vector(4 downto 0);
         rs2:                    std_logic_vector(4 downto 0);

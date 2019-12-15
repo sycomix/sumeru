@@ -48,6 +48,7 @@ set_global_assignment -name VHDL_FILE read_cache_32x32x256.vhd
 set_global_assignment -name VHDL_FILE cpu_stage_ifetch.vhd
 set_global_assignment -name VHDL_FILE cpu_stage_idecode.vhd
 set_global_assignment -name VHDL_FILE cpu_alu.vhd
+set_global_assignment -name VHDL_FILE cpu_shift.vhd
 set_global_assignment -name VHDL_FILE cpu_stage_iexec.vhd
 set_global_assignment -name VHDL_FILE cpu.vhd
 set_global_assignment -name VHDL_FILE sdram_controller.vhd

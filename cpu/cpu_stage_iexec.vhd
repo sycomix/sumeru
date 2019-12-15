@@ -56,7 +56,7 @@ begin
         last_rd_data when last_rd = iexec_in.rs2 else rs2_read_data;
 
     operand2 <= 
-        iexec_in.imm when iexec_in.cmd_use_imm = '1' else rs2_data;
+        rs2_data when iexec_in.cmd_use_reg = '1' else iexec_in.imm;
 
     alu: entity work.cpu_alu
         port map(
