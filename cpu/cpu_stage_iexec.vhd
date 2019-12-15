@@ -26,6 +26,7 @@ architecture synth of cpu_stage_iexec is
     signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
     signal alu_result:          std_logic_vector(31 downto 0);
+    signal last_cmd:            std_logic_vector(2 downto 0) := (others => '0');
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -66,12 +67,13 @@ begin
             result => alu_result);
 
     rd_write_data <= 
-        alu_result when iexec_in.cmd = CMD_ALU;
+        alu_result when last_cmd = CMD_ALU;
 
     process(cache_clk)
     begin
         if (rising_edge(cache_clk) and regfile_wren = '1') then
             last_rd_data <= rd_write_data;
+            last_rd <= regfile_wraddr;
         end if;
     end process;
 
@@ -79,11 +81,14 @@ begin
     begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
-            if (iexec_in.valid = '1' and iexec_in.cmd = CMD_ALU) then
-                regfile_wraddr <= iexec_in.rd;
-                regfile_wren <= 
-                    iexec_in.rd(0) or iexec_in.rd(1) or 
-                    iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+            if (iexec_in.valid = '1')  then
+                last_cmd <= iexec_in.cmd;
+                if (iexec_in.cmd = CMD_ALU) then
+                    regfile_wraddr <= iexec_in.rd;
+                    regfile_wren <= 
+                        iexec_in.rd(0) or iexec_in.rd(1) or 
+                        iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                end if;
             end if;
         end if;
     end process;
