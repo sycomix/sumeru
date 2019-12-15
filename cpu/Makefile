@@ -82,7 +82,7 @@ BOOTCODE.hex: BOOTCODE.s
 
 cpu_stage_idecode.o: cpu_types.o
 
-cpu_stage_iexec.o: cpu_types.o cpu_alu.o
+cpu_stage_iexec.o: cpu_types.o cpu_alu.o cpu_shift.o
 
 cpu_alu.o: cpu_types.o
 

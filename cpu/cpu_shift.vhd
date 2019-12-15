@@ -8,7 +8,7 @@ entity cpu_shift is
 port(
     sys_clk:    in std_logic;
     shift_data: in std_logic_vector(31 downto 0);
-    shift_amt:  in bit_vector(4 downto 0);
+    shift_amt:  in std_logic_vector(4 downto 0);
     shift_bit:  in std_logic;
     shift_dir_lr: in std_logic;
     shift_result:     out std_logic_vector(31 downto 0)
@@ -18,7 +18,7 @@ end entity;
 
 architecture synth of cpu_shift is
     signal shift_data_r: std_logic_vector(31 downto 0);
-    signal shift_amt_r: bit_vector(4 downto 0);
+    signal shift_amt_r: std_logic_vector(4 downto 0);
     signal shift_bit_r: std_logic;
     signal shift_dir_lr_r: std_logic;
     signal shiftrx_stage1_result_a: std_logic_vector(15 downto 0);
@@ -57,7 +57,7 @@ begin
             when shift_amt_r(0) = '0' else
         shift_bit_r & shiftrx_stage1_result_b & shiftrx_stage1_result_a(15 downto 1);
 
-    with shift_amt_r(4 downto 1) select
+    with to_bitvector(shift_amt_r(4 downto 1)) select
         shiftrx_stage1_result_b <= 
             shift_data_r(31 downto 16) when "0000",
             sxt(shift_bit_r & shift_data_r(31 downto 18), 16) when "0001",
@@ -72,7 +72,7 @@ begin
                 shift_bit_r & shift_bit_r & shift_bit_r & shift_bit_r &
                 shift_bit_r & shift_bit_r & shift_bit_r & shift_bit_r) when others;
 
-    with shift_amt_r(4 downto 1) select
+    with to_bitvector(shift_amt_r(4 downto 1)) select
         shiftrx_stage1_result_a <= 
             shift_data_r(15 downto 0) when "0000",
             shift_data_r(17 downto 2) when "0001",
@@ -91,7 +91,7 @@ begin
             sxt(shift_bit_r & shift_data_r(31 downto 28), 16) when "1110",
             sxt(shift_bit_r & shift_data_r(31 downto 30), 16) when "1111";
 
-    with shift_amt_r(4 downto 1) select
+    with to_bitvector(shift_amt_r(4 downto 1)) select
         shiftll_stage1_result_b <= 
             shift_data_r(31 downto 16) when "0000",
             shift_data_r(29 downto 14) when "0001",
@@ -110,7 +110,7 @@ begin
             shift_data_r(3 downto 0) & "000000000000" when "1110",
             shift_data_r(1 downto 0) & "00000000000000" when "1111";
 
-    with shift_amt_r(4 downto 1) select
+    with to_bitvector(shift_amt_r(4 downto 1)) select
         shiftll_stage1_result_a <= 
             shift_data_r(15 downto 0) when "0000",
             shift_data_r(13 downto 0) & "00" when "0001",

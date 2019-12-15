@@ -28,6 +28,8 @@ architecture synth of cpu_stage_iexec is
     signal alu_result:          std_logic_vector(31 downto 0);
     signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
 
+    signal shift_result:        std_logic_vector(31 downto 0);
+
 begin
     regfile_a: entity work.ram2p_simp_32x32
         port map(
@@ -66,8 +68,18 @@ begin
             op => iexec_in.cmd_op,
             result => alu_result);
 
-    rd_write_data <= 
-        alu_result when cmd_result_mux = CMD_ALU;
+    shift: entity work.cpu_shift
+        port map(
+            sys_clk => sys_clk,
+            shift_data => rs1_data,
+            shift_amt => operand2(4 downto 0),
+            shift_bit => iexec_in.cmd_op(1),
+            shift_dir_lr => iexec_in.cmd_op(0),
+            shift_result => shift_result);
+
+    with cmd_result_mux select rd_write_data <=
+        alu_result when CMD_ALU,
+        shift_result when others;
 
     process(cache_clk)
     begin
@@ -83,7 +95,7 @@ begin
             regfile_wren <= '0';
             if (iexec_in.valid = '1')  then
                 cmd_result_mux <= iexec_in.cmd;
-                if (iexec_in.cmd = CMD_ALU) then
+                if (iexec_in.cmd = CMD_ALU or iexec_in.cmd = CMD_SHIFT) then
                     regfile_wraddr <= iexec_in.rd;
                     regfile_wren <= 
                         iexec_in.rd(0) or iexec_in.rd(1) or 
