@@ -17,7 +17,6 @@ end entity;
 
 
 architecture synth of cpu_stage_idecode is
-    signal debug_r:     std_logic := '1';
     signal decode_busy: std_logic := '0';
     signal exec_valid:  std_logic := '0';
     signal rs1:         std_logic_vector(4 downto 0) := (others => '0');
@@ -51,7 +50,7 @@ architecture synth of cpu_stage_idecode is
     end function;
 
 begin
-    debug <= debug_r;
+    debug <= '0' when idecode_in.pc(7 downto 0) = x"10" else '1';
     idecode_out.busy <= decode_busy;
     iexec_in.valid <= exec_valid;
     iexec_in.rs1 <= rs1;
