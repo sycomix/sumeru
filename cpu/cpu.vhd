@@ -171,8 +171,7 @@ idecode: entity work.cpu_stage_idecode
         idecode_in => idecode_in,
         idecode_out => idecode_out,
         iexec_in => iexec_in,
-        iexec_out => iexec_out_decode,
-        debug => led
+        iexec_out => iexec_out_decode
     );
 
 iexec: entity work.cpu_stage_iexec
@@ -181,7 +180,8 @@ iexec: entity work.cpu_stage_iexec
         cache_clk => mem_clk,
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
-        iexec_out_decode => iexec_out_decode
+        iexec_out_decode => iexec_out_decode,
+        debug => led
     );
 
 end architecture;

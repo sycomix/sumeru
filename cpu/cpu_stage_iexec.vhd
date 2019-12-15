@@ -10,7 +10,8 @@ port(
     cache_clk:                  in std_logic;
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
-    iexec_out_decode:           out iexec_channel_out_decode_t
+    iexec_out_decode:           out iexec_channel_out_decode_t;
+    debug:                      out std_logic
     );
 end entity;
 
@@ -68,6 +69,8 @@ begin
 
     rd_write_data <= 
         alu_result when cmd_result_mux = CMD_ALU;
+
+    debug <= rs1_data(25);
 
     process(cache_clk)
     begin

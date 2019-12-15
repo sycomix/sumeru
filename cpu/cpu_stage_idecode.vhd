@@ -10,8 +10,7 @@ port(
     idecode_in:                 in idecode_channel_in_t;
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
-    iexec_out:                  in iexec_channel_out_decode_t;
-    debug:                      out std_logic
+    iexec_out:                  in iexec_channel_out_decode_t
     );
 end entity;
 
@@ -50,7 +49,6 @@ architecture synth of cpu_stage_idecode is
     end function;
 
 begin
-    debug <= '0' when idecode_in.pc(7 downto 0) = x"10" else '1';
     idecode_out.busy <= decode_busy;
     iexec_in.valid <= exec_valid;
     iexec_in.rs1 <= rs1;
