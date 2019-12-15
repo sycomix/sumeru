@@ -26,7 +26,7 @@ architecture synth of cpu_stage_iexec is
     signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
     signal alu_result:          std_logic_vector(31 downto 0);
-    signal last_cmd:            std_logic_vector(2 downto 0) := (others => '0');
+    signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -67,7 +67,7 @@ begin
             result => alu_result);
 
     rd_write_data <= 
-        alu_result when last_cmd = CMD_ALU;
+        alu_result when cmd_result_mux = CMD_ALU;
 
     process(cache_clk)
     begin
@@ -82,7 +82,7 @@ begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
             if (iexec_in.valid = '1')  then
-                last_cmd <= iexec_in.cmd;
+                cmd_result_mux <= iexec_in.cmd;
                 if (iexec_in.cmd = CMD_ALU) then
                     regfile_wraddr <= iexec_in.rd;
                     regfile_wren <= 
