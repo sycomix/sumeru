@@ -77,6 +77,7 @@ begin
 spi0_sck <= '0';
 spi0_ss <= '0';
 spi0_mosi <= '0';
+led <= '1';
 
 pll: entity work.pll 
     port map(
@@ -180,8 +181,7 @@ iexec: entity work.cpu_stage_iexec
         cache_clk => mem_clk,
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
-        iexec_out_decode => iexec_out_decode,
-        debug => led
+        iexec_out_decode => iexec_out_decode
     );
 
 end architecture;
