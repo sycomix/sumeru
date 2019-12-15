@@ -31,8 +31,8 @@ architecture synth of cpu_stage_ifetch is
     signal icache_flush_strobe: std_logic;
 
     signal valid:               std_logic := '0';
+    signal cxfer_strobe_save:   std_logic := '0';
     signal cache_strobe_save:   std_logic;
-    signal cxfer_strobe_save:   std_logic;
 
     type state_t is (
         RUNNING,

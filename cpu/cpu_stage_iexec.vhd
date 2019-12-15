@@ -22,6 +22,7 @@ architecture synth of cpu_stage_iexec is
     signal rs1_data:            std_logic_vector(31 downto 0);
     signal rs2_data:            std_logic_vector(31 downto 0);
     signal operand2:            std_logic_vector(31 downto 0);
+    signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
     signal alu_result:          std_logic_vector(31 downto 0);
@@ -33,7 +34,7 @@ begin
             wrclock => sys_clk,
             data => rd_write_data,
             rdaddress => iexec_in.rs1,
-            wraddress => iexec_in.rd,
+            wraddress => regfile_wraddr,
             wren => regfile_wren,
             q => rs1_read_data);
 
@@ -43,7 +44,7 @@ begin
             wrclock => sys_clk,
             data => rd_write_data,
             rdaddress => iexec_in.rs2,
-            wraddress => iexec_in.rd,
+            wraddress => regfile_wraddr,
             wren => regfile_wren,
             q => rs2_read_data);
 
@@ -77,7 +78,9 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
+            regfile_wren <= '0';
             if (iexec_in.valid = '1' and iexec_in.cmd = CMD_ALU) then
+                regfile_wraddr <= iexec_in.rd;
                 regfile_wren <= 
                     iexec_in.rd(0) or iexec_in.rd(1) or 
                     iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);

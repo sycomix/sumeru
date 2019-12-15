@@ -20,6 +20,9 @@ architecture synth of cpu_stage_idecode is
     signal debug_r:     std_logic := '1';
     signal decode_busy: std_logic := '0';
     signal exec_valid:  std_logic := '0';
+    signal rs1:         std_logic_vector(4 downto 0) := (others => '0');
+    signal rs2:         std_logic_vector(4 downto 0) := (others => '0');
+    signal rd:          std_logic_vector(4 downto 0) := (others => '0');
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
@@ -51,6 +54,9 @@ begin
     debug <= debug_r;
     idecode_out.busy <= decode_busy;
     iexec_in.valid <= exec_valid;
+    iexec_in.rs1 <= rs1;
+    iexec_in.rs2 <= rs2;
+    iexec_in.rd <= rd;
 
     process(sys_clk)
     begin
@@ -60,9 +66,9 @@ begin
                 exec_valid <= fetch_valid;
                 if (fetch_valid = '1') then
                     -- DO DECODE
-                    iexec_in.rs1 <= inst_rs1;
-                    iexec_in.rs2 <= inst_rs2;
-                    iexec_in.rd <= inst_rd;
+                    rs1 <= inst_rs1;
+                    rs2 <= inst_rs2;
+                    rd <= inst_rd;
                     case inst_opcode is
                         when OP_TYPE_R | OP_TYPE_I =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
@@ -80,6 +86,8 @@ begin
                                 iexec_in.cmd_op <= "0" & inst_funct3;
                             end if;
                         when others =>
+                            iexec_in.cmd <= CMD_UNKNOWN;
+                            iexec_in.cmd_op <= (others => '0');
                     end case;
                 end if;
             else
