@@ -53,6 +53,7 @@ icache: entity work.read_cache_32x32x256
         load => icache_load,
         flush => icache_flush,
         flush_strobe => icache_flush_strobe,
+        busy => icache_busy,
         mc_in => cache_mc_in,
         mc_out => cache_mc_out,
         sdc_data_out => sdc_data_out);
@@ -89,18 +90,23 @@ begin
                 --  would continue to prefetch instructions
                 --  on the branch not taken path -- akin to a crude static
                 --  branch predictor.
-                if (iexec_out.cxfer_sync = '1') then
+                if (iexec_out.cxfer_sync = '1' or
+                    iexec_out.cxfer_async_strobe /= cxfer_strobe_save) 
+                then
+                    cxfer_strobe_save <= iexec_out.cxfer_async_strobe;
                     pc <= iexec_out.cxfer_pc;
                     -- XXX Provide mechnism for setting intr_enable
                     state <= RUNNING;
                 end if;
             when RUNNING =>
-                if (iexec_out.cxfer_async_strobe /= cxfer_strobe_save) then
-                    cxfer_strobe_save <= not cxfer_strobe_save;
-                    pc <= iexec_out.cxfer_pc;
+                if (iexec_out.cxfer_async_strobe /= cxfer_strobe_save)
+                then
+                    if (icache_busy = '0') then
+                        cxfer_strobe_save <= not cxfer_strobe_save;
+                        pc <= iexec_out.cxfer_pc;
+                    end if;
                 elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 
                     -- ICACHE HIT
-                    icache_busy <= '0';
                     if (idecode_out.busy = '0') then
                         valid <= '1';
                         idecode_in.inst <= inst;
@@ -126,7 +132,6 @@ begin
                     -- LOAD CACHE LINE
                     if (icache_busy = '0' and enable = '1') then
                         icache_load <= '1';
-                        icache_busy <= '1';
                     end if;
                 end if;
         end case;
