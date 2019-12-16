@@ -86,6 +86,8 @@ cpu_stage_iexec.o: cpu_types.o cpu_alu.o cpu_shift.o
 
 cpu_alu.o: cpu_types.o
 
+cpu_shift.o: cpu_types.o
+
 cpu_stage_ifetch.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
     read_cache_32x32x256.o
 
