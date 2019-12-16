@@ -8,7 +8,6 @@ entity cpu_stage_iexec is
 port(
     sys_clk:                    in std_logic;
     cache_clk:                  in std_logic;
-    latch_clk:                  in std_logic;
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
     iexec_out_decode:           out iexec_channel_out_decode_t
@@ -92,7 +91,7 @@ begin
 
     process(cache_clk)
     begin
-        -- XXX Adjust latch_clk to be optimal
+        -- XXX Timing Risk
         if (rising_edge(cache_clk) and regfile_wren = '1') then
             last_rd_data <= rd_write_data;
             last_rd <= regfile_wraddr;
@@ -108,7 +107,7 @@ begin
 
     process(cache_clk)
     begin
-        -- XXX Adjust latch_clk to be optimal
+        -- XXX Timing Risk
         if (rising_edge(cache_clk)) then
             skip_cycle <= '0';
             if (br_inst = '1' and br_result = '1')

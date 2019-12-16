@@ -46,7 +46,6 @@ ENTITY pll IS
 		inclk0		: IN STD_LOGIC  := '0';
 		c0		: OUT STD_LOGIC ;
 		c1		: OUT STD_LOGIC ;
-		c2		: OUT STD_LOGIC ;
 		locked		: OUT STD_LOGIC 
 	);
 END pll;
@@ -59,10 +58,9 @@ ARCHITECTURE SYN OF pll IS
 	SIGNAL sub_wire2	: STD_LOGIC ;
 	SIGNAL sub_wire3	: STD_LOGIC ;
 	SIGNAL sub_wire4	: STD_LOGIC ;
-	SIGNAL sub_wire5	: STD_LOGIC ;
-	SIGNAL sub_wire6	: STD_LOGIC_VECTOR (1 DOWNTO 0);
-	SIGNAL sub_wire7_bv	: BIT_VECTOR (0 DOWNTO 0);
-	SIGNAL sub_wire7	: STD_LOGIC_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire5	: STD_LOGIC_VECTOR (1 DOWNTO 0);
+	SIGNAL sub_wire6_bv	: BIT_VECTOR (0 DOWNTO 0);
+	SIGNAL sub_wire6	: STD_LOGIC_VECTOR (0 DOWNTO 0);
 
 
 
@@ -77,10 +75,6 @@ ARCHITECTURE SYN OF pll IS
 		clk1_duty_cycle		: NATURAL;
 		clk1_multiply_by		: NATURAL;
 		clk1_phase_shift		: STRING;
-		clk2_divide_by		: NATURAL;
-		clk2_duty_cycle		: NATURAL;
-		clk2_multiply_by		: NATURAL;
-		clk2_phase_shift		: STRING;
 		inclk0_input_frequency		: NATURAL;
 		intended_device_family		: STRING;
 		lpm_hint		: STRING;
@@ -139,17 +133,15 @@ ARCHITECTURE SYN OF pll IS
 	END COMPONENT;
 
 BEGIN
-	sub_wire7_bv(0 DOWNTO 0) <= "0";
-	sub_wire7    <= To_stdlogicvector(sub_wire7_bv);
-	sub_wire3    <= sub_wire0(2);
+	sub_wire6_bv(0 DOWNTO 0) <= "0";
+	sub_wire6    <= To_stdlogicvector(sub_wire6_bv);
 	sub_wire2    <= sub_wire0(1);
 	sub_wire1    <= sub_wire0(0);
 	c0    <= sub_wire1;
 	c1    <= sub_wire2;
-	c2    <= sub_wire3;
-	locked    <= sub_wire4;
-	sub_wire5    <= inclk0;
-	sub_wire6    <= sub_wire7(0 DOWNTO 0) & sub_wire5;
+	locked    <= sub_wire3;
+	sub_wire4    <= inclk0;
+	sub_wire5    <= sub_wire6(0 DOWNTO 0) & sub_wire4;
 
 	altpll_component : altpll
 	GENERIC MAP (
@@ -162,10 +154,6 @@ BEGIN
 		clk1_duty_cycle => 50,
 		clk1_multiply_by => 2,
 		clk1_phase_shift => "5000",
-		clk2_divide_by => 1,
-		clk2_duty_cycle => 50,
-		clk2_multiply_by => 2,
-		clk2_phase_shift => "7500",
 		inclk0_input_frequency => 20000,
 		intended_device_family => "Cyclone IV E",
 		lpm_hint => "CBX_MODULE_PREFIX=pll",
@@ -199,7 +187,7 @@ BEGIN
 		port_scanwrite => "PORT_UNUSED",
 		port_clk0 => "PORT_USED",
 		port_clk1 => "PORT_USED",
-		port_clk2 => "PORT_USED",
+		port_clk2 => "PORT_UNUSED",
 		port_clk3 => "PORT_UNUSED",
 		port_clk4 => "PORT_UNUSED",
 		port_clk5 => "PORT_UNUSED",
@@ -217,9 +205,9 @@ BEGIN
 		width_clock => 5
 	)
 	PORT MAP (
-		inclk => sub_wire6,
+		inclk => sub_wire5,
 		clk => sub_wire0,
-		locked => sub_wire4
+		locked => sub_wire3
 	);
 
 
@@ -247,13 +235,10 @@ END SYN;
 -- Retrieval info: PRIVATE: DEVICE_SPEED_GRADE STRING "8"
 -- Retrieval info: PRIVATE: DIV_FACTOR0 NUMERIC "1"
 -- Retrieval info: PRIVATE: DIV_FACTOR1 NUMERIC "1"
--- Retrieval info: PRIVATE: DIV_FACTOR2 NUMERIC "1"
 -- Retrieval info: PRIVATE: DUTY_CYCLE0 STRING "50.00000000"
 -- Retrieval info: PRIVATE: DUTY_CYCLE1 STRING "50.00000000"
--- Retrieval info: PRIVATE: DUTY_CYCLE2 STRING "50.00000000"
 -- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE0 STRING "100.000000"
 -- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE1 STRING "100.000000"
--- Retrieval info: PRIVATE: EFF_OUTPUT_FREQ_VALUE2 STRING "100.000000"
 -- Retrieval info: PRIVATE: EXPLICIT_SWITCHOVER_COUNTER STRING "0"
 -- Retrieval info: PRIVATE: EXT_FEEDBACK_RADIO STRING "0"
 -- Retrieval info: PRIVATE: GLOCKED_COUNTER_EDIT_CHANGED STRING "1"
@@ -275,33 +260,25 @@ END SYN;
 -- Retrieval info: PRIVATE: LVDS_MODE_DATA_RATE_DIRTY NUMERIC "0"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT0 STRING "deg"
 -- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT1 STRING "ps"
--- Retrieval info: PRIVATE: LVDS_PHASE_SHIFT_UNIT2 STRING "ps"
 -- Retrieval info: PRIVATE: MIG_DEVICE_SPEED_GRADE STRING "Any"
 -- Retrieval info: PRIVATE: MIRROR_CLK0 STRING "0"
 -- Retrieval info: PRIVATE: MIRROR_CLK1 STRING "0"
--- Retrieval info: PRIVATE: MIRROR_CLK2 STRING "0"
 -- Retrieval info: PRIVATE: MULT_FACTOR0 NUMERIC "2"
 -- Retrieval info: PRIVATE: MULT_FACTOR1 NUMERIC "2"
--- Retrieval info: PRIVATE: MULT_FACTOR2 NUMERIC "2"
 -- Retrieval info: PRIVATE: NORMAL_MODE_RADIO STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ0 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ1 STRING "100.00000000"
--- Retrieval info: PRIVATE: OUTPUT_FREQ2 STRING "100.00000000"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE0 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE1 STRING "0"
--- Retrieval info: PRIVATE: OUTPUT_FREQ_MODE2 STRING "0"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT0 STRING "MHz"
 -- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT1 STRING "MHz"
--- Retrieval info: PRIVATE: OUTPUT_FREQ_UNIT2 STRING "MHz"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "180.00000000"
--- Retrieval info: PRIVATE: PHASE_SHIFT2 STRING "270.00000000"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
 -- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
--- Retrieval info: PRIVATE: PHASE_SHIFT_UNIT2 STRING "deg"
 -- Retrieval info: PRIVATE: PLL_ADVANCED_PARAM_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_ARESET_CHECK STRING "0"
 -- Retrieval info: PRIVATE: PLL_AUTOPLL_CHECK NUMERIC "1"
@@ -325,16 +302,13 @@ END SYN;
 -- Retrieval info: PRIVATE: SRC_SYNCH_COMP_RADIO STRING "0"
 -- Retrieval info: PRIVATE: STICKY_CLK0 STRING "1"
 -- Retrieval info: PRIVATE: STICKY_CLK1 STRING "1"
--- Retrieval info: PRIVATE: STICKY_CLK2 STRING "1"
 -- Retrieval info: PRIVATE: SWITCHOVER_COUNT_EDIT NUMERIC "1"
 -- Retrieval info: PRIVATE: SWITCHOVER_FEATURE_ENABLED STRING "1"
 -- Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
 -- Retrieval info: PRIVATE: USE_CLK0 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLK1 STRING "1"
--- Retrieval info: PRIVATE: USE_CLK2 STRING "1"
 -- Retrieval info: PRIVATE: USE_CLKENA0 STRING "0"
 -- Retrieval info: PRIVATE: USE_CLKENA1 STRING "0"
--- Retrieval info: PRIVATE: USE_CLKENA2 STRING "0"
 -- Retrieval info: PRIVATE: USE_MIL_SPEED_GRADE NUMERIC "0"
 -- Retrieval info: PRIVATE: ZERO_DELAY_RADIO STRING "0"
 -- Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
@@ -347,10 +321,6 @@ END SYN;
 -- Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
 -- Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "2"
 -- Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "5000"
--- Retrieval info: CONSTANT: CLK2_DIVIDE_BY NUMERIC "1"
--- Retrieval info: CONSTANT: CLK2_DUTY_CYCLE NUMERIC "50"
--- Retrieval info: CONSTANT: CLK2_MULTIPLY_BY NUMERIC "2"
--- Retrieval info: CONSTANT: CLK2_PHASE_SHIFT STRING "7500"
 -- Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "20000"
 -- Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
@@ -383,7 +353,7 @@ END SYN;
 -- Retrieval info: CONSTANT: PORT_SCANWRITE STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk0 STRING "PORT_USED"
 -- Retrieval info: CONSTANT: PORT_clk1 STRING "PORT_USED"
--- Retrieval info: CONSTANT: PORT_clk2 STRING "PORT_USED"
+-- Retrieval info: CONSTANT: PORT_clk2 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk3 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk4 STRING "PORT_UNUSED"
 -- Retrieval info: CONSTANT: PORT_clk5 STRING "PORT_UNUSED"
@@ -403,14 +373,12 @@ END SYN;
 -- Retrieval info: USED_PORT: @inclk 0 0 2 0 INPUT_CLK_EXT VCC "@inclk[1..0]"
 -- Retrieval info: USED_PORT: c0 0 0 0 0 OUTPUT_CLK_EXT VCC "c0"
 -- Retrieval info: USED_PORT: c1 0 0 0 0 OUTPUT_CLK_EXT VCC "c1"
--- Retrieval info: USED_PORT: c2 0 0 0 0 OUTPUT_CLK_EXT VCC "c2"
 -- Retrieval info: USED_PORT: inclk0 0 0 0 0 INPUT_CLK_EXT GND "inclk0"
 -- Retrieval info: USED_PORT: locked 0 0 0 0 OUTPUT GND "locked"
 -- Retrieval info: CONNECT: @inclk 0 0 1 1 GND 0 0 0 0
 -- Retrieval info: CONNECT: @inclk 0 0 1 0 inclk0 0 0 0 0
 -- Retrieval info: CONNECT: c0 0 0 0 0 @clk 0 0 1 0
 -- Retrieval info: CONNECT: c1 0 0 0 0 @clk 0 0 1 1
--- Retrieval info: CONNECT: c2 0 0 0 0 @clk 0 0 1 2
 -- Retrieval info: CONNECT: locked 0 0 0 0 @locked 0 0 0 0
 -- Retrieval info: GEN_FILE: TYPE_NORMAL pll.vhd TRUE
 -- Retrieval info: GEN_FILE: TYPE_NORMAL pll.ppf TRUE
