@@ -98,6 +98,7 @@ begin
 
     iexec_out_fetch.cxfer_async_strobe <= cxfer_async_strobe;
     iexec_out_decode.cxfer_async_strobe <= cxfer_async_strobe;
+    iexec_out_decode.busy <= '0';
     iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
     iexec_out_fetch.cxfer_pc <= 
         alu_result when cxfer_mux = '0' else cxfer_async_pc;
@@ -161,8 +162,5 @@ begin
             end if;
         end if;
     end process;
-
-    iexec_out_decode <= ('0', '0');
-
 
 end architecture;
