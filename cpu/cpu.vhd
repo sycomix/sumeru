@@ -78,7 +78,7 @@ begin
 spi0_sck <= '0';
 spi0_ss <= '0';
 spi0_mosi <= '0';
-led <= '1';
+-- led <= '1';
 
 pll: entity work.pll 
     port map(
@@ -175,6 +175,7 @@ idecode: entity work.cpu_stage_idecode
         idecode_out => idecode_out,
         iexec_in => iexec_in,
         iexec_out => iexec_out_decode
+        , debug => led
     );
 
 iexec: entity work.cpu_stage_iexec

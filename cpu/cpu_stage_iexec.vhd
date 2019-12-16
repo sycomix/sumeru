@@ -27,6 +27,7 @@ architecture synth of cpu_stage_iexec is
     signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
     signal alu_result:          std_logic_vector(31 downto 0);
+    signal br_result:           std_logic;
     signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
 
     signal shift_result:        std_logic_vector(31 downto 0);
@@ -35,6 +36,7 @@ architecture synth of cpu_stage_iexec is
     signal cxfer_mux:           std_logic := '0';
     signal cxfer_async_pc:      std_logic_vector(31 downto 0);
     signal skip_cycle:          std_logic := '0';
+    signal br_inst:             std_logic := '0';
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -72,7 +74,8 @@ begin
             a => rs1_data,
             b => operand2,
             op => iexec_in.cmd_op,
-            result => alu_result);
+            result => alu_result,
+            result_br => br_result);
 
     shift: entity work.cpu_shift
         port map(
@@ -87,10 +90,10 @@ begin
         alu_result when CMD_ALU,
         shift_result when others;
 
-    process(latch_clk)
+    process(cache_clk)
     begin
         -- XXX Adjust latch_clk to be optimal
-        if (rising_edge(latch_clk) and regfile_wren = '1') then
+        if (rising_edge(cache_clk) and regfile_wren = '1') then
             last_rd_data <= rd_write_data;
             last_rd <= regfile_wraddr;
         end if;
@@ -103,12 +106,30 @@ begin
     iexec_out_fetch.cxfer_pc <= 
         alu_result when cxfer_mux = '0' else cxfer_async_pc;
 
+    process(cache_clk)
+    begin
+        -- XXX Adjust latch_clk to be optimal
+        if (rising_edge(cache_clk)) then
+            skip_cycle <= '0';
+            if (br_inst = '1' and br_result = '1')
+            then        
+                -- BRANCH TAKEN
+                cxfer_async_strobe <= not cxfer_async_strobe;
+                -- skip the next cycle as there maybe a valid
+                -- decode command pending
+                -- mux is set above
+                -- incase of not-taken do nothing, fetch stage is reading ahead
+                skip_cycle <= '1';
+            end if;
+        end if;
+    end process;
+
     process(sys_clk)
         variable br: std_logic;
     begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
-            skip_cycle <= '0';
+            br_inst <= '0';
             if (iexec_in.valid = '1' and skip_cycle = '0')  then
                 -- set mux to alu or branch
                 if (iexec_in.cmd = CMD_ALU) then
@@ -127,36 +148,8 @@ begin
                             iexec_in.rd(0) or iexec_in.rd(1) or 
                             iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
                     when CMD_BRANCH =>
-                        case iexec_in.cmd_op(2 downto 1) is
-                            when "00" =>
-                                if (rs1_data = rs2_data) then
-                                    br := '1';
-                                else
-                                    br := '0';
-                                end if;
-                            when "10" =>
-                                if (signed(rs1_data) < signed(rs2_data)) then
-                                    br := '1';
-                                else
-                                    br := '0';
-                                end if;
-                            when others =>
-                                if (unsigned(rs1_data) < unsigned(rs2_data)) then
-                                    br := '1';
-                                else
-                                    br := '0';
-                                end if;
-                        end case;
-                        if ((br xor iexec_in.cmd_op(0)) = '1') then
-                            -- BRANCH TAKEN
-                            cxfer_async_strobe <= not cxfer_async_strobe;
-                            cxfer_async_pc <= iexec_in.imm;
-                            -- skip the next cycle as there maybe a valid
-                            -- decode command pending
-                            skip_cycle <= '1';
-                            -- mux is set above
-                        -- else do nothing, fetch stage is reading ahead
-                        end if;
+                        br_inst <= '1';
+                        cxfer_async_pc <= iexec_in.imm;
                     when others =>
                 end case;
             end if;
