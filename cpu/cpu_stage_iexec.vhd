@@ -8,6 +8,7 @@ entity cpu_stage_iexec is
 port(
     sys_clk:                    in std_logic;
     cache_clk:                  in std_logic;
+    latch_clk:                  in std_logic;
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
     iexec_out_decode:           out iexec_channel_out_decode_t
@@ -29,6 +30,8 @@ architecture synth of cpu_stage_iexec is
     signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
 
     signal shift_result:        std_logic_vector(31 downto 0);
+    signal cxfer_sync_strobe:   std_logic := '0';
+    signal cxfer_mux:           std_logic := '0';
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -81,31 +84,48 @@ begin
         alu_result when CMD_ALU,
         shift_result when others;
 
-    process(cache_clk)
+    process(latch_clk)
     begin
-        if (rising_edge(cache_clk) and regfile_wren = '1') then
+        -- XXX Adjust latch_clk to be optimal
+        if (rising_edge(latch_clk) and regfile_wren = '1') then
             last_rd_data <= rd_write_data;
             last_rd <= regfile_wraddr;
         end if;
     end process;
+
+    iexec_out_fetch.cxfer_async_strobe <= '0';
+    iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
+    with cxfer_mux select iexec_out_fetch.cxfer_pc <= 
+        alu_result when '0',
+        (others => '0') when others;
 
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
             if (iexec_in.valid = '1')  then
-                cmd_result_mux <= iexec_in.cmd;
-                if (iexec_in.cmd = CMD_ALU or iexec_in.cmd = CMD_SHIFT) then
-                    regfile_wraddr <= iexec_in.rd;
-                    regfile_wren <= 
-                        iexec_in.rd(0) or iexec_in.rd(1) or 
-                        iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                if (iexec_in.strobe_cxfer_sync = '1') then
+                    cxfer_sync_strobe <= not cxfer_sync_strobe;
+                    -- set mux to alu or branch
+                    if (iexec_in.cmd = CMD_ALU) then
+                        cxfer_mux <= '0';
+                    else
+                        cxfer_mux <= '1';
+                    end if;
                 end if;
+                cmd_result_mux <= iexec_in.cmd;
+                case iexec_in.cmd is
+                    when CMD_ALU | CMD_SHIFT =>
+                        regfile_wraddr <= iexec_in.rd;
+                        regfile_wren <= 
+                            iexec_in.rd(0) or iexec_in.rd(1) or 
+                            iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                    when others =>
+                end case;
             end if;
         end if;
     end process;
 
-    iexec_out_fetch <= ('0', '0', (others =>'0'));
     iexec_out_decode <= ('0', '0');
 
 
