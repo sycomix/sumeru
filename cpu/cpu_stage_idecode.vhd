@@ -23,6 +23,7 @@ architecture synth of cpu_stage_idecode is
     signal rd:          std_logic_vector(4 downto 0) := (others => '0');
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
+    signal strobe_cxfer_sync: std_logic := '0';
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
@@ -57,6 +58,7 @@ begin
     iexec_in.rs1 <= rs1;
     iexec_in.rs2 <= rs2;
     iexec_in.rd <= rd;
+    iexec_in.strobe_cxfer_sync <= strobe_cxfer_sync;
 
     with inst_opcode select imm_wr_mux <=
         inst_imm_ui & "000000000000" when OP_TYPE_U_LUI,
@@ -71,6 +73,7 @@ begin
             if (exec_busy = '0') then
                 decode_busy <= '0';
                 exec_valid <= fetch_valid;
+                strobe_cxfer_sync <= '0';
                 if (fetch_valid = '1') then
                     -- DO DECODE
                     rs1 <= inst_rs1;
@@ -83,21 +86,26 @@ begin
                             iexec_in.cmd_use_reg <= '0';
                             iexec_in.cmd <= CMD_ALU;
                             iexec_in.cmd_op <= CMD_ALU_OP_ADD;
-                        when OP_TYPE_R | OP_TYPE_I =>
+                        when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
-                            iexec_in.cmd_use_reg <= inst(5);
-                            if (inst_funct3 = "000" and inst(30) = '1') then
+                            iexec_in.cmd_use_reg <= inst_opcode(3);
+                            iexec_in.cmd <= CMD_ALU;
+                            iexec_in.cmd_op <= "0" & inst_funct3;
+
+                            if (inst_funct3 = "000") then
                                 -- SUBTRACT
-                                iexec_in.cmd <= CMD_ALU;
-                                iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                if (inst_opcode(4) = '1') then
+                                    -- JALR
+                                    strobe_cxfer_sync <= '1';
+                                elsif(inst_opcode(3) = '1' and inst(30) = '1') then
+                                    iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                end if;
                             elsif (inst_funct3(1 downto 0) = "01") then
                                 -- SHIFT
                                 iexec_in.cmd <= CMD_SHIFT;
                                 iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
-                            else
-                                iexec_in.cmd <= CMD_ALU;
-                                iexec_in.cmd_op <= "0" & inst_funct3;
                             end if;
+
                         when others =>
                             iexec_in.cmd <= CMD_UNKNOWN;
                             iexec_in.cmd_op <= (others => '0');
