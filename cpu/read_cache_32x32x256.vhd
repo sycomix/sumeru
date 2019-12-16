@@ -16,6 +16,7 @@ port(
         load:                   in std_logic;
         flush:                  in std_logic;
         flush_strobe:           out std_logic;
+        busy:                   out std_logic;
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
@@ -37,6 +38,7 @@ architecture synth of read_cache_32x32x256 is
     signal data3_wren:          std_logic := '0';
 
     signal op_start:            std_logic := '0';
+    signal busy_r:              std_logic := '0';
 
     type cache_state_t is (
         IDLE,
@@ -64,6 +66,7 @@ architecture synth of read_cache_32x32x256 is
     signal flush_addr:          std_logic_vector(7 downto 0);
 
 begin
+    busy <= busy_r;
     flush_strobe <= flush_strobe_r;
 
     meta_addr <= 
@@ -143,18 +146,21 @@ begin
                         -- Invalidate line till it is fully loaded
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
+                        busy_r <= '1';
                     elsif (flush = '1') then
                         flush_enable <= '1';
                         flush_addr <= (others => '1');
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                         state <= FLUSH_CACHE;
+                        busy_r <= '1';
                     end if;
                 when FLUSH_CACHE =>
                     if (flush_addr = x"00") then
                         flush_enable <= '0';
                         flush_strobe_r <= not flush_strobe_r;
                         state <= IDLE;
+                        busy_r <= '0';
                     else
                         flush_addr <= std_logic_vector(unsigned(flush_addr) - 1);
                     end if;
@@ -181,6 +187,7 @@ begin
                     state <= IDLE;
                     data3_wren <= '1';
                     meta_wren <= '1';
+                    busy_r <= '0';
             end case;
         end if;
     end process;
