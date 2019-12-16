@@ -117,7 +117,7 @@ begin
                         case inst(6 downto 2) is
                             when OP_TYPE_JAL =>
                                 state <= JAL_SWITCH;
-                            when OP_TYPE_B | OP_TYPE_JALR =>
+                            when OP_TYPE_JALR =>
                                 state <= CXFER_WAIT;
                             when OP_TYPE_MISC_MEM =>
                                 if (inst(12) = '1') then

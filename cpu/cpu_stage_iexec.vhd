@@ -31,7 +31,10 @@ architecture synth of cpu_stage_iexec is
 
     signal shift_result:        std_logic_vector(31 downto 0);
     signal cxfer_sync_strobe:   std_logic := '0';
+    signal cxfer_async_strobe:  std_logic := '0';
     signal cxfer_mux:           std_logic := '0';
+    signal cxfer_async_pc:      std_logic_vector(31 downto 0);
+    signal skip_cycle:          std_logic := '0';
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -93,25 +96,27 @@ begin
         end if;
     end process;
 
-    iexec_out_fetch.cxfer_async_strobe <= '0';
+    iexec_out_fetch.cxfer_async_strobe <= cxfer_async_strobe;
+    iexec_out_decode.cxfer_async_strobe <= cxfer_async_strobe;
     iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
-    with cxfer_mux select iexec_out_fetch.cxfer_pc <= 
-        alu_result when '0',
-        (others => '0') when others;
+    iexec_out_fetch.cxfer_pc <= 
+        alu_result when cxfer_mux = '0' else cxfer_async_pc;
 
     process(sys_clk)
+        variable br: std_logic;
     begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
-            if (iexec_in.valid = '1')  then
+            skip_cycle <= '0';
+            if (iexec_in.valid = '1' and skip_cycle = '0')  then
+                -- set mux to alu or branch
+                if (iexec_in.cmd = CMD_ALU) then
+                    cxfer_mux <= '0';
+                else
+                    cxfer_mux <= '1';
+                end if;
                 if (iexec_in.strobe_cxfer_sync = '1') then
                     cxfer_sync_strobe <= not cxfer_sync_strobe;
-                    -- set mux to alu or branch
-                    if (iexec_in.cmd = CMD_ALU) then
-                        cxfer_mux <= '0';
-                    else
-                        cxfer_mux <= '1';
-                    end if;
                 end if;
                 cmd_result_mux <= iexec_in.cmd;
                 case iexec_in.cmd is
@@ -120,6 +125,37 @@ begin
                         regfile_wren <= 
                             iexec_in.rd(0) or iexec_in.rd(1) or 
                             iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                    when CMD_BRANCH =>
+                        case iexec_in.cmd_op(2 downto 1) is
+                            when "00" =>
+                                if (rs1_data = rs2_data) then
+                                    br := '1';
+                                else
+                                    br := '0';
+                                end if;
+                            when "10" =>
+                                if (signed(rs1_data) < signed(rs2_data)) then
+                                    br := '1';
+                                else
+                                    br := '0';
+                                end if;
+                            when others =>
+                                if (unsigned(rs1_data) < unsigned(rs2_data)) then
+                                    br := '1';
+                                else
+                                    br := '0';
+                                end if;
+                        end case;
+                        if ((br xor iexec_in.cmd_op(0)) = '1') then
+                            -- BRANCH TAKEN
+                            cxfer_async_strobe <= not cxfer_async_strobe;
+                            cxfer_async_pc <= iexec_in.imm;
+                            -- skip the next cycle as there maybe a valid
+                            -- decode command pending
+                            skip_cycle <= '1';
+                            -- mux is set above
+                        -- else do nothing, fetch stage is reading ahead
+                        end if;
                     when others =>
                 end case;
             end if;

@@ -2,8 +2,13 @@
 _start:
 main:
     addi t0,zero,4
+    addi t1,zero,4
 mainloop:
-    jalr t1,t0,0
+    beq t0,t1,vtrue
+vfalse:
+    j vfalse
+vtrue:
+    j vtrue
 
 .align(8)
 globals:

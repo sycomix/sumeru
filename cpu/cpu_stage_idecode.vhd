@@ -24,6 +24,7 @@ architecture synth of cpu_stage_idecode is
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
     signal strobe_cxfer_sync: std_logic := '0';
+    signal cxfer_async_strobe_save: std_logic := '0';
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
@@ -70,7 +71,11 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (exec_busy = '0') then
+            if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save) then
+                cxfer_async_strobe_save <= not cxfer_async_strobe_save;
+                decode_busy <= '0';
+                exec_valid <= '0';
+            elsif (exec_busy = '0') then
                 decode_busy <= '0';
                 exec_valid <= fetch_valid;
                 strobe_cxfer_sync <= '0';
@@ -80,6 +85,16 @@ begin
                     rs2 <= inst_rs2;
                     rd <= inst_rd;
                     case inst_opcode is
+                        when OP_TYPE_B =>
+                            iexec_in.imm <= 
+                                std_logic_vector(
+                                    signed(idecode_in.pc) + 
+                                    signed(inst(31) & inst(7) & 
+                                                inst(30 downto 25) & 
+                                                inst(11 downto 8) & "0"));
+                            iexec_in.cmd_use_reg <= '0';
+                            iexec_in.cmd <= CMD_BRANCH;
+                            iexec_in.cmd_op <= "0" & inst_funct3;
                         when OP_TYPE_JAL | OP_TYPE_U_LUI | OP_TYPE_U_AUIPC =>
                             iexec_in.imm <= imm_wr_mux;
                             rs1 <= (others => '0');
