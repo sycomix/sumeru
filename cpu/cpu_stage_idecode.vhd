@@ -22,6 +22,8 @@ architecture synth of cpu_stage_idecode is
     signal rs2:         std_logic_vector(4 downto 0) := (others => '0');
     signal rd:          std_logic_vector(4 downto 0) := (others => '0');
 
+    signal imm_wr_mux:  std_logic_vector(31 downto 0);
+
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
     alias inst:         std_logic_vector(31 downto 0) is idecode_in.inst;
@@ -31,6 +33,7 @@ architecture synth of cpu_stage_idecode is
     alias inst_rs2:     std_logic_vector(4 downto 0) is inst(24 downto 20);
     alias inst_rd:      std_logic_vector(4 downto 0) is inst(11 downto 7);
     alias inst_imm_i:   std_logic_vector(11 downto 0) is inst(31 downto 20);
+    alias inst_imm_ui:  std_logic_vector(19 downto 0) is inst(31 downto 12);
 
     pure function sxt(
                     x:          std_logic_vector;
@@ -55,6 +58,13 @@ begin
     iexec_in.rs2 <= rs2;
     iexec_in.rd <= rd;
 
+    with inst_opcode select imm_wr_mux <=
+        inst_imm_ui & "000000000000" when OP_TYPE_U_LUI,
+        std_logic_vector(unsigned(idecode_in.pc) + 
+                         unsigned(inst_imm_ui & "000000000000")) 
+            when OP_TYPE_U_AUIPC,
+        std_logic_vector(unsigned(idecode_in.pc) + 4) when others;
+
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
@@ -67,6 +77,12 @@ begin
                     rs2 <= inst_rs2;
                     rd <= inst_rd;
                     case inst_opcode is
+                        when OP_TYPE_JAL | OP_TYPE_U_LUI | OP_TYPE_U_AUIPC =>
+                            iexec_in.imm <= imm_wr_mux;
+                            rs1 <= (others => '0');
+                            iexec_in.cmd_use_reg <= '0';
+                            iexec_in.cmd <= CMD_ALU;
+                            iexec_in.cmd_op <= CMD_ALU_OP_ADD;
                         when OP_TYPE_R | OP_TYPE_I =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
                             iexec_in.cmd_use_reg <= inst(5);
