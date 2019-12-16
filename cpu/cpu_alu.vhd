@@ -10,7 +10,8 @@ port(
     a:          in std_logic_vector(31 downto 0);
     b:          in std_logic_vector(31 downto 0);
     op:         in std_logic_vector(3 downto 0);
-    result:     out std_logic_vector(31 downto 0)
+    result:     out std_logic_vector(31 downto 0);
+    result_br:  out std_logic
     );
 end entity;
 
@@ -26,6 +27,8 @@ architecture synth of cpu_alu is
     signal result_and: std_logic_vector(31 downto 0);
     signal result_or:  std_logic_vector(31 downto 0);
     signal result_xor: std_logic_vector(31 downto 0);
+    signal result_br_eq: std_logic;
+    signal result_br_mux: std_logic;
 begin
     result <= 
         result_add when op_r = "0000" else
@@ -43,6 +46,16 @@ begin
     result_xor <= a_r xor b_r;
     result_or <= a_r or b_r;
     result_and <= a_r and b_r;
+
+    result_br_eq <= '1' when (a_r = b_r) else '0';
+
+    result_br_mux <= 
+        result_br_eq when op_r(2 downto 1) = "00" else
+        result_lt(0) when op_r(2 downto 1) = "10" else
+        result_ltu(0);
+
+    result_br <= result_br_mux xor op_r(0);
+
 
     process(sys_clk)
     begin
