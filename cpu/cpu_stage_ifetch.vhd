@@ -31,7 +31,8 @@ architecture synth of cpu_stage_ifetch is
     signal icache_flush_strobe: std_logic;
 
     signal valid:               std_logic := '0';
-    signal cxfer_strobe_save:   std_logic := '0';
+    signal cxfer_async_strobe_save: std_logic := '0';
+    signal cxfer_sync_strobe_save:  std_logic := '0';
     signal cache_strobe_save:   std_logic;
 
     type state_t is (
@@ -90,19 +91,20 @@ begin
                 --  would continue to prefetch instructions
                 --  on the branch not taken path -- akin to a crude static
                 --  branch predictor.
-                if (iexec_out.cxfer_sync = '1' or
-                    iexec_out.cxfer_async_strobe /= cxfer_strobe_save) 
+                if (iexec_out.cxfer_sync_strobe /= cxfer_sync_strobe_save or
+                    iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save) 
                 then
-                    cxfer_strobe_save <= iexec_out.cxfer_async_strobe;
+                    cxfer_sync_strobe_save <= iexec_out.cxfer_sync_strobe;
+                    cxfer_async_strobe_save <= iexec_out.cxfer_async_strobe;
                     pc <= iexec_out.cxfer_pc;
                     -- XXX Provide mechnism for setting intr_enable
                     state <= RUNNING;
                 end if;
             when RUNNING =>
-                if (iexec_out.cxfer_async_strobe /= cxfer_strobe_save)
+                if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save)
                 then
                     if (icache_busy = '0') then
-                        cxfer_strobe_save <= not cxfer_strobe_save;
+                        cxfer_async_strobe_save <= not cxfer_async_strobe_save;
                         pc <= iexec_out.cxfer_pc;
                     end if;
                 elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 

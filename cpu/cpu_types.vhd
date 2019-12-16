@@ -69,6 +69,7 @@ package cpu_types is
         rs1:                    std_logic_vector(4 downto 0);
         rs2:                    std_logic_vector(4 downto 0);
         rd:                     std_logic_vector(4 downto 0);
+        strobe_cxfer_sync:      std_logic;
     end record;
 
     type iexec_channel_out_decode_t is record
@@ -78,7 +79,7 @@ package cpu_types is
 
     type iexec_channel_out_fetch_t is record
         cxfer_async_strobe:     std_logic;
-        cxfer_sync:             std_logic;
+        cxfer_sync_strobe:      std_logic;
         cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
