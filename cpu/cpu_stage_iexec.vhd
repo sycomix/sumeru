@@ -10,8 +10,9 @@ port(
     cache_clk:                  in std_logic;
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
-    iexec_out_decode:           out iexec_channel_out_decode_t
-    ; led:                      out std_logic
+    iexec_out_decode:           out iexec_channel_out_decode_t;
+    csr_in:                     out csr_channel_in_t;
+    csr_out:                    in csr_channel_out_t
     );
 end entity;
 
@@ -88,7 +89,8 @@ begin
 
     with cmd_result_mux select rd_write_data <=
         alu_result when CMD_ALU,
-        shift_result when others;
+        shift_result when CMD_SHIFT,
+        csr_out.csr_op_result when others;
 
     process(cache_clk)
     begin
@@ -125,6 +127,7 @@ begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
             br_inst <= '0';
+            csr_in.csr_op_valid <= '0';
             if (iexec_in.valid = '1' and skip_cycle = '0')  then
                 -- set mux to alu or branch
                 cmd_result_mux <= iexec_in.cmd;
@@ -143,7 +146,13 @@ begin
                         cxfer_async_pc <= iexec_in.imm;
                         cxfer_mux <= '1';
                     when CMD_CSR =>
-                        led <= iexec_in.imm(0);
+                        csr_in.csr_reg <= iexec_in.csr_reg;
+                        csr_in.csr_op_valid <= '1';
+                        csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
+                        csr_in.csr_op_data <= operand2;
+                        regfile_wren <= 
+                            iexec_in.rd(0) or iexec_in.rd(1) or 
+                            iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
                     when others =>
                         cxfer_mux <= '1';
                 end case;

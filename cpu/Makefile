@@ -21,6 +21,7 @@ SRCS = pll.vhd \
         cpu_alu.vhd \
         cpu_shift.vhd \
 	cpu_stage_iexec.vhd \
+        csr_gpio.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
@@ -95,7 +96,8 @@ ${TOPLEVEL}_tb.o: cpu.o sim_sdram_mt48lc16m16a2.o
 
 ${TOPLEVEL}.o: sumeru_constants.o cpu_types.o memory_channel_types.o \
                 pll.o sdram_controller_simlowdelay.o memory_arbitrator.o memory_loader.o \
-                cpu_stage_ifetch.o cpu_stage_idecode.o cpu_stage_iexec.o
+                cpu_stage_ifetch.o cpu_stage_idecode.o cpu_stage_iexec.o \
+                csr_gpio.o
 
 memory_arbitrator.o: memory_channel_types.o 
 

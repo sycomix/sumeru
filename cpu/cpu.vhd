@@ -66,6 +66,11 @@ architecture synth of cpu is
     signal iexec_out_decode:    iexec_channel_out_decode_t := ('0','0');
     signal iexec_out_fetch:     iexec_channel_out_fetch_t := ('0','0',(others => '0'));
 
+    signal csr_in:              csr_channel_in_t;
+    signal csr_out:             csr_channel_out_t;
+
+    signal gpio:                std_logic_vector(31 downto 0);
+
     type state_t is (
         START,
         RUNNING
@@ -77,7 +82,6 @@ begin
 spi0_sck <= '0';
 spi0_ss <= '0';
 spi0_mosi <= '0';
--- led <= '1';
 
 pll: entity work.pll 
     port map(
@@ -181,8 +185,18 @@ iexec: entity work.cpu_stage_iexec
         cache_clk => mem_clk,
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
-        iexec_out_decode => iexec_out_decode
-        , led => led
+        iexec_out_decode => iexec_out_decode,
+        csr_in => csr_in,
+        csr_out => csr_out
     );
+
+csr_gpio: entity work.csr_gpio
+    port map(
+        mem_clk => mem_clk,
+        csr_in => csr_in,
+        csr_out => csr_out,
+        gpio => gpio);
+
+led <= gpio(0);
 
 end architecture;

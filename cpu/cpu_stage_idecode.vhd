@@ -121,10 +121,12 @@ begin
                                 iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                             end if;
                         when OP_TYPE_CSR =>
-                            iexec_in.imm <= ext(inst(31 downto 20), 32);
+                            iexec_in.csr_reg <= inst(31 downto 20);
+                            iexec_in.imm <= ext(inst(19 downto 15), 32);
+                            rs2 <= inst_rs1;
+                            iexec_in.cmd_use_reg <= not inst_funct3(2);
                             iexec_in.cmd <= CMD_CSR;
                             iexec_in.cmd_op <= "0" & inst_funct3;
-                            iexec_in.cmd_use_reg <= '0';
                         when others =>
                             iexec_in.cmd <= CMD_UNKNOWN;
                             iexec_in.cmd_op <= (others => '0');

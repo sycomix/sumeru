@@ -1,16 +1,16 @@
 .global _start
 _start:
 main:
-    addi t0,zero,4
-    addi t1,zero,4
-    csrrw zero, 1, zero
+    li t0, 1
+    li t1, 1
+    csrrw zero,0x100,t0
 mainloop:
     beq t0,t1,vtrue
 vfalse:
+    csrrwi zero,0x103,1
     j vfalse
 vtrue:
-    csrrw zero, 1, zero
-    csrrw zero, 0, zero
+    csrrwi zero,0x103,0
     j vtrue
 
 .align(8)
