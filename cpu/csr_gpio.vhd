@@ -14,30 +14,36 @@ port(
 end entity;
 
 architecture synth of csr_gpio is
-    signal result:              std_logic_vector(32 downto 0);
-    signal reg_output:          std_logic_vector(31 downto 0);
+    signal result:              std_logic_vector(32 downto 0) := (others => '0');
+    signal reg_output:          std_logic_vector(31 downto 0) := (others => '0');
     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
+    signal op_result:           std_logic_vector(31 downto 0);
 begin
-    OUTPUTS: for I in 0 to 31 generate
-        gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
-    end generate OUTPUTS;
+OUTPUTS: for I in 0 to 31 generate
+    gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
+end generate OUTPUTS;
 
-    csr_out.csr_op_result <= result(31 downto 0);
-    result <=
-        "1" & reg_dir when csr_in.csr_reg = x"100" else
-        "0" & gpio when csr_in.csr_reg = x"102" else
-        "1" & reg_output when csr_in.csr_reg = x"103" else
-        (others => 'Z');
+csr_out.csr_op_result <= result(31 downto 0);
+result <=
+    "1" & reg_dir when csr_in.csr_reg = x"100" else
+    "0" & gpio when csr_in.csr_reg = x"102" else
+    "1" & reg_output when csr_in.csr_reg = x"103" else
+    (others => 'Z');
 
-    process(mem_clk)
-    begin
-        if (rising_edge(mem_clk) and result(32) = '1') then
-            if (csr_in.csr_reg(0) = '0') then
-                reg_dir <= csr_in.csr_op_data;
-            else
-                reg_output <= csr_in.csr_op_data;
-            end if;
+with csr_in.csr_op select op_result <=
+    csr_in.csr_op_data when "01",
+    csr_in.csr_op_data or result(31 downto 0) when "10",
+    (not csr_in.csr_op_data) and result(31 downto 0) when others;
+
+process(mem_clk)
+begin
+    if (rising_edge(mem_clk) and result(32) = '1') then
+        if (csr_in.csr_reg(0) = '0') then
+            reg_dir <= op_result;
+        else
+            reg_output <= op_result;
         end if;
-    end process;
+    end if;
+end process;
 
 end architecture;
