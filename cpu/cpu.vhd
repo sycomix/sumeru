@@ -173,7 +173,6 @@ idecode: entity work.cpu_stage_idecode
         idecode_out => idecode_out,
         iexec_in => iexec_in,
         iexec_out => iexec_out_decode
-        , debug => led
     );
 
 iexec: entity work.cpu_stage_iexec

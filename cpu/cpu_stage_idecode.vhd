@@ -11,7 +11,6 @@ port(
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
     iexec_out:                  in iexec_channel_out_decode_t
-    ; debug: out std_logic
     );
 end entity;
 
@@ -38,8 +37,6 @@ architecture synth of cpu_stage_idecode is
     alias inst_imm_i:   std_logic_vector(11 downto 0) is inst(31 downto 20);
     alias inst_imm_ui:  std_logic_vector(19 downto 0) is inst(31 downto 12);
 
-    signal debug_r:     std_logic := '1';
-
     pure function sxt(
                     x:          std_logic_vector;
                     n:          natural)
@@ -63,7 +60,6 @@ begin
     iexec_in.rs2 <= rs2;
     iexec_in.rd <= rd;
     iexec_in.strobe_cxfer_sync <= strobe_cxfer_sync;
-    debug <= debug_r;
 
     with inst_opcode select imm_wr_mux <=
         inst_imm_ui & "000000000000" when OP_TYPE_U_LUI,
@@ -75,11 +71,6 @@ begin
     process(sys_clk)
     begin
         if (rising_edge(sys_clk)) then
-            if (idecode_in.pc(7 downto 0) = x"10") then
-                debug_r <= '0';
-            else
-                debug_r <= '1';
-            end if;
             if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save) then
                 cxfer_async_strobe_save <= not cxfer_async_strobe_save;
                 decode_busy <= '0';
