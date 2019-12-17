@@ -37,6 +37,7 @@ architecture synth of cpu_stage_ifetch is
 
     type state_t is (
         RUNNING,
+        JAL_SWITCH,
         FLUSH_WAIT,
         CXFER_WAIT);
     
@@ -71,6 +72,12 @@ begin
         end if;
 
         case state is 
+            when JAL_SWITCH =>
+                pc <= std_logic_vector(
+                        signed(idecode_in.pc) + 
+                        signed(idecode_in.inst(31) & idecode_in.inst(19 downto 12) & 
+                               idecode_in.inst(20) & idecode_in.inst(30 downto 21) & "0"));
+                state <= RUNNING;
             when FLUSH_WAIT =>
                 if (cache_strobe_save /= icache_flush_strobe) 
                 then
@@ -109,13 +116,7 @@ begin
                         pc <= std_logic_vector(unsigned(pc) + 4);
                         case inst(6 downto 2) is
                             when OP_TYPE_JAL =>
-                                pc <= std_logic_vector(
-                                        signed(pc) + 
-                                        signed(inst(31) & 
-                                                inst(19 downto 12) & 
-                                                inst(20) & 
-                                                inst(30 downto 21) & 
-                                                "0"));
+                                state <= JAL_SWITCH;
                             when OP_TYPE_JALR =>
                                 state <= CXFER_WAIT;
                             when OP_TYPE_MISC_MEM =>
