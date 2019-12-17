@@ -92,22 +92,6 @@ begin
     process(cache_clk)
     begin
         -- XXX Timing Risk
-        if (rising_edge(cache_clk) and regfile_wren = '1') then
-            last_rd_data <= rd_write_data;
-            last_rd <= regfile_wraddr;
-        end if;
-    end process;
-
-    iexec_out_fetch.cxfer_async_strobe <= cxfer_async_strobe;
-    iexec_out_decode.cxfer_async_strobe <= cxfer_async_strobe;
-    iexec_out_decode.busy <= '0';
-    iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
-    iexec_out_fetch.cxfer_pc <= 
-        alu_result when cxfer_mux = '0' else cxfer_async_pc;
-
-    process(cache_clk)
-    begin
-        -- XXX Timing Risk
         if (rising_edge(cache_clk)) then
             skip_cycle <= '0';
             if (br_inst = '1' and br_result = '1')
@@ -120,8 +104,19 @@ begin
                 -- incase of not-taken do nothing, fetch stage is reading ahead
                 skip_cycle <= '1';
             end if;
+            if (regfile_wren = '1') then
+                last_rd_data <= rd_write_data;
+                last_rd <= regfile_wraddr;
+            end if;
         end if;
     end process;
+
+    iexec_out_fetch.cxfer_async_strobe <= cxfer_async_strobe;
+    iexec_out_decode.cxfer_async_strobe <= cxfer_async_strobe;
+    iexec_out_decode.busy <= '0';
+    iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
+    iexec_out_fetch.cxfer_pc <= 
+        alu_result when cxfer_mux = '0' else cxfer_async_pc;
 
     process(sys_clk)
         variable br: std_logic;
@@ -131,17 +126,13 @@ begin
             br_inst <= '0';
             if (iexec_in.valid = '1' and skip_cycle = '0')  then
                 -- set mux to alu or branch
-                if (iexec_in.cmd = CMD_ALU) then
-                    cxfer_mux <= '0';
-                else
-                    cxfer_mux <= '1';
-                end if;
+                cmd_result_mux <= iexec_in.cmd;
                 if (iexec_in.strobe_cxfer_sync = '1') then
                     cxfer_sync_strobe <= not cxfer_sync_strobe;
                 end if;
-                cmd_result_mux <= iexec_in.cmd;
                 case iexec_in.cmd is
                     when CMD_ALU | CMD_SHIFT =>
+                        cxfer_mux <= '0';
                         regfile_wraddr <= iexec_in.rd;
                         regfile_wren <= 
                             iexec_in.rd(0) or iexec_in.rd(1) or 
@@ -149,7 +140,9 @@ begin
                     when CMD_BRANCH =>
                         br_inst <= '1';
                         cxfer_async_pc <= iexec_in.imm;
+                        cxfer_mux <= '1';
                     when others =>
+                        cxfer_mux <= '1';
                 end case;
             end if;
         end if;
