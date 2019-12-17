@@ -11,6 +11,7 @@ port(
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
     iexec_out_decode:           out iexec_channel_out_decode_t
+    ; led:                      out std_logic
     );
 end entity;
 
@@ -141,6 +142,8 @@ begin
                         br_inst <= '1';
                         cxfer_async_pc <= iexec_in.imm;
                         cxfer_mux <= '1';
+                    when CMD_CSR =>
+                        led <= iexec_in.imm(0);
                     when others =>
                         cxfer_mux <= '1';
                 end case;

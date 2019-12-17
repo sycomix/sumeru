@@ -182,6 +182,7 @@ iexec: entity work.cpu_stage_iexec
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
         iexec_out_decode => iexec_out_decode
+        , led => led
     );
 
 end architecture;

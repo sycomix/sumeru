@@ -46,6 +46,7 @@ package cpu_types is
     constant CMD_ALU:           std_logic_vector(2 downto 0) := "000";
     constant CMD_SHIFT:         std_logic_vector(2 downto 0) := "001";
     constant CMD_BRANCH:        std_logic_vector(2 downto 0) := "010";
+    constant CMD_CSR:           std_logic_vector(2 downto 0) := "011";
     constant CMD_UNKNOWN:       std_logic_vector(2 downto 0) := "111";
 
     constant CMD_ALU_OP_ADD:    std_logic_vector(3 downto 0) := "0000";

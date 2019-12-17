@@ -8,6 +8,8 @@ mainloop:
 vfalse:
     j vfalse
 vtrue:
+    csrrw zero, 1, zero
+    csrrw zero, 0, zero
     j vtrue
 
 .align(8)
