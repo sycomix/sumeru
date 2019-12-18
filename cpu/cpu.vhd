@@ -192,7 +192,7 @@ iexec: entity work.cpu_stage_iexec
 
 csr_gpio: entity work.csr_gpio
     port map(
-        mem_clk => mem_clk,
+        sys_clk => sys_clk,
         csr_in => csr_in,
         csr_out => csr_out,
         gpio => gpio);
