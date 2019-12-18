@@ -6,7 +6,7 @@ use work.cpu_types.ALL;
 
 entity csr_gpio is
 port(
-    mem_clk:                    in std_logic;
+    sys_clk:                    in std_logic;
     csr_in:                     in csr_channel_in_t;
     csr_out:                    out csr_channel_out_t;
     gpio:                       inout std_logic_vector(31 downto 0)
@@ -35,9 +35,9 @@ with csr_in.csr_op select op_result <=
     csr_in.csr_op_data or result(31 downto 0) when "10",
     (not csr_in.csr_op_data) and result(31 downto 0) when others;
 
-process(mem_clk)
+process(sys_clk)
 begin
-    if (rising_edge(mem_clk) and result(32) = '1') then
+    if (rising_edge(sys_clk) and result(32) = '1' and csr_in.csr_op_valid = '1') then
         if (csr_in.csr_reg(0) = '0') then
             reg_dir <= op_result;
         else
