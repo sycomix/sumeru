@@ -23,7 +23,7 @@ end entity;
 architecture synth of cpu_stage_ifetch is
     signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
 
-    signal icache_meta:         std_logic_vector(31 downto 0);
+    signal icache_meta:         std_logic_vector(15 downto 0);
     signal inst:                std_logic_vector(31 downto 0);
     signal icache_load:         std_logic := '0';
     signal icache_busy:         std_logic := '0';
@@ -48,7 +48,7 @@ icache: entity work.read_cache_32x32x256
     port map(
         sys_clk => sys_clk,
         cache_clk => cache_clk,
-        addr => pc(30 downto 0),
+        addr => pc(24 downto 0),
         meta => icache_meta,
         data => inst,
         load => icache_load,
@@ -108,7 +108,7 @@ begin
                     -- updated pc will be reintiated once busy goes low 
                     cxfer_async_strobe_save <= not cxfer_async_strobe_save;
                     pc <= iexec_out.cxfer_pc;
-                elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 
+                elsif (icache_meta(13 downto 0) = (pc(24 downto 12) & "1")) then 
                     -- ICACHE HIT
                     if (idecode_out.busy = '0') then
                         valid <= '1';
