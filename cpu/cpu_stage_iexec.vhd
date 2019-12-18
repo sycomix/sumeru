@@ -36,8 +36,8 @@ architecture synth of cpu_stage_iexec is
     signal cxfer_async_strobe:  std_logic := '0';
     signal cxfer_mux:           std_logic := '0';
     signal cxfer_async_pc:      std_logic_vector(31 downto 0);
-    signal skip_cycle:          std_logic := '0';
     signal br_inst:             std_logic := '0';
+    signal br_taken:            std_logic;
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -92,12 +92,13 @@ begin
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when others;
 
+    br_taken <= br_inst and br_result;
+
     process(cache_clk)
     begin
         -- XXX Timing Risk
         if (rising_edge(cache_clk)) then
-            skip_cycle <= '0';
-            if (br_inst = '1' and br_result = '1')
+            if (br_taken = '1')
             then        
                 -- BRANCH TAKEN
                 cxfer_async_strobe <= not cxfer_async_strobe;
@@ -105,7 +106,6 @@ begin
                 -- decode command pending
                 -- mux is set above
                 -- incase of not-taken do nothing, fetch stage is reading ahead
-                skip_cycle <= '1';
             end if;
             if (regfile_wren = '1') then
                 last_rd_data <= rd_write_data;
@@ -128,7 +128,7 @@ begin
             regfile_wren <= '0';
             br_inst <= '0';
             csr_in.csr_op_valid <= '0';
-            if (iexec_in.valid = '1' and skip_cycle = '0')  then
+            if (iexec_in.valid = '1' and br_taken = '0')  then
                 -- set mux to alu or branch
                 cmd_result_mux <= iexec_in.cmd;
                 if (iexec_in.strobe_cxfer_sync = '1') then
