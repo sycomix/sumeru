@@ -103,10 +103,11 @@ begin
             when RUNNING =>
                 if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save)
                 then
-                    if (icache_busy = '0') then
-                        cxfer_async_strobe_save <= not cxfer_async_strobe_save;
-                        pc <= iexec_out.cxfer_pc;
-                    end if;
+                    -- We don't check for icache_busy here as it makes not
+                    -- difference if the pc is changed, the load for the 
+                    -- updated pc will be reintiated once busy goes low 
+                    cxfer_async_strobe_save <= not cxfer_async_strobe_save;
+                    pc <= iexec_out.cxfer_pc;
                 elsif (icache_meta(19 downto 0) = (pc(30 downto 12) & "1")) then 
                     -- ICACHE HIT
                     if (idecode_out.busy = '0') then
