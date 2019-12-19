@@ -22,6 +22,7 @@ end entity;
 
 architecture synth of cpu_stage_iexec is
     signal regfile_wren:        std_logic := '0';
+    signal regfile_wren_nz:     std_logic;
     signal rd_write_data:       std_logic_vector(31 downto 0) := (others => '0');
     signal rs1_read_data:       std_logic_vector(31 downto 0);
     signal rs2_read_data:       std_logic_vector(31 downto 0);
@@ -71,7 +72,7 @@ begin
             data => rd_write_data,
             rdaddress => iexec_in.rs1,
             wraddress => regfile_wraddr,
-            wren => regfile_wren,
+            wren => regfile_wren_nz,
             q => rs1_read_data);
 
     regfile_b: entity work.ram2p_simp_32x32
@@ -81,8 +82,13 @@ begin
             data => rd_write_data,
             rdaddress => iexec_in.rs2,
             wraddress => regfile_wraddr,
-            wren => regfile_wren,
+            wren => regfile_wren_nz,
             q => rs2_read_data);
+
+    regfile_wren_nz <= 
+        regfile_wren and (regfile_wraddr(0) or regfile_wraddr(1) or
+                          regfile_wraddr(2) or regfile_wraddr(3) or
+                          regfile_wraddr(4));
 
     rs1_data <=  
         last_rd_data when last_rd = iexec_in.rs1 else rs1_read_data;
@@ -191,20 +197,17 @@ begin
                 if (iexec_in.valid = '1' and br_taken = '0')  then
                     -- set mux to alu or branch
                     cmd_result_mux <= iexec_in.cmd;
+                    regfile_wraddr <= iexec_in.rd;
                     if (iexec_in.strobe_cxfer_sync = '1') then
                         cxfer_sync_strobe <= not cxfer_sync_strobe;
                     end if;
                     case iexec_in.cmd is
                         when CMD_LOAD => 
-                            regfile_wraddr <= iexec_in.rd;
                             state <= LOAD_1;
                             busy <= '1';
                         when CMD_ALU | CMD_SHIFT =>
                             cxfer_mux <= '0';
-                            regfile_wraddr <= iexec_in.rd;
-                            regfile_wren <= 
-                                iexec_in.rd(0) or iexec_in.rd(1) or 
-                                iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                            regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';
                             cxfer_async_pc <= iexec_in.imm;
@@ -214,9 +217,7 @@ begin
                             csr_in.csr_op_valid <= '1';
                             csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
                             csr_in.csr_op_data <= operand2;
-                            regfile_wren <= 
-                                iexec_in.rd(0) or iexec_in.rd(1) or 
-                                iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                            regfile_wren <= '1';
                         when others =>
                             cxfer_mux <= '1';
                     end case;
