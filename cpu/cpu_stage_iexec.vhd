@@ -3,6 +3,7 @@ use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
 use work.cpu_types.ALL;
+use work.memory_channel_types.ALL;
 
 entity cpu_stage_iexec is
 port(
@@ -11,6 +12,9 @@ port(
     iexec_in:                   in iexec_channel_in_t;
     iexec_out_fetch:            out iexec_channel_out_fetch_t;
     iexec_out_decode:           out iexec_channel_out_decode_t;
+    cache_mc_in:                out mem_channel_in_t;
+    cache_mc_out:               in mem_channel_out_t;
+    sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
     csr_out:                    in csr_channel_out_t
     );
@@ -38,6 +42,17 @@ architecture synth of cpu_stage_iexec is
     signal cxfer_async_pc:      std_logic_vector(31 downto 0);
     signal br_inst:             std_logic := '0';
     signal br_taken:            std_logic;
+
+    signal dcache_addr:         std_logic_vector(24 downto 0) := (others => '0');
+    signal dcache_start:        std_logic := '0';
+    signal dcache_hit:          std_logic;
+    signal dcache_read_data:    std_logic_vector(31 downto 0);
+    signal dcache_wren:         std_logic;
+    signal dcache_byteena:      std_logic_vector(3 downto 0);
+    signal dcache_write_strobe: std_logic;
+    signal dcache_write_data:   std_logic_vector(31 downto 0);
+
+    signal dcache_write_strobe_save: std_logic := '0';
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -86,6 +101,23 @@ begin
             shift_bit => iexec_in.cmd_op(1),
             shift_dir_lr => iexec_in.cmd_op(0),
             shift_result => shift_result);
+
+    dcache: entity work.readwrite_cache_32x32x256
+        port map(
+            sys_clk => sys_clk,
+            cache_clk => cache_clk,
+            addr => dcache_addr,
+            start => dcache_start,
+            hit => dcache_hit,
+            read_data => dcache_read_data,
+            wren => dcache_wren,
+            byteena => dcache_byteena,
+            write_strobe => dcache_write_strobe,
+            write_data => dcache_write_data,
+            mc_in => cache_mc_in,
+            mc_out => cache_mc_out,
+            sdc_data_out => sdc_data_out
+        );
 
     with cmd_result_mux select rd_write_data <=
         alu_result when CMD_ALU,

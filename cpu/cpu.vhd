@@ -186,6 +186,9 @@ iexec: entity work.cpu_stage_iexec
         iexec_in => iexec_in,
         iexec_out_fetch => iexec_out_fetch,
         iexec_out_decode => iexec_out_decode,
+        cache_mc_in => mc1_in,
+        cache_mc_out => mc1_out,
+        sdc_data_out => sdc_data_out,
         csr_in => csr_in,
         csr_out => csr_out
     );
