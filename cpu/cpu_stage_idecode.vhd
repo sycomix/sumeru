@@ -16,7 +16,6 @@ end entity;
 
 
 architecture synth of cpu_stage_idecode is
-    signal decode_busy: std_logic := '0';
     signal exec_valid:  std_logic := '0';
     signal rs1:         std_logic_vector(4 downto 0) := (others => '0');
     signal rs2:         std_logic_vector(4 downto 0) := (others => '0');
@@ -54,7 +53,7 @@ architecture synth of cpu_stage_idecode is
     end function;
 
 begin
-    idecode_out.busy <= decode_busy;
+    idecode_out.busy <= exec_busy;
     iexec_in.valid <= exec_valid;
     iexec_in.rs1 <= rs1;
     iexec_in.rs2 <= rs2;
@@ -73,10 +72,8 @@ begin
         if (rising_edge(sys_clk)) then
             if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save) then
                 cxfer_async_strobe_save <= not cxfer_async_strobe_save;
-                decode_busy <= '0';
                 exec_valid <= '0';
             elsif (exec_busy = '0') then
-                decode_busy <= '0';
                 exec_valid <= fetch_valid;
                 strobe_cxfer_sync <= '0';
                 if (fetch_valid = '1') then
@@ -101,12 +98,16 @@ begin
                             iexec_in.cmd_use_reg <= '0';
                             iexec_in.cmd <= CMD_ALU;
                             iexec_in.cmd_op <= CMD_ALU_OP_ADD;
-                        when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR =>
+                        when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
                             iexec_in.cmd_use_reg <= inst_opcode(3);
-                            iexec_in.cmd <= CMD_ALU;
-                            iexec_in.cmd_op <= "0" & inst_funct3;
-
+                            if (inst_opcode = OP_TYPE_L) then 
+                                iexec_in.cmd <= CMD_LOAD;
+                                iexec_in.cmd_op <= (others => '0'); -- op add
+                            else
+                                iexec_in.cmd <= CMD_ALU;
+                                iexec_in.cmd_op <= "0" & inst_funct3;
+                            end if;
                             if (inst_funct3 = "000") then
                                 -- SUBTRACT
                                 if (inst_opcode(4) = '1') then
@@ -132,8 +133,6 @@ begin
                             iexec_in.cmd_op <= (others => '0');
                     end case;
                 end if;
-            else
-                decode_busy <= idecode_in.valid;
             end if;
         end if;
     end process;

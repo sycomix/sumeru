@@ -1,18 +1,16 @@
 .global _start
 _start:
 main:
-    li t0, 1
-    li t1, 1
-    csrrw zero,0x100,t0
-    csrrw zero,0x103,t0
+    lw t0,0x10(zero)
+    li t1, 0x1030D073
+    csrrwi zero,0x100,1
+    csrrwi zero,0x103,1
 mainloop:
     beq t0,t1,vtrue
 vfalse:
     j vfalse
 vtrue:
-    addi t0,t0,1
-    srli t1,t0,25
-    csrrw zero,0x103,t1
+    csrrwi zero,0x103,0
     j vtrue
 
 .align(8)

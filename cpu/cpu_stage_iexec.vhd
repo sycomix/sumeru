@@ -53,6 +53,15 @@ architecture synth of cpu_stage_iexec is
     signal dcache_write_data:   std_logic_vector(31 downto 0);
 
     signal dcache_write_strobe_save: std_logic := '0';
+    signal busy:                std_logic := '0';
+
+    type state_t is (
+        RUNNING,
+        LOAD_1,
+        LOAD_WAIT
+        );
+
+    signal state:               state_t := RUNNING;
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -122,7 +131,8 @@ begin
     with cmd_result_mux select rd_write_data <=
         alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
-        csr_out.csr_op_result when others;
+        csr_out.csr_op_result when CMD_CSR,
+        dcache_read_data when others;
 
     br_taken <= br_inst and br_result;
 
@@ -148,10 +158,11 @@ begin
 
     iexec_out_fetch.cxfer_async_strobe <= cxfer_async_strobe;
     iexec_out_decode.cxfer_async_strobe <= cxfer_async_strobe;
-    iexec_out_decode.busy <= '0';
     iexec_out_fetch.cxfer_sync_strobe <= cxfer_sync_strobe;
     iexec_out_fetch.cxfer_pc <= 
         alu_result when cxfer_mux = '0' else cxfer_async_pc;
+
+    iexec_out_decode.busy <= busy;
 
     process(sys_clk)
         variable br: std_logic;
@@ -159,36 +170,58 @@ begin
         if (rising_edge(sys_clk)) then
             regfile_wren <= '0';
             br_inst <= '0';
+            busy <= '0';
             csr_in.csr_op_valid <= '0';
-            if (iexec_in.valid = '1' and br_taken = '0')  then
-                -- set mux to alu or branch
-                cmd_result_mux <= iexec_in.cmd;
-                if (iexec_in.strobe_cxfer_sync = '1') then
-                    cxfer_sync_strobe <= not cxfer_sync_strobe;
+            case state is
+            when LOAD_1 =>
+                busy <= '1';
+                dcache_addr <= alu_result(24 downto 0);
+                dcache_wren <= '0';
+                dcache_start <= not dcache_start;
+                dcache_byteena <= (others => '1');
+                state <= LOAD_WAIT;
+            when LOAD_WAIT =>
+                if (dcache_hit = '1') then
+                    regfile_wren <= '1';
+                    state <= RUNNING;
+                else
+                    busy <= '1';
                 end if;
-                case iexec_in.cmd is
-                    when CMD_ALU | CMD_SHIFT =>
-                        cxfer_mux <= '0';
-                        regfile_wraddr <= iexec_in.rd;
-                        regfile_wren <= 
-                            iexec_in.rd(0) or iexec_in.rd(1) or 
-                            iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
-                    when CMD_BRANCH =>
-                        br_inst <= '1';
-                        cxfer_async_pc <= iexec_in.imm;
-                        cxfer_mux <= '1';
-                    when CMD_CSR =>
-                        csr_in.csr_reg <= iexec_in.csr_reg;
-                        csr_in.csr_op_valid <= '1';
-                        csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
-                        csr_in.csr_op_data <= operand2;
-                        regfile_wren <= 
-                            iexec_in.rd(0) or iexec_in.rd(1) or 
-                            iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
-                    when others =>
-                        cxfer_mux <= '1';
-                end case;
-            end if;
+            when RUNNING =>
+                if (iexec_in.valid = '1' and br_taken = '0')  then
+                    -- set mux to alu or branch
+                    cmd_result_mux <= iexec_in.cmd;
+                    if (iexec_in.strobe_cxfer_sync = '1') then
+                        cxfer_sync_strobe <= not cxfer_sync_strobe;
+                    end if;
+                    case iexec_in.cmd is
+                        when CMD_LOAD => 
+                            regfile_wraddr <= iexec_in.rd;
+                            state <= LOAD_1;
+                            busy <= '1';
+                        when CMD_ALU | CMD_SHIFT =>
+                            cxfer_mux <= '0';
+                            regfile_wraddr <= iexec_in.rd;
+                            regfile_wren <= 
+                                iexec_in.rd(0) or iexec_in.rd(1) or 
+                                iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                        when CMD_BRANCH =>
+                            br_inst <= '1';
+                            cxfer_async_pc <= iexec_in.imm;
+                            cxfer_mux <= '1';
+                        when CMD_CSR =>
+                            csr_in.csr_reg <= iexec_in.csr_reg;
+                            csr_in.csr_op_valid <= '1';
+                            csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
+                            csr_in.csr_op_data <= operand2;
+                            regfile_wren <= 
+                                iexec_in.rd(0) or iexec_in.rd(1) or 
+                                iexec_in.rd(2) or iexec_in.rd(3) or iexec_in.rd(4);
+                        when others =>
+                            cxfer_mux <= '1';
+                    end case;
+                end if;
+            end case;
         end if;
     end process;
 
