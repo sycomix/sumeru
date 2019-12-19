@@ -134,3 +134,4 @@ ram2p_simp_32x32.o: ${LIBSRC_DIR}/ram2p_simp_32x32.vhd
 sim_sdram_mt48lc16m16a2.o: simulation/sim_sdram_mt48lc16m16a2.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
+csr_gpio.o: cpu_types.o 
