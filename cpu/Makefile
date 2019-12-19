@@ -16,6 +16,7 @@ SRCS = pll.vhd \
         memory_loader.vhd \
 	sumeru_constants.vhd \
 	read_cache_32x32x256.vhd \
+	readwrite_cache_32x32x256.vhd \
 	cpu_stage_ifetch.vhd \
 	cpu_stage_idecode.vhd \
         cpu_alu.vhd \
