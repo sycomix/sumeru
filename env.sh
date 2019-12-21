@@ -20,7 +20,7 @@ export QSYS_ROOTDIR="${QDIR}/sopc_builder/bin"
 export ALTERAOCLSDKROOT="${HOME}/altera/${QVERSION}/hld"
 
 export PATH=${PATH}:${QDIR}/bin
-export PATH=${PATH}:${HOME}/local/ghdl-0.35/bin
+export PATH=${PATH}:${HOME}/local/ghdl-0.36-rc1/bin
 
 export _JAVA_OPTIONS=-Dawt.useSystemAAFontSettings=on
 
