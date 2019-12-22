@@ -14,10 +14,10 @@ export LIBPNG_PRELOAD=${HOME}/local/lib/libpng12.so
 export MAKEFILES=${SUMERU_DIR}/sw/conf/common.mk
 export PATH=${PATH}:${SUMERU_DIR}/riscv-gnu-toolchain/bin
 
-export QDIR="${HOME}/altera/${QVERSION}/quartus"
+export QDIR="${HOME}/local/altera/${QVERSION}/quartus"
 export QUARTUS_ROOTDIR_OVERRIDE=${QDIR}
 export QSYS_ROOTDIR="${QDIR}/sopc_builder/bin"
-export ALTERAOCLSDKROOT="${HOME}/altera/${QVERSION}/hld"
+export ALTERAOCLSDKROOT="${HOME}/local/altera/${QVERSION}/hld"
 
 export PATH=${PATH}:${QDIR}/bin
 export PATH=${PATH}:${HOME}/local/ghdl-0.36-rc1/bin
