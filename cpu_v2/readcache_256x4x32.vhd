@@ -5,7 +5,7 @@ use work.memory_channel_types.ALL;
 
 entity read_cache_256x4x32 is
 port(
-        sys_clk:                in std_logic;
+        clk:                    in std_logic;
 
         addr:                   in std_logic_vector(24 downto 0);
 
@@ -13,9 +13,9 @@ port(
         data:                   out std_logic_vector(31 downto 0);
 
         load:                   in std_logic;
+        load_ack:               out std_logic;
         flush:                  in std_logic;
-        flush_strobe:           out std_logic;
-        busy:                   out std_logic;
+        flush_ack:              out std_logic;
 
         mc_in:                  out mem_channel_in_t;
         mc_out:                 in mem_channel_out_t;
@@ -37,7 +37,6 @@ architecture synth of read_cache_256x4x32 is
     signal data3_wren:          std_logic := '0';
 
     signal op_start_r:          std_logic := '0';
-    signal busy_r:              std_logic := '0';
 
     type cache_state_t is (
         IDLE,
@@ -60,20 +59,21 @@ architecture synth of read_cache_256x4x32 is
     signal write_data:          std_logic_vector(31 downto 0);
     signal meta_addr:           std_logic_vector(7 downto 0);
 
+    signal load_ack_r:          std_logic := '0';
     signal flush_enable:        std_logic := '0';
-    signal flush_strobe_r:      std_logic := '0';
+    signal flush_ack_r:      std_logic := '0';
     signal flush_addr:          std_logic_vector(7 downto 0);
 
 begin
-    busy <= busy_r;
-    flush_strobe <= flush_strobe_r;
+    flush_ack <= flush_ack_r;
+    load_ack <= load_ack_r;
 
     meta_addr <= 
         addr(11 downto 4) when flush_enable = '0' else flush_addr;
 
     meta_ram: entity work.ram1p_256x16
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => meta_addr,
             data => meta_data,
             wren => meta_wren,
@@ -81,7 +81,7 @@ begin
 
     data0_ram: entity work.ram1p_256x32
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data0_wren,
@@ -89,7 +89,7 @@ begin
 
     data1_ram: entity work.ram1p_256x32
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data1_wren,
@@ -97,7 +97,7 @@ begin
 
     data2_ram: entity work.ram1p_256x32
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data2_wren,
@@ -105,7 +105,7 @@ begin
 
     data3_ram: entity work.ram1p_256x32
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data3_wren,
@@ -125,9 +125,9 @@ begin
     mc_in.op_burst <= '1';
     mc_in.op_addr <= addr(24 downto 4) & "000"; -- read only at 16 byte boundary
     
-    process(sys_clk)
+    process(clk)
     begin
-        if (rising_edge(sys_clk)) then
+        if (rising_edge(clk)) then
             data0_wren <= '0';
             data1_wren <= '0';
             data2_wren <= '0';
@@ -139,27 +139,24 @@ begin
 
             case state is
                 when IDLE =>
-                    if (load = '1') then
+                    if (load /= load_ack_r) then
                         op_start_r <= not op_start_r;
                         state <= WAIT_B1;
                         -- Invalidate line till it is fully loaded
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
-                        busy_r <= '1';
-                    elsif (flush = '1') then
+                    elsif (flush /= flush_ack_r) then
                         flush_enable <= '1';
                         flush_addr <= (others => '1');
                         meta_data_line_valid <= '0';
                         meta_wren <= '1';
                         state <= FLUSH_CACHE;
-                        busy_r <= '1';
                     end if;
                 when FLUSH_CACHE =>
                     if (flush_addr = x"00") then
                         flush_enable <= '0';
-                        flush_strobe_r <= not flush_strobe_r;
+                        flush_ack_r <= not flush_ack_r;
                         state <= IDLE;
-                        busy_r <= '0';
                     else
                         flush_addr <= std_logic_vector(unsigned(flush_addr) - 1);
                     end if;
@@ -188,7 +185,7 @@ begin
                     state <= IDLE;
                     data3_wren <= '1';
                     meta_wren <= '1';
-                    busy_r <= '0';
+                    load_ack_r <= not load_ack_r;
             end case;
         end if;
     end process;

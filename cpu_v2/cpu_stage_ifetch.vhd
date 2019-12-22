@@ -8,138 +8,56 @@ use work.memory_channel_types.ALL;
 
 entity cpu_stage_ifetch is
 port(
-    sys_clk:            in std_logic;
-    mem_clk:            in std_logic;
-    enable:             in std_logic;
+    clk:                in std_logic;
+    clk_n:              in std_logic;
     cache_mc_in:        out mem_channel_in_t;
     cache_mc_out:       in mem_channel_out_t;
     sdc_data_out:       in std_logic_vector(15 downto 0);
     ifetch_in:          in ifetch_channel_in_t;
-    ifetch_out:         out ifetch_channel_out_t;
+    ifetch_out:         out ifetch_channel_out_t
     );
 end entity;
 
 architecture synth of cpu_stage_ifetch is
     signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR(31 downto 8) & BOOT_OFFSET; 
-
     signal icache_meta:         std_logic_vector(15 downto 0);
     signal inst:                std_logic_vector(31 downto 0);
-    signal icache_load:         std_logic := '0';
-    signal icache_busy:         std_logic := '0';
-    signal icache_flush:        std_logic := '0';
-    signal icache_flush_strobe: std_logic;
 
     signal valid_r:             std_logic := '0';
-    signal cxfer_async_strobe_save: std_logic := '0';
-    signal cxfer_sync_strobe_save:  std_logic := '0';
-    signal cache_strobe_save:   std_logic;
-
-    type state_t is (
-        RUNNING,
-        JAL_SWITCH,
-        FLUSH_WAIT,
-        CXFER_WAIT);
-    
-    signal state:               state_t := RUNNING;
 
 begin
 icache: entity work.read_cache_256x4x32
     port map(
-        sys_clk => sys_clk,
+        clk => clk,
         addr => pc(24 downto 0),
         meta => icache_meta,
         data => inst,
-        load => icache_load,
-        flush => icache_flush,
-        flush_strobe => icache_flush_strobe,
-        busy => icache_busy,
+        load => ifetch_in.cache_load,
+        load_ack => ifetch_out.cache_load_ack,
+        flush => ifetch_in.cache_flush,
+        flush_ack => ifetch_out.cache_flush_ack,
         mc_in => cache_mc_in,
         mc_out => cache_mc_out,
         sdc_data_out => sdc_data_out);
 
-idecode_in.valid <= valid_r;
-
-process(mem_clk)
-    port map(
-        sys_clk =>
-
-process(sys_clk)
+process(clk_n)
 begin
-    if (rising_edge(sys_clk)) then
-        icache_load <= '0';
-        icache_flush <= '0';
-
-        if (idecode_out.busy = '0') then
-            valid <= '0';
+    if (rising_edge(clk_n)) then
+        if (icache_meta(13 downto 0) = (pc(24 downto 12) & "1")) 
+        then 
+            if (ifetch_in.switch = '1') then
+                pc <= ifetch_in.switch_pc;
+                ifetch_out.inst_valid <= '0';
+            else
+                pc <= std_logic_vector(unsigned(pc) + 4);
+                ifetch_out.inst_valid <= '1';
+                ifetch_out.inst <= inst;
+                ifetch_out.pc <= pc;
+            end if;
+        else
+            ifetch_out.inst_valid <= '0';
         end if;
-
-        case state is 
-            when JAL_SWITCH =>
-                pc <= std_logic_vector(
-                        signed(idecode_in.pc) + 
-                        signed(idecode_in.inst(31) & idecode_in.inst(19 downto 12) & 
-                               idecode_in.inst(20) & idecode_in.inst(30 downto 21) & "0"));
-                state <= RUNNING;
-            when FLUSH_WAIT =>
-                if (cache_strobe_save /= icache_flush_strobe) 
-                then
-                    state <= RUNNING;
-                end if;
-            when CXFER_WAIT =>
-                -- CXFER_WAIT is required to stop fetches when a JALR or
-                --  BRANCH instr is encountered. In another strategy we
-                --  could avoid using cxfer_sync / CXFER_WAIT
-                --  and rely solely on cxfer_async. In that case fetch 
-                --  would continue to prefetch instructions
-                --  on the branch not taken path -- akin to a crude static
-                --  branch predictor.
-                if (iexec_out.cxfer_sync_strobe /= cxfer_sync_strobe_save or
-                    iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save) 
-                then
-                    cxfer_sync_strobe_save <= iexec_out.cxfer_sync_strobe;
-                    cxfer_async_strobe_save <= iexec_out.cxfer_async_strobe;
-                    pc <= iexec_out.cxfer_pc;
-                    -- XXX Provide mechnism for setting intr_enable
-                    state <= RUNNING;
-                end if;
-            when RUNNING =>
-                if (iexec_out.cxfer_async_strobe /= cxfer_async_strobe_save)
-                then
-                    -- We don't check for icache_busy here as it makes not
-                    -- difference if the pc is changed, the load for the 
-                    -- updated pc will be reintiated once busy goes low 
-                    cxfer_async_strobe_save <= not cxfer_async_strobe_save;
-                    pc <= iexec_out.cxfer_pc;
-                elsif (icache_meta(13 downto 0) = (pc(24 downto 12) & "1")) then 
-                    -- ICACHE HIT
-                    if (idecode_out.busy = '0') then
-                        valid <= '1';
-                        idecode_in.inst <= inst;
-                        idecode_in.pc <= pc;
-                        pc <= std_logic_vector(unsigned(pc) + 4);
-                        case inst(6 downto 2) is
-                            when OP_TYPE_JAL =>
-                                state <= JAL_SWITCH;
-                            when OP_TYPE_JALR =>
-                                state <= CXFER_WAIT;
-                            when OP_TYPE_MISC_MEM =>
-                                if (inst(12) = '1') then
-                                    -- FENCE.I
-                                    valid <= '0';
-                                    icache_flush <= '1';                                    
-                                    state <= FLUSH_WAIT;
-                                    cache_strobe_save <= icache_flush_strobe;
-                                end if;
-                            when others =>
-                        end case;
-                    end if;
-                else
-                    -- LOAD CACHE LINE
-                    if (icache_busy = '0' and enable = '1') then
-                        icache_load <= '1';
-                    end if;
-                end if;
-        end case;
     end if;
 end process;
+
 end architecture;

@@ -59,13 +59,8 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-
-    type state_t is (
-        START,
-        RUNNING
-    );
-        
-    signal state:               state_t := START;
+    signal ifetch_in:           ifetch_channel_in_t := ('0', '0', '0', (others => '0'));
+    signal ifetch_out:          ifetch_channel_out_t;
 
 begin
 spi0_sck <= '0';
@@ -145,6 +140,24 @@ bootcode_loader: entity work.memory_loader
         mc_in => bc_mc_in,
         mc_out => mc7_out);
 
-led <= '0';
+ifetch: entity work.cpu_stage_ifetch
+    port map(
+        clk => clk,
+        clk_n => clk_n,
+        cache_mc_in => mc0_in,
+        cache_mc_out => mc0_out,
+        sdc_data_out => sdc_data_out,
+        ifetch_in => ifetch_in,
+        ifetch_out => ifetch_out);
+
+idecode: entity work.cpu_stage_idecode
+    port map(
+        clk => clk,
+        clk_n => clk_n,
+        enable => reset_n,
+        ifetch_in => ifetch_in,
+        ifetch_out => ifetch_out);
+
+led <= ifetch_out.pc(31);
 
 end architecture;
