@@ -107,19 +107,19 @@ begin
                             else
                                 iexec_in.cmd <= CMD_ALU;
                                 iexec_in.cmd_op <= "0" & inst_funct3;
-                            end if;
-                            if (inst_funct3 = "000") then
-                                -- SUBTRACT
-                                if (inst_opcode(4) = '1') then
-                                    -- JALR
-                                    strobe_cxfer_sync <= '1';
-                                elsif(inst_opcode(3) = '1' and inst(30) = '1') then
-                                    iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                if (inst_funct3 = "000") then
+                                    -- SUBTRACT
+                                    if (inst_opcode(4) = '1') then
+                                        -- JALR
+                                        strobe_cxfer_sync <= '1';
+                                    elsif(inst_opcode(3) = '1' and inst(30) = '1') then
+                                        iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                    end if;
+                                elsif (inst_funct3(1 downto 0) = "01") then
+                                    -- SHIFT
+                                    iexec_in.cmd <= CMD_SHIFT;
+                                    iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                                 end if;
-                            elsif (inst_funct3(1 downto 0) = "01") then
-                                -- SHIFT
-                                iexec_in.cmd <= CMD_SHIFT;
-                                iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                             end if;
                         when OP_TYPE_CSR =>
                             iexec_in.csr_reg <= inst(31 downto 20);
