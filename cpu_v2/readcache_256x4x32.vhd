@@ -3,10 +3,9 @@ use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use work.memory_channel_types.ALL;
 
-entity read_cache_32x32x256 is
+entity read_cache_256x4x32 is
 port(
         sys_clk:                in std_logic;
-        cache_clk:              in std_logic;
 
         addr:                   in std_logic_vector(24 downto 0);
 
@@ -24,7 +23,7 @@ port(
     );
 end entity;
 
-architecture synth of read_cache_32x32x256 is
+architecture synth of read_cache_256x4x32 is
     signal meta_wren:           std_logic := '0';
 
     signal data0:               std_logic_vector(31 downto 0);
@@ -37,7 +36,7 @@ architecture synth of read_cache_32x32x256 is
     signal data2_wren:          std_logic := '0';
     signal data3_wren:          std_logic := '0';
 
-    signal op_start:            std_logic := '0';
+    signal op_start_r:          std_logic := '0';
     signal busy_r:              std_logic := '0';
 
     type cache_state_t is (
@@ -74,7 +73,7 @@ begin
 
     meta_ram: entity work.ram1p_256x16
         port map(
-            clock => cache_clk,
+            clock => sys_clk,
             address => meta_addr,
             data => meta_data,
             wren => meta_wren,
@@ -82,7 +81,7 @@ begin
 
     data0_ram: entity work.ram1p_256x32
         port map(
-            clock => cache_clk,
+            clock => sys_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data0_wren,
@@ -90,7 +89,7 @@ begin
 
     data1_ram: entity work.ram1p_256x32
         port map(
-            clock => cache_clk,
+            clock => sys_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data1_wren,
@@ -98,7 +97,7 @@ begin
 
     data2_ram: entity work.ram1p_256x32
         port map(
-            clock => cache_clk,
+            clock => sys_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data2_wren,
@@ -106,7 +105,7 @@ begin
 
     data3_ram: entity work.ram1p_256x32
         port map(
-            clock => cache_clk,
+            clock => sys_clk,
             address => addr(11 downto 4),
             data => write_data,
             wren => data3_wren,
@@ -120,7 +119,7 @@ begin
 
     meta_data <=  "00" & addr(24 downto 12) & meta_data_line_valid;
  
-    mc_in.op_start <= op_start;
+    mc_in.op_start <= op_start_r;
     mc_in.op_wren <= '0';
     mc_in.op_dqm <= "00";
     mc_in.op_burst <= '1';
@@ -141,7 +140,7 @@ begin
             case state is
                 when IDLE =>
                     if (load = '1') then
-                        op_start <= not op_start;
+                        op_start_r <= not op_start_r;
                         state <= WAIT_B1;
                         -- Invalidate line till it is fully loaded
                         meta_data_line_valid <= '0';
@@ -165,7 +164,9 @@ begin
                         flush_addr <= std_logic_vector(unsigned(flush_addr) - 1);
                     end if;
                 when WAIT_B1 =>
-                    if (mc_out.op_strobe = op_start) then
+                    -- Invariant mc_out.op_strobe will be equal to op_start_r
+                    -- after each transaction.
+                    if (mc_out.op_strobe = op_start_r) then
                         state <= WAIT_B2;
                     end if;
                 when WAIT_B2 =>

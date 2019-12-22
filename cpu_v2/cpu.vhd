@@ -28,8 +28,8 @@ port(
 end entity;
 
 architecture synth of cpu is
-    signal sys_clk:             std_logic;
-    signal mem_clk:             std_logic;
+    signal clk:                 std_logic;
+    signal clk_n:               std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
 
@@ -75,14 +75,14 @@ spi0_mosi <= '0';
 pll: entity work.pll 
     port map(
         inclk0 => clk_50m,
-        c0 => sys_clk,
-        c1 => mem_clk,
+        c0 => clk,
+        c1 => clk_n,
         locked => pll_locked);
 
 sdram_controller: entity work.sdram_controller
     port map(
-        sys_clk => sys_clk,
-        mem_clk => mem_clk,
+        clk => clk,
+        clk_n => clk_n,
         mc_in => sdc_in,
         mc_out => sdc_out,
         data_out => sdc_data_out,
@@ -100,7 +100,7 @@ sdram_controller: entity work.sdram_controller
         
 memory_arbitrator: entity work.memory_arbitrator
     port map(
-        clk => sys_clk,
+        clk => clk,
 
         sdc_busy => sdc_busy,
         sdc_in => sdc_in,
@@ -138,8 +138,7 @@ bootcode_loader: entity work.memory_loader
         DATA_FILE => "BOOTCODE.hex"
     )
     port map(
-        sys_clk => sys_clk,
-        mem_clk => mem_clk,
+        clk => clk,
         reset_n => pll_locked,
 
         load_done => reset_n,

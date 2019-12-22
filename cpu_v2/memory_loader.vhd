@@ -7,8 +7,7 @@ entity memory_loader is
 generic(
         DATA_FILE:              string);
 port(
-        sys_clk:                in std_logic;
-        mem_clk:                in std_logic;
+        clk:                    in std_logic;
         reset_n:                in std_logic;
         load_done:              out std_logic;
         mc_in:                  out mem_channel_in_t;
@@ -44,13 +43,13 @@ begin
             DWIDTH => 16,
             DATA_FILE => DATA_FILE)
         port map(
-            clock => sys_clk,
+            clock => clk,
             address => counter(8 downto 0),
             q => rom_data);
 
-    process(sys_clk)
+    process(clk)
     begin
-        if (rising_edge(sys_clk) and reset_n = '1') then
+        if (rising_edge(clk) and reset_n = '1') then
             case state is
                 when IDLE =>
                     if (load_done = '1') then

@@ -46,8 +46,7 @@ memory_arbitrator.o: memory_channel_types.o
 memory_loader.o: memory_channel_types.o rom_512x16.o
 read_cache_256x4x32: ram1p_256x32.o ram1p_256x16.o
 
-sdram_controller_simlowdelay.o: \
-        sdram_controller_simlowdelay.o memory_channel_types.o
+sdram_controller_simlowdelay.o: memory_channel_types.o
 
 #****************************************************************
 
@@ -65,7 +64,7 @@ ram1p_256x16.o: ${LIBSRC_DIR}/ram1p_256x16.vhd
 $(TOPLEVEL)_tb: $(OBJS) BOOTCODE.hex
 	ghdl -e --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $(TOPLEVEL)_tb
 
-sdram_controller_simlowdelay.vhd: 
+sdram_controller_simlowdelay.vhd: sdram_controller.vhd
 	sed -e 's/(STARTUP_CYCLE_BITNR)/(4)/g' sdram_controller.vhd > sdram_controller_simlowdelay.vhd
 
 synth: BOOTCODE.hex
