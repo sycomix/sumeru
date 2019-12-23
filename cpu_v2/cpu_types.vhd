@@ -52,19 +52,16 @@ package cpu_types is
     constant CMD_ALU_OP_ADD:    std_logic_vector(3 downto 0) := "0000";
     constant CMD_ALU_OP_SUB:    std_logic_vector(3 downto 0) := "1000";
 
-    type ifetch_channel_in_t is record
-        cache_load:             std_logic;
-        cache_flush:            std_logic;
-        switch:                 std_logic;
-        switch_pc:              std_logic_vector(31 downto 0);
-    end record;
-
-    type ifetch_channel_out_t is record
-        cache_load_ack:         std_logic;
-        cache_flush_ack:        std_logic;
-        inst_valid:             std_logic;
+    type idecode_channel_in_t is record
+        valid:                  std_logic;
         inst:                   std_logic_vector(31 downto 0);
         pc:                     std_logic_vector(31 downto 0);
+    end record;
+
+    type idecode_channel_out_t is record
+        busy:                   std_logic;
+        cxfer:                  std_logic;
+        cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
 end package;

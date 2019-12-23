@@ -59,8 +59,8 @@ architecture synth of cpu is
     signal bc_mc_in:            mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
-    signal ifetch_in:           ifetch_channel_in_t := ('0', '0', '0', (others => '0'));
-    signal ifetch_out:          ifetch_channel_out_t;
+    signal idecode_in:          idecode_channel_in_t;
+    signal idecode_out:         idecode_channel_out_t := ('0', '0', (others => '0'));
 
 begin
 spi0_sck <= '0';
@@ -144,20 +144,12 @@ ifetch: entity work.cpu_stage_ifetch
     port map(
         clk => clk,
         clk_n => clk_n,
-        cache_mc_in => mc0_in,
-        cache_mc_out => mc0_out,
-        sdc_data_out => sdc_data_out,
-        ifetch_in => ifetch_in,
-        ifetch_out => ifetch_out);
-
-idecode: entity work.cpu_stage_idecode
-    port map(
-        clk => clk,
-        clk_n => clk_n,
         enable => reset_n,
-        ifetch_in => ifetch_in,
-        ifetch_out => ifetch_out);
-
-led <= ifetch_out.pc(31);
+        idecode_in => idecode_in,
+        idecode_out => idecode_out,
+        icache_mc_in => mc0_in,
+        icache_mc_out => mc0_out,
+        sdc_data_out => sdc_data_out,
+        debug => led);
 
 end architecture;
