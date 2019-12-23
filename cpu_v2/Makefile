@@ -1,4 +1,4 @@
-TOPLEVEL = cpu
+eOPLEVEL = cpu
 LIBSRC_DIR = ${SUMERU_DIR}/sw/vhdl/libsrc
 SRCS = sumeru_constants.vhd \
         cpu_types.vhd \
@@ -8,13 +8,19 @@ SRCS = sumeru_constants.vhd \
         rom_512x16.vhd \
         ram1p_256x32.o \
         ram1p_256x16.o \
+        ram1p_256x36_byteena.o \
+        ram2p_simp_32x32.o \
         memory_arbitrator.vhd \
         memory_loader.vhd \
         readcache_256x4x32.vhd \
         cpu_stage_ifetch.vhd \
         cpu_stage_idecode.vhd \
+        cpu_alu.vhd \
+        cpu_shift.vhd \
+        readwritecache_256x4x32.vhd \
+        cpu_stage_iexec.vhd \
 	${TOPLEVEL}.vhd \
-        sim_sdram_mt48lc16m16a2.vhd \
+        sim_sdeam_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
 
 OBJS = $(SRCS:.vhd=.o)
@@ -41,8 +47,10 @@ ${TOPLEVEL}.o: cpu_types.o \
         memory_arbitrator.o \
         memory_loader.o \
         readcache_256x4x32.o \
+        readwritecache_256x4x32.o \
         cpu_stage_ifetch.o \
-        cpu_stage_idecode.o 
+        cpu_stage_idecode.o \
+        cpu_stage_iexec.o 
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
@@ -50,6 +58,9 @@ memory_loader.o: memory_channel_types.o rom_512x16.o
 readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
 cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o
 cpu_stage_decode.o: cpu_types.o
+cpu_stage_iexec.o: cpu_types.o cpu_alu.vhd cpu_shift.vhd
+cpu_alu.o: cpu_types.o
+cpu_shift.o: cpu_types.o
 
 
 #****************************************************************
@@ -61,6 +72,12 @@ ram1p_256x32.o: ${LIBSRC_DIR}/ram1p_256x32.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
 ram1p_256x16.o: ${LIBSRC_DIR}/ram1p_256x16.vhd
+	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
+
+ram1p_256x36_byteena.o: ${LIBSRC_DIR}/ram1p_256x36_byteena.vhd
+	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
+
+ram2p_simp_32x32.o: ${LIBSRC_DIR}/ram2p_simp_32x32.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
 sim_sdram_mt48lc16m16a2.o: simulation/sim_sdram_mt48lc16m16a2.vhd

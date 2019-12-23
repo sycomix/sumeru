@@ -79,4 +79,15 @@ package cpu_types is
         cxfer:                  std_logic;
         cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
+
+    type csr_channel_in_t is record
+        csr_reg:                std_logic_vector(11 downto 0);
+        csr_op_valid:           std_logic;
+        csr_op:                 std_logic_vector(1 downto 0);
+        csr_op_data:            std_logic_vector(31 downto 0);
+    end record;
+
+    type csr_channel_out_t is record
+        csr_op_result:          std_logic_vector(31 downto 0);
+    end record;
 end package;
