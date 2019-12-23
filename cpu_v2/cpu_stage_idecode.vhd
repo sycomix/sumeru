@@ -73,6 +73,7 @@ begin
                     iexec_in.rs1 <= inst_rs1;
                     iexec_in.rs2 <= inst_rs2;
                     iexec_in.rd <= inst_rd;
+                    iexec_in.trigger_cxfer <= '0';
                     case inst_opcode is
                         when OP_TYPE_B =>
                             iexec_in.imm <= 
@@ -93,6 +94,7 @@ begin
                         when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
                             iexec_in.cmd_use_reg <= inst_opcode(3);
+                            iexec_in.trigger_cxfer <= inst_opcode(4);
                             if (inst_opcode = OP_TYPE_L) then 
                                 iexec_in.cmd <= CMD_LOAD;
                                 iexec_in.cmd_op <= (others => '0'); -- op add

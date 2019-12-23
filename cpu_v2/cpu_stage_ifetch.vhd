@@ -64,6 +64,7 @@ begin
             if (iexec_out.cxfer /= cxfer_save) then
                 cxfer_save <= not cxfer_save;
                 pc <= iexec_out.cxfer_pc;
+                idecode_in.valid <= '0';
             elsif (idecode_out.busy = '0') then
                 pc <= pc_p4;
                 idecode_in.valid <= '1';

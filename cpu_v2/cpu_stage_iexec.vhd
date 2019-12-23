@@ -15,7 +15,8 @@ port(
     dcache_mc_out:              in mem_channel_out_t;
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
-    csr_out:                    in csr_channel_out_t
+    csr_out:                    in csr_channel_out_t;
+    debug:                      out std_logic
     );
 end entity;
 
@@ -36,6 +37,7 @@ architecture synth of cpu_stage_iexec is
     signal cxfer_async_strobe:  std_logic := '0';
     signal cxfer_mux:           std_logic := '0';
     signal cxfer_async_pc:      std_logic_vector(31 downto 0);
+    signal trigger_cxfer:       std_logic := '0';
     signal br_inst:             std_logic := '0';
     signal br_taken:            std_logic;
 
@@ -128,9 +130,10 @@ begin
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when CMD_CSR,
         x"00000000" when CMD_BRANCH,
+        x"00000000" when CMD_STORE,
         dcache_read_data when others;
 
-    br_taken <= br_inst and br_result;
+    br_taken <= (br_inst and br_result) or trigger_cxfer;
 
     process(clk_n)
     begin
@@ -149,11 +152,12 @@ begin
     end process;
 
     iexec_out.cxfer <= cxfer_async_strobe;
-    iexec_out.cxfer_pc <= 
-        alu_result when cxfer_mux = '0' else cxfer_async_pc;
+    iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_async_pc;
     iexec_out.busy <= busy_r;
 
     csr_in.csr_op_data <= op_b;
+
+    debug <= op_a(27);
 
     process(clk)
         variable br: std_logic;
@@ -161,6 +165,7 @@ begin
         if (rising_edge(clk)) then
             regfile_wren <= '0';
             br_inst <= '0';
+            trigger_cxfer <= '0';
             busy_r <= '0';
             csr_in.csr_op_valid <= '0';
             case state is
@@ -192,6 +197,8 @@ begin
                     else
                         op_b <= rs2_read_data;
                     end if;
+                    trigger_cxfer <= iexec_in.trigger_cxfer;
+                    cxfer_mux <= '0';
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
                     -- set mux to alu or branch
@@ -201,8 +208,8 @@ begin
                         when CMD_LOAD => 
                             state <= LOAD_1;
                             busy_r <= '1';
+                            -- XXX for stores set wraddr = 0 and mux wrdata = '0'
                         when CMD_ALU | CMD_SHIFT =>
-                            cxfer_mux <= '0';
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';
@@ -217,7 +224,6 @@ begin
                             csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
                             regfile_wren <= '1';
                         when others =>
-                            cxfer_mux <= '1';
                     end case;
                 end if;
             end case;

@@ -176,8 +176,7 @@ iexec: entity work.cpu_stage_iexec
         dcache_mc_out => mc1_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
-        csr_out => csr_out);
-
-led <= '0';
+        csr_out => csr_out,
+        debug => led);
 
 end architecture;
