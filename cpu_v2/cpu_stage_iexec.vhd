@@ -130,7 +130,7 @@ begin
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when CMD_CSR,
         x"00000000" when CMD_BRANCH,
-        x"00000000" when CMD_STORE,
+        -- x"00000000" when CMD_STORE,
         dcache_read_data when others;
 
     br_taken <= (br_inst and br_result) or trigger_cxfer;
