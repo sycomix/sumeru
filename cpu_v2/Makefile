@@ -12,6 +12,7 @@ SRCS = sumeru_constants.vhd \
         memory_loader.vhd \
         readcache_256x4x32.vhd \
         cpu_stage_ifetch.vhd \
+        cpu_stage_idecode.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
@@ -40,13 +41,14 @@ ${TOPLEVEL}.o: cpu_types.o \
         memory_arbitrator.o \
         memory_loader.o \
         readcache_256x4x32.o \
-        cpu_stage_ifetch.o 
+        cpu_stage_ifetch.o \
+        cpu_stage_idecode.o 
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
 memory_loader.o: memory_channel_types.o rom_512x16.o
 readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
-cpu_stage_ifetch.o: readcache_256x4x32.o
+cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o
 cpu_stage_decode.o: cpu_types.o
 
 
