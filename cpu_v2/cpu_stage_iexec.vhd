@@ -27,12 +27,6 @@ architecture synth of cpu_stage_iexec is
     signal rd_write_data:       std_logic_vector(31 downto 0) := (others => '0');
     signal rs1_read_data:       std_logic_vector(31 downto 0);
     signal rs2_read_data:       std_logic_vector(31 downto 0);
-    signal rs1_data:            std_logic_vector(31 downto 0);
-    signal rs2_data:            std_logic_vector(31 downto 0);
-    signal operand2:            std_logic_vector(31 downto 0);
-
-    signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
-    signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
 
     signal alu_result:          std_logic_vector(31 downto 0);
     signal br_result:           std_logic;
@@ -96,15 +90,6 @@ begin
                           regfile_wraddr(2) or regfile_wraddr(3) or
                           regfile_wraddr(4));
 
-    rs1_data <=  
-        last_rd_data when last_rd = iexec_in.rs1 else rs1_read_data;
-
-    rs2_data <=
-        last_rd_data when last_rd = iexec_in.rs2 else rs2_read_data;
-
-    operand2 <= 
-        rs2_data when iexec_in.cmd_use_reg = '1' else iexec_in.imm;
-
     alu: entity work.cpu_alu
         port map(
             a => op_a,
@@ -142,6 +127,7 @@ begin
         alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when CMD_CSR,
+        x"00000000" when CMD_BRANCH,
         dcache_read_data when others;
 
     br_taken <= br_inst and br_result;
@@ -159,10 +145,6 @@ begin
                 -- mux is set above
                 -- incase of not-taken do nothing, fetch stage is reading ahead
             end if;
-            if (regfile_wren = '1') then
-                last_rd_data <= rd_write_data;
-                last_rd <= regfile_wraddr;
-            end if;
         end if;
     end process;
 
@@ -170,6 +152,8 @@ begin
     iexec_out.cxfer_pc <= 
         alu_result when cxfer_mux = '0' else cxfer_async_pc;
     iexec_out.busy <= busy_r;
+
+    csr_in.csr_op_data <= op_b;
 
     process(clk)
         variable br: std_logic;
@@ -196,8 +180,18 @@ begin
                 end if;
             when RUNNING =>
                 if (iexec_in.valid = '1' and br_taken = '0')  then
-                    op_a <= rs1_data;
-                    op_b <= operand2;
+                    if (iexec_in.rs1 = regfile_wraddr) then
+                        op_a <= rd_write_data;
+                    else
+                        op_a <= rs1_read_data;
+                    end if;
+                    if (iexec_in.cmd_use_reg = '0') then
+                        op_b <= iexec_in.imm;
+                    elsif (iexec_in.rs2 = regfile_wraddr) then
+                        op_b <= rd_write_data;
+                    else
+                        op_b <= rs2_read_data;
+                    end if;
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
                     -- set mux to alu or branch
@@ -214,11 +208,13 @@ begin
                             br_inst <= '1';
                             cxfer_async_pc <= iexec_in.imm;
                             cxfer_mux <= '1';
+                            -- we need to set wraddr so thatn op_a and op_b
+                            -- are set correctly next cycle
+                            regfile_wraddr <= (others => '0');
                         when CMD_CSR =>
                             csr_in.csr_reg <= iexec_in.csr_reg;
                             csr_in.csr_op_valid <= '1';
                             csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
-                            csr_in.csr_op_data <= operand2;
                             regfile_wren <= '1';
                         when others =>
                             cxfer_mux <= '1';
