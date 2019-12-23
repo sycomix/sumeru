@@ -149,7 +149,8 @@ ifetch: entity work.cpu_stage_ifetch
         idecode_out => idecode_out,
         icache_mc_in => mc0_in,
         icache_mc_out => mc0_out,
-        sdc_data_out => sdc_data_out,
-        debug => led);
+        sdc_data_out => sdc_data_out);
+
+led <= '0' when idecode_in.inst = x"00128293" else '1';
 
 end architecture;

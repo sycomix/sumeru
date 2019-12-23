@@ -15,8 +15,7 @@ port(
     idecode_out:        in idecode_channel_out_t;
     icache_mc_in:       out mem_channel_in_t;
     icache_mc_out:      in mem_channel_out_t;
-    sdc_data_out:       in std_logic_vector(15 downto 0);
-    debug:              out std_logic
+    sdc_data_out:       in std_logic_vector(15 downto 0)
     );
 end entity;
 
