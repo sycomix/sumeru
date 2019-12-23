@@ -60,10 +60,13 @@ architecture synth of cpu is
     signal pbus_mc_in:          mem_channel_in_t := ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'));
 
     signal idecode_in:          idecode_channel_in_t;
-    signal idecode_out:         idecode_channel_out_t := (busy => '0');
+    signal idecode_out:         idecode_channel_out_t;
 
     signal iexec_in:            iexec_channel_in_t;
-    signal iexec_out:           iexec_channel_out_t := ('0', '0', (others => '0'));
+    signal iexec_out:           iexec_channel_out_t;
+
+    signal csr_in:              csr_channel_in_t;
+    signal csr_out:             csr_channel_out_t;
 
 begin
 spi0_sck <= '0';
@@ -163,6 +166,18 @@ idecode: entity work.cpu_stage_idecode
         iexec_in => iexec_in,
         iexec_out => iexec_out);
 
-led <= '0' when idecode_in.inst = x"00128293" else '1';
+iexec: entity work.cpu_stage_iexec
+    port map(
+        clk => clk,
+        clk_n => clk_n,
+        iexec_in => iexec_in,
+        iexec_out => iexec_out,
+        dcache_mc_in => mc1_in,
+        dcache_mc_out => mc1_out,
+        sdc_data_out => sdc_data_out,
+        csr_in => csr_in,
+        csr_out => csr_out);
+
+led <= '0';
 
 end architecture;

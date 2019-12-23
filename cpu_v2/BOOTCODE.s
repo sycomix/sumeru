@@ -1,5 +1,4 @@
 .global _start
-.word   0xdeadc0de
 _start:
     li t0,0
     

@@ -22,15 +22,18 @@ end entity;
 architecture synth of cpu_stage_iexec is
     signal regfile_wren:        std_logic := '0';
     signal regfile_wren_nz:     std_logic;
+    signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
+
     signal rd_write_data:       std_logic_vector(31 downto 0) := (others => '0');
     signal rs1_read_data:       std_logic_vector(31 downto 0);
     signal rs2_read_data:       std_logic_vector(31 downto 0);
     signal rs1_data:            std_logic_vector(31 downto 0);
     signal rs2_data:            std_logic_vector(31 downto 0);
     signal operand2:            std_logic_vector(31 downto 0);
-    signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
+
     signal last_rd:             std_logic_vector(4 downto 0) := (others => '0');
     signal last_rd_data:        std_logic_vector(31 downto 0) := (others => '0');
+
     signal alu_result:          std_logic_vector(31 downto 0);
     signal br_result:           std_logic;
     signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
@@ -53,6 +56,11 @@ architecture synth of cpu_stage_iexec is
 
     signal dcache_write_strobe_save: std_logic := '0';
     signal busy_r:              std_logic := '0';
+
+    signal op_a:                std_logic_vector(31 downto 0) := (others => '0');
+    signal op_b:                std_logic_vector(31 downto 0) := (others => '0');
+    signal shift_bit:           std_logic := '0';
+    signal shift_dir_lr:        std_logic := '0';
 
     type state_t is (
         RUNNING,
@@ -99,18 +107,18 @@ begin
 
     alu: entity work.cpu_alu
         port map(
-            a => rs1_data,
-            b => operand2,
+            a => op_a,
+            b => op_b,
             op => iexec_in.cmd_op,
             result => alu_result,
             result_br => br_result);
 
     shift: entity work.cpu_shift
         port map(
-            shift_data => rs1_data,
-            shift_amt => operand2(4 downto 0),
-            shift_bit => iexec_in.cmd_op(1),
-            shift_dir_lr => iexec_in.cmd_op(0),
+            shift_data => op_a,
+            shift_amt => op_b(4 downto 0),
+            shift_bit => shift_bit,
+            shift_dir_lr => shift_dir_lr,
             shift_result => shift_result);
 
     dcache: entity work.readwritecache_256x4x32
@@ -188,6 +196,10 @@ begin
                 end if;
             when RUNNING =>
                 if (iexec_in.valid = '1' and br_taken = '0')  then
+                    op_a <= rs1_data;
+                    op_b <= operand2;
+                    shift_bit <= iexec_in.cmd_op(1);
+                    shift_dir_lr <= iexec_in.cmd_op(0);
                     -- set mux to alu or branch
                     cmd_result_mux <= iexec_in.cmd;
                     regfile_wraddr <= iexec_in.rd;

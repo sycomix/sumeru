@@ -1,4 +1,4 @@
-eOPLEVEL = cpu
+TOPLEVEL = cpu
 LIBSRC_DIR = ${SUMERU_DIR}/sw/vhdl/libsrc
 SRCS = sumeru_constants.vhd \
         cpu_types.vhd \
@@ -20,7 +20,7 @@ SRCS = sumeru_constants.vhd \
         readwritecache_256x4x32.vhd \
         cpu_stage_iexec.vhd \
 	${TOPLEVEL}.vhd \
-        sim_sdeam_mt48lc16m16a2.vhd \
+        sim_sdram_mt48lc16m16a2.vhd \
         ${TOPLEVEL}_tb.vhd
 
 OBJS = $(SRCS:.vhd=.o)
