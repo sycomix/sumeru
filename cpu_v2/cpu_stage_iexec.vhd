@@ -33,12 +33,12 @@ architecture synth of cpu_stage_iexec is
     signal cmd_result_mux:      std_logic_vector(2 downto 0) := (others => '0');
 
     signal shift_result:        std_logic_vector(31 downto 0);
-    signal cxfer_async_strobe:  std_logic := '0';
+    signal cxfer_r:             std_logic := '0';
     signal cxfer_mux:           std_logic := '0';
-    signal cxfer_async_pc:      std_logic_vector(31 downto 0);
+    signal cxfer_pc:            std_logic_vector(31 downto 0);
     signal trigger_cxfer:       std_logic := '0';
     signal br_inst:             std_logic := '0';
-    signal br_taken:            std_logic;
+    signal br_taken:            std_logic := '0';
 
     signal dcache_addr:         std_logic_vector(24 downto 0) := (others => '0');
     signal dcache_start:        std_logic := '0';
@@ -132,26 +132,11 @@ begin
         -- x"00000000" when CMD_STORE,
         dcache_read_data when others;
 
-    br_taken <= (br_inst and br_result) or trigger_cxfer;
+    -- br_taken <= (br_inst and br_result) or trigger_cxfer;
+    -- cxfer_async_strobe <= br_taken;
 
-    process(clk_n)
-    begin
-        -- XXX Timing Risk
-        if (rising_edge(clk_n)) then
-            if (br_taken = '1')
-            then        
-                -- BRANCH TAKEN
-                cxfer_async_strobe <= not cxfer_async_strobe;
-                -- skip the next cycle as there maybe a valid
-                -- decode command pending
-                -- mux is set above
-                -- incase of not-taken do nothing, fetch stage is reading ahead
-            end if;
-        end if;
-    end process;
-
-    iexec_out.cxfer <= cxfer_async_strobe;
-    iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_async_pc;
+    iexec_out.cxfer <= cxfer_r;
+    iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
     iexec_out.busy <= busy_r;
 
     csr_in.csr_op_data <= op_b;
@@ -161,10 +146,12 @@ begin
     begin
         if (rising_edge(clk)) then
             regfile_wren <= '0';
-            br_inst <= '0';
+            -- br_inst <= '0';
+            cxfer_r <= '0';
             trigger_cxfer <= '0';
             busy_r <= '0';
             csr_in.csr_op_valid <= '0';
+            br_taken <= '0';
             case state is
             when LOAD_1 =>
                 busy_r <= '1';
@@ -194,7 +181,7 @@ begin
                     else
                         op_b <= rs2_read_data;
                     end if;
-                    trigger_cxfer <= iexec_in.trigger_cxfer;
+                    -- trigger_cxfer <= iexec_in.trigger_cxfer;
                     cxfer_mux <= '0';
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
@@ -209,11 +196,13 @@ begin
                         when CMD_ALU | CMD_SHIFT =>
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
-                            br_inst <= '1';
-                            cxfer_async_pc <= iexec_in.imm;
+                            -- br_inst <= '1';
+                            cxfer_pc <= iexec_in.imm;
                             cxfer_mux <= '1';
                             -- we need to set wraddr so thatn op_a and op_b
                             -- are set correctly next cycle
+                            br_taken <= '1';
+                            cxfer_r <= not cxfer_r;
                             regfile_wraddr <= (others => '0');
                         when CMD_CSR =>
                             csr_in.csr_reg <= iexec_in.csr_reg;
