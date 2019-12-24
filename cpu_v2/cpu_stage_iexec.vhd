@@ -15,8 +15,7 @@ port(
     dcache_mc_out:              in mem_channel_out_t;
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
-    csr_out:                    in csr_channel_out_t;
-    debug:                      out std_logic
+    csr_out:                    in csr_channel_out_t
     );
 end entity;
 
@@ -156,8 +155,6 @@ begin
     iexec_out.busy <= busy_r;
 
     csr_in.csr_op_data <= op_b;
-
-    debug <= op_a(27);
 
     process(clk)
         variable br: std_logic;

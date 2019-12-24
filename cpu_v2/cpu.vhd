@@ -68,6 +68,8 @@ architecture synth of cpu is
     signal csr_in:              csr_channel_in_t;
     signal csr_out:             csr_channel_out_t;
 
+    signal gpio:                std_logic_vector(31 downto 0);
+
 begin
 spi0_sck <= '0';
 spi0_ss <= '0';
@@ -176,7 +178,15 @@ iexec: entity work.cpu_stage_iexec
         dcache_mc_out => mc1_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
+        csr_out => csr_out);
+
+csr_gpio: entity work.csr_gpio
+    port map(
+        clk => clk,
+        csr_in => csr_in,
         csr_out => csr_out,
-        debug => led);
+        gpio => gpio);
+
+led <= gpio(0);
 
 end architecture;
