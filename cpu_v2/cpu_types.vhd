@@ -60,6 +60,8 @@ package cpu_types is
 
     type idecode_channel_out_t is record
         busy:                   std_logic;
+        cxfer:                  std_logic;
+        cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
     type iexec_channel_in_t is record

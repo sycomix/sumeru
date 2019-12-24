@@ -13,7 +13,6 @@ port(
     enable:             in std_logic;
     idecode_in:         out idecode_channel_in_t;
     idecode_out:        in idecode_channel_out_t;
-    iexec_out:          in iexec_channel_out_t;
     icache_mc_in:       out mem_channel_in_t;
     icache_mc_out:      in mem_channel_out_t;
     sdc_data_out:       in std_logic_vector(15 downto 0)
@@ -28,7 +27,7 @@ architecture synth of cpu_stage_ifetch is
     signal icache_flush_ack:    std_logic;
     signal jmp_pc:              std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
-    signal cxfer_save:          std_logic := '0';
+    signal cxfer_pending:       std_logic := '0';
 
 begin
 icache: entity work.read_cache_256x4x32
@@ -55,17 +54,12 @@ pc_p4 <= std_logic_vector(unsigned(pc) + 4);
 process(clk)
 begin
     if (rising_edge(clk)) then
-
-        if (idecode_out.busy = '0') then
-            idecode_in.valid <= '0';
-        end if;
-
-        if (icache_hit = '1') then
-            if (iexec_out.cxfer /= cxfer_save) then
-                cxfer_save <= not cxfer_save;
-                pc <= iexec_out.cxfer_pc;
+        if (idecode_out.busy = '0' and icache_hit = '1') then
+            if (idecode_out.cxfer = '1' or cxfer_pending = '1') then
+                cxfer_pending <= '0';
+                pc <= idecode_out.cxfer_pc;
                 idecode_in.valid <= '0';
-            elsif (idecode_out.busy = '0') then
+            else
                 pc <= pc_p4;
                 idecode_in.valid <= '1';
                 idecode_in.inst <= inst;
@@ -83,8 +77,14 @@ begin
                     when others =>
                 end case;
             end if;
+        else
+            if (idecode_out.busy = '0' or idecode_out.cxfer = '1') then
+                idecode_in.valid <= '0';
+            end if;
+            if (idecode_out.cxfer = '1') then
+                cxfer_pending <= '1';
+            end if;
         end if;
-
     end if;
 end process;
 
