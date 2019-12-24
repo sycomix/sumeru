@@ -19,7 +19,6 @@ architecture synth of cpu_stage_idecode is
     signal exec_valid:  std_logic := '0';
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
-    signal cxfer_save:  std_logic := '0';
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
@@ -51,6 +50,8 @@ architecture synth of cpu_stage_idecode is
 
 begin
     idecode_out.busy <= exec_busy;
+    idecode_out.cxfer <= iexec_out.cxfer;
+    idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
     iexec_in.valid <= exec_valid;
 
     with inst_opcode select imm_wr_mux <=
@@ -63,8 +64,7 @@ begin
     process(clk)
     begin
         if (rising_edge(clk)) then
-            if (iexec_out.cxfer /= cxfer_save) then
-                cxfer_save <= not cxfer_save;
+            if (iexec_out.cxfer = '1') then
                 exec_valid <= '0';
             elsif (exec_busy = '0') then
                 exec_valid <= fetch_valid;

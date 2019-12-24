@@ -155,10 +155,10 @@ ifetch: entity work.cpu_stage_ifetch
         enable => reset_n,
         idecode_in => idecode_in,
         idecode_out => idecode_out,
-        iexec_out => iexec_out,
         icache_mc_in => mc0_in,
         icache_mc_out => mc0_out,
-        sdc_data_out => sdc_data_out);
+        sdc_data_out => sdc_data_out
+        );
 
 idecode: entity work.cpu_stage_idecode
     port map(
