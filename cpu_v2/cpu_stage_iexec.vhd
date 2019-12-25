@@ -164,7 +164,7 @@ begin
                     busy_r <= '1';
                 end if;
             when RUNNING =>
-                if (iexec_in.valid = '1' and br_taken = '0')  then
+                if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     alu_op <= iexec_in.cmd_op;
                     if (iexec_in.rs1 = regfile_wraddr) then
                         op_a <= rd_write_data;
