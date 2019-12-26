@@ -137,7 +137,7 @@ begin
 
     csr_in.csr_op_data <= op_b;
 
-    iexec_out.cxfer <= (br_inst and br_result);
+    iexec_out.cxfer <= (br_inst and br_result) or trigger_cxfer;
 
     process(clk)
         variable br: std_logic;
@@ -178,7 +178,7 @@ begin
                     else
                         op_b <= rs2_read_data;
                     end if;
-                    -- trigger_cxfer <= iexec_in.trigger_cxfer;
+                    trigger_cxfer <= iexec_in.trigger_cxfer;
                     cxfer_mux <= '0';
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
