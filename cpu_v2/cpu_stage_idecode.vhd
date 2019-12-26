@@ -91,15 +91,21 @@ begin
                             iexec_in.cmd_use_reg <= '0';
                             iexec_in.cmd <= CMD_ALU;
                             iexec_in.cmd_op <= CMD_ALU_OP_ADD;
-                        when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
+                        when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L | OP_TYPE_S =>
                             iexec_in.imm <= sxt(inst_imm_i, 32);
                             iexec_in.cmd_use_reg <= inst_opcode(3);
                             iexec_in.trigger_cxfer <= inst_opcode(4);
-                            if (inst_opcode = OP_TYPE_L) then 
+                            case inst_opcode is
+                            when OP_TYPE_L =>
                                 iexec_in.cmd <= CMD_LOAD;
                                 iexec_in.cmd_op <= (others => '0'); -- op add
                                 iexec_in.rs2 <= "00" & inst_funct3;
-                            else
+                            when OP_TYPE_S =>
+                                iexec_in.cmd <= CMD_STORE;
+                                iexec_in.cmd_op <= (others => '0'); -- op add
+                                iexec_in.rd <= "00" & inst_funct3;
+                                iexec_in.cmd_use_reg <= '0';
+                            when others =>
                                 iexec_in.cmd <= CMD_ALU;
                                 iexec_in.cmd_op <= "0" & inst_funct3;
                                 if (inst_funct3 = "000") then
@@ -112,7 +118,7 @@ begin
                                     iexec_in.cmd <= CMD_SHIFT;
                                     iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                                 end if;
-                            end if;
+                            end case;
                         when OP_TYPE_CSR =>
                             iexec_in.csr_reg <= inst(31 downto 20);
                             iexec_in.imm <= ext(inst(19 downto 15), 32);

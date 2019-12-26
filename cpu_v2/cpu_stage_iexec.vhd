@@ -42,10 +42,10 @@ architecture synth of cpu_stage_iexec is
     signal dcache_start:        std_logic := '0';
     signal dcache_hit:          std_logic;
     signal dcache_read_data:    std_logic_vector(31 downto 0);
+    signal dcache_write_data:   std_logic_vector(31 downto 0);
     signal dcache_wren:         std_logic;
     signal dcache_byteena:      std_logic_vector(3 downto 0);
     signal dcache_write_strobe: std_logic;
-    signal dcache_write_data:   std_logic_vector(31 downto 0);
 
     signal dcache_write_strobe_save: std_logic := '0';
     signal busy_r:              std_logic := '0';
@@ -62,12 +62,13 @@ architecture synth of cpu_stage_iexec is
     signal ls1:                 std_logic;
     signal ls2:                 std_logic;
     signal ls3:                 std_logic;
+    signal store_data:          std_logic_vector(31 downto 0);
     signal load_result:         std_logic_vector(31 downto 0);
 
     type state_t is (
         RUNNING,
-        LOAD_1,
-        LOAD_WAIT
+        LS_1,
+        LS_WAIT
         );
 
     signal state:               state_t := RUNNING;
@@ -152,7 +153,7 @@ begin
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when CMD_CSR,
         x"00000000" when CMD_BRANCH,
-        -- x"00000000" when CMD_STORE,
+        x"00000000" when CMD_STORE,
         load_result when others;
 
 
@@ -178,6 +179,13 @@ begin
             sxt(ls3 & dcache_read_data(31 downto 24),32)   when "1000" ,
             dcache_read_data                               when others;
 
+    with ls_op select
+        dcache_write_data <= 
+            (store_data(15 downto 0) & store_data(15 downto 0)) when "01",
+            (store_data(7 downto 0) & store_data(7 downto 0) &
+             store_data(7 downto 0) & store_data(7 downto 0))   when "00",
+            store_data                                          when others;
+
     with (ls_op & alu_result(1 downto 0)) select
         dcache_byteena <= 
             "0001" when "0000",
@@ -198,15 +206,19 @@ begin
             busy_r <= '0';
             csr_in.csr_op_valid <= '0';
             case state is
-            when LOAD_1 =>
+            when LS_1 =>
                 busy_r <= '1';
                 dcache_addr <= alu_result(24 downto 0);
-                dcache_wren <= '0';
+                dcache_wren <= cmd_result_mux(1);
                 dcache_start <= not dcache_start;
-                state <= LOAD_WAIT;
-            when LOAD_WAIT =>
-                if (dcache_hit = '1') then
+                state <= LS_WAIT;
+            when LS_WAIT =>
+                if (cmd_result_mux = CMD_LOAD and dcache_hit = '1') then
                     regfile_wren <= '1';
+                    state <= RUNNING;
+                elsif (cmd_result_mux = CMD_STORE and 
+                        dcache_write_strobe /= dcache_write_strobe_save) then
+                    dcache_write_strobe_save <= not dcache_write_strobe_save;
                     state <= RUNNING;
                 else
                     busy_r <= '1';
@@ -214,11 +226,13 @@ begin
             when RUNNING =>
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     alu_op <= iexec_in.cmd_op;
+
                     if (iexec_in.rs1 = regfile_wraddr) then
                         op_a <= rd_write_data;
                     else
                         op_a <= rs1_read_data;
                     end if;
+
                     if (iexec_in.cmd_use_reg = '0') then
                         op_b <= iexec_in.imm;
                     elsif (iexec_in.rs2 = regfile_wraddr) then
@@ -226,26 +240,41 @@ begin
                     else
                         op_b <= rs2_read_data;
                     end if;
+
+                    if (iexec_in.rs2 = regfile_wraddr) then
+                        store_data <= rd_write_data;
+                    else
+                        store_data <= rs2_read_data;
+                    end if;
+
                     trigger_cxfer <= iexec_in.trigger_cxfer;
                     cxfer_mux <= '0';
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
-                    -- set mux to alu or branch
                     cmd_result_mux <= iexec_in.cmd;
                     regfile_wraddr <= iexec_in.rd;
                     case iexec_in.cmd is
+                        when CMD_STORE =>
+                            state <= LS_1;
+                            busy_r <= '1';
+                            ls_op <= iexec_in.rd(1 downto 0);
+                            ls_load_sign <= not iexec_in.rs2(2);
+                            -- this instr does not write to rd hence
+                            -- we need to set wraddr so thatn op_a and op_b
+                            -- are set correctly next cycle
+                            regfile_wraddr <= (others => '0');
                         when CMD_LOAD => 
-                            state <= LOAD_1;
+                            state <= LS_1;
                             busy_r <= '1';
                             ls_op <= iexec_in.rs2(1 downto 0);
                             ls_load_sign <= not iexec_in.rs2(2);
-                            -- XXX for stores set wraddr = 0 and mux wrdata = '0'
                         when CMD_ALU | CMD_SHIFT =>
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';
                             cxfer_pc <= iexec_in.imm;
                             cxfer_mux <= '1';
+                            -- this instr does not write to rd hence
                             -- we need to set wraddr so thatn op_a and op_b
                             -- are set correctly next cycle
                             regfile_wraddr <= (others => '0');
