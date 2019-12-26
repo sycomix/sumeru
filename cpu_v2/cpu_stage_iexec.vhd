@@ -194,6 +194,7 @@ begin
             "1000" when "0011",
             "0011" when "0100",
             "1100" when "0110",
+            "0000" when "1100",         -- Hitherto DCACHE LINE FLUSH operation 
             "1111" when others;
 
     process(clk)
