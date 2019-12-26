@@ -12,6 +12,7 @@ _start:
     #0000000 00000 00001 011 00000 0100011
     #0000 0000 0000 0000 1011 0000 0010 0011
 
+    # DCACHE FLUSH LINE - addr in x1, STORE ifunct3 = 011
     .word 0x0000B023
 
     li x1,0x80
