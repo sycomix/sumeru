@@ -55,7 +55,9 @@ process(clk)
 begin
     if (rising_edge(clk)) then
         if (idecode_out.busy = '0' and icache_hit = '1') then
-            if (idecode_out.cxfer = '1' or cxfer_pending = '1') then
+            if (icache_flush_ack /= icache_flush) then
+                idecode_in.valid <= '0';
+            elsif (idecode_out.cxfer = '1' or cxfer_pending = '1') then
                 cxfer_pending <= '0';
                 pc <= idecode_out.cxfer_pc;
                 idecode_in.valid <= '0';

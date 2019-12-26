@@ -5,6 +5,7 @@ _start:
     li x1,0x80
     li x3,0xc081
     sh x3,2(x1)
+    fence.i
     lbu x2,2(x1)
     li x3,0x81
     beq x2,x3,vtrue 
