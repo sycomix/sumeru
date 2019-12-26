@@ -98,6 +98,7 @@ begin
                             if (inst_opcode = OP_TYPE_L) then 
                                 iexec_in.cmd <= CMD_LOAD;
                                 iexec_in.cmd_op <= (others => '0'); -- op add
+                                iexec_in.rs2 <= "00" & inst_funct3;
                             else
                                 iexec_in.cmd <= CMD_ALU;
                                 iexec_in.cmd_op <= "0" & inst_funct3;

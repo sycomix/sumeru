@@ -56,6 +56,14 @@ architecture synth of cpu_stage_iexec is
     signal shift_bit:           std_logic := '0';
     signal shift_dir_lr:        std_logic := '0';
 
+    signal ls_op:               std_logic_vector(1 downto 0);
+    signal ls_load_sign:        std_logic;
+    signal ls0:                 std_logic;
+    signal ls1:                 std_logic;
+    signal ls2:                 std_logic;
+    signal ls3:                 std_logic;
+    signal load_result:         std_logic_vector(31 downto 0);
+
     type state_t is (
         RUNNING,
         LOAD_1,
@@ -63,6 +71,22 @@ architecture synth of cpu_stage_iexec is
         );
 
     signal state:               state_t := RUNNING;
+
+    pure function sxt(
+                    x:          std_logic_vector;
+                    n:          natural)
+                    return std_logic_vector is
+    begin
+        return std_logic_vector(resize(signed(x), n));
+    end function;
+
+    pure function ext(
+                    x:          std_logic_vector;
+                    n:          natural)
+                    return std_logic_vector is
+    begin
+        return std_logic_vector(resize(unsigned(x), n));
+    end function;
 
 begin
     regfile_a: entity work.ram2p_simp_32x32
@@ -129,7 +153,7 @@ begin
         csr_out.csr_op_result when CMD_CSR,
         x"00000000" when CMD_BRANCH,
         -- x"00000000" when CMD_STORE,
-        dcache_read_data when others;
+        load_result when others;
 
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
@@ -138,6 +162,31 @@ begin
     csr_in.csr_op_data <= op_b;
 
     iexec_out.cxfer <= (br_inst and br_result) or trigger_cxfer;
+
+    ls0 <= ls_load_sign and dcache_read_data(7);
+    ls1 <= ls_load_sign and dcache_read_data(15);
+    ls2 <= ls_load_sign and dcache_read_data(23);
+    ls3 <= ls_load_sign and dcache_read_data(31);
+
+    with dcache_byteena select
+        load_result <=
+            sxt(ls1 & dcache_read_data(15 downto 0),32)    when "0011",
+            sxt(ls3 & dcache_read_data(31 downto 16),32)   when "1100" ,
+            sxt(ls0 & dcache_read_data(7 downto 0),32)     when "0001" ,
+            sxt(ls1 & dcache_read_data(15 downto 8),32)    when "0010" ,
+            sxt(ls2 & dcache_read_data(23 downto 16),32)   when "0100" ,
+            sxt(ls3 & dcache_read_data(31 downto 24),32)   when "1000" ,
+            dcache_read_data                               when others;
+
+    with (ls_op & alu_result(1 downto 0)) select
+        dcache_byteena <= 
+            "0001" when "0000",
+            "0010" when "0001",
+            "0100" when "0010",
+            "1000" when "0011",
+            "0011" when "0100",
+            "1100" when "0110",
+            "1111" when others;
 
     process(clk)
         variable br: std_logic;
@@ -154,7 +203,6 @@ begin
                 dcache_addr <= alu_result(24 downto 0);
                 dcache_wren <= '0';
                 dcache_start <= not dcache_start;
-                dcache_byteena <= (others => '1');
                 state <= LOAD_WAIT;
             when LOAD_WAIT =>
                 if (dcache_hit = '1') then
@@ -189,6 +237,8 @@ begin
                         when CMD_LOAD => 
                             state <= LOAD_1;
                             busy_r <= '1';
+                            ls_op <= iexec_in.rs2(1 downto 0);
+                            ls_load_sign <= not iexec_in.rs2(2);
                             -- XXX for stores set wraddr = 0 and mux wrdata = '0'
                         when CMD_ALU | CMD_SHIFT =>
                             regfile_wren <= '1';
