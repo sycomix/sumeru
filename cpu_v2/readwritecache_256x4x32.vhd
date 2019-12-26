@@ -181,15 +181,13 @@ begin
             cache_write_data_b2 <= sdc_data_out(7 downto 0);
             cache_write_data_b3 <= sdc_data_out(15 downto 8);
 
-            write_strobe_r <= '0';
-
             case state is
                 when IDLE =>
                     if (start /= start_save) then
                         if (wren = '1' and line_hit = '1') then
                             -- Write data to line
                             start_save <= not start_save;
-                            write_strobe_r <= '1';
+                            write_strobe_r <= not write_strobe_r;
                             cache_write_data_byteena0 <= '1';
                             cache_write_data_byteena1 <= '1';
                             cache_write_data_byteena2 <= '1';
