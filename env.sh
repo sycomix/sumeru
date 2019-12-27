@@ -27,3 +27,6 @@ export _JAVA_OPTIONS=-Dawt.useSystemAAFontSettings=on
 alias odump="riscv32-unknown-linux-gnu-objdump -d -M no-aliases"
 alias start-pgmw="env LD_PRELOAD=${LIBPNG_PRELOAD} quartus_pgmw"
 alias start-quartus="sudo -u root -- unshare -n sudo -u r0h17 env LD_PRELOAD=${LIBPNG_PRELOAD} ${QDIR}/bin/quartus"
+
+export MAKEFILES=${SUMERU_DIR}/sw/conf/sumeru.mk
+
