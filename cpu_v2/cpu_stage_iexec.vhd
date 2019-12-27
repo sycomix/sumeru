@@ -152,10 +152,8 @@ begin
         alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
         csr_out.csr_op_result when CMD_CSR,
-        x"00000000" when CMD_BRANCH,
-        x"00000000" when CMD_STORE,
-        load_result when others;
-
+        load_result when CMD_LOAD,
+        x"00000000" when others;
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
     iexec_out.busy <= busy_r;
@@ -285,6 +283,7 @@ begin
                             csr_in.csr_op <= iexec_in.cmd_op(1 downto 0);
                             regfile_wren <= '1';
                         when others =>
+                            regfile_wraddr <= (others => '0');
                     end case;
                 end if;
             end case;
