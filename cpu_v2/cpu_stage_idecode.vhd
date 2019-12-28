@@ -101,6 +101,9 @@ begin
                                 iexec_in.cmd_op <= (others => '0'); -- op add
                                 iexec_in.rs2 <= "00" & inst_funct3;
                             when OP_TYPE_S =>
+                                iexec_in.imm <= 
+                                    sxt(inst(31 downto 25) & 
+                                        inst(11 downto 7), 32);
                                 iexec_in.cmd <= CMD_STORE;
                                 iexec_in.cmd_op <= (others => '0'); -- op add
                                 iexec_in.rd <= "00" & inst_funct3;
