@@ -46,6 +46,7 @@ package cpu_types is
     constant CMD_SHIFT:         std_logic_vector(2 downto 0) := "001";
     constant CMD_BRANCH:        std_logic_vector(2 downto 0) := "010";
     constant CMD_CSR:           std_logic_vector(2 downto 0) := "011";
+    constant CMD_JALR:          std_logic_vector(2 downto 0) := "100";
     constant CMD_LOAD:          std_logic_vector(2 downto 0) := "101";
     constant CMD_STORE:         std_logic_vector(2 downto 0) := "110";
     constant CMD_UNKNOWN:       std_logic_vector(2 downto 0) := "111";
@@ -76,6 +77,7 @@ package cpu_types is
         rs2:                    std_logic_vector(4 downto 0);
         rd:                     std_logic_vector(4 downto 0);
         csr_reg:                std_logic_vector(11 downto 0);
+        pc_p4:                  std_logic_vector(31 downto 0);
     end record;
 
     type iexec_channel_out_t is record

@@ -64,6 +64,7 @@ architecture synth of cpu_stage_iexec is
     signal ls3:                 std_logic;
     signal store_data:          std_logic_vector(31 downto 0);
     signal load_result:         std_logic_vector(31 downto 0);
+    signal pc_p4:               std_logic_vector(31 downto 0);
 
     type state_t is (
         RUNNING,
@@ -153,6 +154,7 @@ begin
         shift_result when CMD_SHIFT,
         csr_out.csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
+        pc_p4 when CMD_JALR,
         x"00000000" when others;
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
@@ -223,6 +225,7 @@ begin
             when RUNNING =>
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     alu_op <= iexec_in.cmd_op;
+                    pc_p4 <= iexec_in.pc_p4;
 
                     if (iexec_in.rs1 = regfile_wraddr) then
                         op_a <= rd_write_data;
@@ -265,7 +268,7 @@ begin
                             busy_r <= '1';
                             ls_op <= iexec_in.rs2(1 downto 0);
                             ls_load_sign <= not iexec_in.rs2(2);
-                        when CMD_ALU | CMD_SHIFT =>
+                        when CMD_ALU | CMD_SHIFT | CMD_JALR =>
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';

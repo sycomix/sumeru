@@ -7,7 +7,7 @@ _start(void)
 {
     asm("lui sp, 1");
     set_gpio_dir(1);
-    set_gpio_out(1);
+    set_gpio_out(0);
     while (1)
         ;
 }

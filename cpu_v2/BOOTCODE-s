@@ -2,10 +2,11 @@
 _start:
     csrrwi zero,0x100,1
     csrrwi zero,0x103,1
-    li x1,0
+    li x1, 0x18
+    jalr x2,0(x1)
 loop:
-    addi x1,x1,1
-    srli x2,x1,20
-    andi x2,x2,1
-    csrrw zero,0x103,x2
     j loop
+
+fun_a:
+    csrrwi zero,0x103,0
+    jalr zero,0(x2)
