@@ -62,6 +62,7 @@ begin
         std_logic_vector(unsigned(idecode_in.pc) + 4) when others;
 
     process(clk)
+        variable add_ext: std_logic_vector(1 downto 0);
     begin
         if (rising_edge(clk)) then
             if (iexec_out.cxfer = '1') then
@@ -118,8 +119,15 @@ begin
                                 iexec_in.cmd_op <= "0" & inst_funct3;
                                 if (inst_funct3 = "000") then
                                     -- SUBTRACT
-                                    if(inst_opcode(3) = '1' and inst(30) = '1') then
-                                        iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                    if(inst_opcode(3) = '1') then
+                                        add_ext := inst(30) & inst(25);
+                                        case add_ext is
+                                            when "10" =>
+                                                iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                            when "01" =>
+                                                iexec_in.cmd <= CMD_MULDIV;
+                                            when others =>
+                                        end case;
                                     end if;
                                 elsif (inst_funct3(1 downto 0) = "01") then
                                     -- SHIFT
@@ -135,8 +143,8 @@ begin
                             iexec_in.cmd <= CMD_CSR;
                             iexec_in.cmd_op <= "0" & inst_funct3;
                         when others =>
-                            iexec_in.cmd <= CMD_UNKNOWN;
-                            iexec_in.cmd_op <= (others => '0');
+                            -- XXX TODO Raise exception
+                            exec_valid <= '0';
                     end case;
                 end if;
             end if;

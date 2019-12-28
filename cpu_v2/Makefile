@@ -17,6 +17,8 @@ SRCS = sumeru_constants.vhd \
         cpu_stage_idecode.vhd \
         cpu_alu.vhd \
         cpu_shift.vhd \
+        cpu_mult.vhd \
+        cpu_muldiv.vhd \
         readwritecache_256x4x32.vhd \
         cpu_stage_iexec.vhd \
         csr_gpio.vhd \

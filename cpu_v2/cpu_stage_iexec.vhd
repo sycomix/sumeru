@@ -64,6 +64,7 @@ architecture synth of cpu_stage_iexec is
     signal ls3:                 std_logic;
     signal store_data:          std_logic_vector(31 downto 0);
     signal load_result:         std_logic_vector(31 downto 0);
+    signal muldiv_result:       std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
 
     type state_t is (
@@ -124,6 +125,13 @@ begin
             result => alu_result,
             result_br => br_result);
 
+    muldiv: entity work.cpu_muldiv
+        port map(
+            a => op_a,
+            b => op_b,
+            op => alu_op,
+            result => muldiv_result);
+
     shift: entity work.cpu_shift
         port map(
             shift_data => op_a,
@@ -155,6 +163,7 @@ begin
         csr_out.csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
         pc_p4 when CMD_JALR,
+        muldiv_result when CMD_MULDIV,
         x"00000000" when others;
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
@@ -268,7 +277,7 @@ begin
                             busy_r <= '1';
                             ls_op <= iexec_in.rs2(1 downto 0);
                             ls_load_sign <= not iexec_in.rs2(2);
-                        when CMD_ALU | CMD_SHIFT | CMD_JALR =>
+                        when CMD_ALU | CMD_SHIFT | CMD_JALR | CMD_MULDIV =>
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';

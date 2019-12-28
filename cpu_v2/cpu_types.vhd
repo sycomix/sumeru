@@ -49,7 +49,7 @@ package cpu_types is
     constant CMD_JALR:          std_logic_vector(2 downto 0) := "100";
     constant CMD_LOAD:          std_logic_vector(2 downto 0) := "101";
     constant CMD_STORE:         std_logic_vector(2 downto 0) := "110";
-    constant CMD_UNKNOWN:       std_logic_vector(2 downto 0) := "111";
+    constant CMD_MULDIV:        std_logic_vector(2 downto 0) := "111";
 
     constant CMD_ALU_OP_ADD:    std_logic_vector(3 downto 0) := "0000";
     constant CMD_ALU_OP_SUB:    std_logic_vector(3 downto 0) := "1000";
