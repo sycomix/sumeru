@@ -115,7 +115,7 @@ clean:
                 sdram_controller_simlowdelay.vhd \
                 PLLJ_*.txt obj *.ppf *.cmp *.qdf \
 				*.vhd.bak \
-                BOOTCODE.bin BOOTCODE.hex BOOTCODE
+                BOOTCODE.bin BOOTCODE.hex BOOTCODE BOOTCODE.srec
 
 prog:
 	quartus_pgm -c 1 jtag_chain.cdf
@@ -141,5 +141,5 @@ BOOTCODE.hex: BOOTCODE.c
 #	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
 #	@riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
 #	@../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
-
+#
 

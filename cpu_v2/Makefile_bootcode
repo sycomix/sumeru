@@ -1,6 +1,6 @@
 
 PROG = BOOTCODE
-CFLAGS = -nostdinc -ffreestanding
+CFLAGS = -O0 -nostdinc -ffreestanding
 LDFLAGS = -nostdlib --section-start=.text=0x0000
 
 CFILES = BOOTCODE.c
