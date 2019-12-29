@@ -158,13 +158,12 @@ begin
         );
 
     with cmd_result_mux select rd_write_data <=
-        alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
         csr_out.csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
         pc_p4 when CMD_JALR,
         muldiv_result when CMD_MULDIV,
-        x"00000000" when others;
+        alu_result when others;
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
     iexec_out.busy <= busy_r;
@@ -236,7 +235,7 @@ begin
                     alu_op <= iexec_in.cmd_op;
                     pc_p4 <= iexec_in.pc_p4;
 
-                    if (iexec_in.rs1 = regfile_wraddr) then
+                    if (iexec_in.rs1 = regfile_wraddr and regfile_wren = '1') then
                         op_a <= rd_write_data;
                     else
                         op_a <= rs1_read_data;
@@ -244,7 +243,7 @@ begin
 
                     if (iexec_in.cmd_use_reg = '0') then
                         op_b <= iexec_in.imm;
-                    elsif (iexec_in.rs2 = regfile_wraddr) then
+                    elsif (iexec_in.rs2 = regfile_wraddr and regfile_wren = '1') then
                         op_b <= rd_write_data;
                     else
                         op_b <= rs2_read_data;
@@ -268,10 +267,6 @@ begin
                             busy_r <= '1';
                             ls_op <= iexec_in.rd(1 downto 0);
                             ls_load_sign <= not iexec_in.rs2(2);
-                            -- this instr does not write to rd hence
-                            -- we need to set wraddr so thatn op_a and op_b
-                            -- are set correctly next cycle
-                            regfile_wraddr <= (others => '0');
                         when CMD_LOAD => 
                             state <= LS_1;
                             busy_r <= '1';
@@ -283,17 +278,12 @@ begin
                             br_inst <= '1';
                             cxfer_pc <= iexec_in.imm;
                             cxfer_mux <= '1';
-                            -- this instr does not write to rd hence
-                            -- we need to set wraddr so thatn op_a and op_b
-                            -- are set correctly next cycle
-                            regfile_wraddr <= (others => '0');
                         when CMD_CSR =>
                             regfile_wren <= '1';
                             csr_in.csr_sel_valid <= '1';
                             csr_in.csr_sel_reg <= iexec_in.csr_reg;
                             csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
                         when others =>
-                            regfile_wraddr <= (others => '0');
                     end case;
                 end if;
             end case;
