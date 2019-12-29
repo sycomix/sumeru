@@ -5,9 +5,19 @@ void set_gpio_out(unsigned int x);
 void
 _start(void)
 {
+    int x, y, z;
+
     asm("lui sp, 1");
     set_gpio_dir(1);
-    set_gpio_out(0);
+    set_gpio_out(1);
+
+    x = 3;
+    y = 5;
+    z = x * y;
+
+    if (z == 15)
+        set_gpio_out(0);
+
     while (1)
         ;
 }
