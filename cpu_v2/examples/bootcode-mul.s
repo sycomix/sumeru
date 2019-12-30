@@ -2,9 +2,9 @@
 _start:
     csrrwi zero,0x100,1
     csrrwi zero,0x103,1
-    li x1, -104857600
-    li x2, 10
-    li x4, -1048576000
+    li x1, -5
+    li x2, 3
+    li x4, -15
     mul x3,x1,x2
     beq x3,x4,vtrue
 

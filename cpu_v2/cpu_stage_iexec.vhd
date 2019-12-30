@@ -64,13 +64,16 @@ architecture synth of cpu_stage_iexec is
     signal ls3:                 std_logic;
     signal store_data:          std_logic_vector(31 downto 0);
     signal load_result:         std_logic_vector(31 downto 0);
-    signal muldiv_result:       std_logic_vector(31 downto 0);
+    signal mul_result:          std_logic_vector(31 downto 0);
+    signal div_result:          std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
+    signal div_ctr:             std_logic_vector(2 downto 0);
 
     type state_t is (
         RUNNING,
         LS_1,
-        LS_WAIT
+        LS_WAIT,
+        DIV_WAIT
         );
 
     signal state:               state_t := RUNNING;
@@ -127,10 +130,12 @@ begin
 
     muldiv: entity work.cpu_muldiv
         port map(
+            clk => clk,
             a => op_a,
             b => op_b,
             op => alu_op,
-            result => muldiv_result);
+            mul_result => mul_result,
+            div_result => div_result);
 
     shift: entity work.cpu_shift
         port map(
@@ -158,12 +163,14 @@ begin
         );
 
     with cmd_result_mux select rd_write_data <=
+        alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
         csr_out.csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
         pc_p4 when CMD_JALR,
-        muldiv_result when CMD_MULDIV,
-        alu_result when others;
+        mul_result when CMD_MULDIV,
+        div_result when others;
+        
 
     iexec_out.cxfer_pc <= alu_result when cxfer_mux = '0' else cxfer_pc;
     iexec_out.busy <= busy_r;
@@ -213,6 +220,14 @@ begin
             busy_r <= '0';
             csr_in.csr_sel_valid <= '0';
             case state is
+            when DIV_WAIT =>
+                if (div_ctr = "000") then
+                    state <= RUNNING;
+                else
+                    busy_r <= '1';
+                    regfile_wren <= '1';
+                    div_ctr <= std_logic_vector(unsigned(div_ctr) - 1);
+                end if;
             when LS_1 =>
                 busy_r <= '1';
                 dcache_addr <= alu_result(24 downto 0);
@@ -272,7 +287,20 @@ begin
                             busy_r <= '1';
                             ls_op <= iexec_in.rs2(1 downto 0);
                             ls_load_sign <= not iexec_in.rs2(2);
-                        when CMD_ALU | CMD_SHIFT | CMD_JALR | CMD_MULDIV =>
+                        when CMD_MULDIV =>
+                            regfile_wren <= '1';
+                            if (iexec_in.cmd_op(2) = '1') then
+                                -- CMD_STORE or we could use CMD_BRANCH
+                                -- both will trigger the cmd_result_mux
+                                -- others clause causing div_result to
+                                -- output. If not for this optimisation
+                                -- we would need more bits/resources.
+                                cmd_result_mux <= CMD_STORE;
+                                busy_r <= '1';
+                                state <= DIV_WAIT;
+                                div_ctr <= "101";
+                            end if;
+                        when CMD_ALU | CMD_SHIFT | CMD_JALR =>
                             regfile_wren <= '1';
                         when CMD_BRANCH =>
                             br_inst <= '1';

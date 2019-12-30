@@ -117,22 +117,23 @@ begin
                             when others =>
                                 iexec_in.cmd <= CMD_ALU;
                                 iexec_in.cmd_op <= "0" & inst_funct3;
-                                if (inst_funct3 = "000") then
-                                    -- SUBTRACT
-                                    if(inst_opcode(3) = '1') then
-                                        add_ext := inst(30) & inst(25);
-                                        case add_ext is
-                                            when "10" =>
-                                                iexec_in.cmd_op <= CMD_ALU_OP_SUB;
-                                            when "01" =>
-                                                iexec_in.cmd <= CMD_MULDIV;
-                                            when others =>
-                                        end case;
-                                    end if;
-                                elsif (inst_funct3(1 downto 0) = "01") then
+                                if (inst_funct3(1 downto 0) = "01") then
                                     -- SHIFT
                                     iexec_in.cmd <= CMD_SHIFT;
                                     iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
+                                elsif(inst_opcode(3) = '1') then
+                                    add_ext := inst(30) & inst(25);
+                                    case add_ext is
+                                        when "10" =>
+                                            -- XXX funct3 = 000 check in not
+                                            -- needed for spec 2.2 as besides
+                                            -- sub there are no other register
+                                            -- ALU ops that set bit 30
+                                            iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                                        when "01" =>
+                                            iexec_in.cmd <= CMD_MULDIV;
+                                        when others =>
+                                    end case;
                                 end if;
                             end case;
                         when OP_TYPE_CSR =>
