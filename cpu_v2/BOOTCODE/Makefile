@@ -11,4 +11,5 @@ WITHOUT_FLOAT = true
 include ${POST_MK}
 
 clean:
-	@rm -rf BOOTCODE.srec BOOTCODE BOOTCODE.bin obj
+	rm -rf obj
+	rm -f BOOTCODE.srec BOOTCODE BOOTCODE.bin BOOTCODE.hex

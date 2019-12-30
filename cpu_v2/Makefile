@@ -114,7 +114,7 @@ editlpm:
                 su -c ${QDIR}/bin/qmegawizq r0h17
 
 clean:
-	env MAKEFILES=${SUMERU_MAKEFILES} make -f BOOTCODE/Makefile clean
+	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make clean)
 	rm -Rf output_files incremental_db db work-obj08.cf work-obj93.cf \
                 greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
                 sdram_controller_simlowdelay.vhd \
@@ -124,31 +124,31 @@ prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
 disa:
-	@tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
-	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
 
 BOOTCODE/BOOTCODE:
-	env MAKEFILES=${SUMERU_MAKEFILES} make -f BOOTCODE/Makefile
+	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
 
 BOOTCODE.hex: BOOTCODE/BOOTCODE
-	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
-	@riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
-	@tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
-	@../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
+	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
+	../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
 
 #compile_bootcode:
 #	(cd CPU-BOOTCODE; make)
-#	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d CPU-BOOTCODE/bootcode
-#	@riscv32-unknown-linux-gnu-objcopy -O binary CPU-BOOTCODE/bootcode CPU-BOOTCODE/bootcode.bin
-#	@../tools/genbootcode < CPU-BOOTCODE/bootcode.bin > BOOTCODE.hex
+#	riscv32-unknown-linux-gnu-objdump -M no-aliases -d CPU-BOOTCODE/bootcode
+#	riscv32-unknown-linux-gnu-objcopy -O binary CPU-BOOTCODE/bootcode CPU-BOOTCODE/bootcode.bin
+#	../tools/genbootcode < CPU-BOOTCODE/bootcode.bin > BOOTCODE.hex
 
 #BOOTCODE.hex: BOOTCODE.s
-#	@mkdir -p obj/riscv
-#	@riscv32-unknown-linux-gnu-as -march=rv32im -mabi=ilp32 -o obj/riscv/BOOTCODE.o BOOTCODE.s
-#	@riscv32-unknown-linux-gnu-ld -N -EL -gc-sections -nostdlib --section-start=.text=0x0000 -o BOOTCODE  ./obj/riscv/BOOTCODE.o  
-#	@tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
-#	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
-#	@riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
-#	@../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
+#	mkdir -p obj/riscv
+#	riscv32-unknown-linux-gnu-as -march=rv32im -mabi=ilp32 -o obj/riscv/BOOTCODE.o BOOTCODE.s
+#	riscv32-unknown-linux-gnu-ld -N -EL -gc-sections -nostdlib --section-start=.text=0x0000 -o BOOTCODE  ./obj/riscv/BOOTCODE.o  
+#	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
+#	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
+#	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
+#	../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
 #
 
