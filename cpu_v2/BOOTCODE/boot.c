@@ -1,6 +1,7 @@
-void _start(void) __attribute__ (( naked ));
-void set_gpio_dir(unsigned int x);
-void set_gpio_out(unsigned int x);
+void    _start(void) __attribute__ (( naked ));
+void    set_gpio_dir(unsigned int x);
+void    set_gpio_out(unsigned int x);
+int     op_div(int x, int y);
 
 void
 _start(void)
@@ -22,12 +23,20 @@ _start(void)
         ;
 }
 
-void set_gpio_dir(unsigned int x)
+int
+op_div(int x, int y)
+{
+    return x / y;
+}
+
+void
+set_gpio_dir(unsigned int x)
 {
     asm volatile("csrrw x0, 0x100, %0;" : : "r"(x));
 }
 
-void set_gpio_out(unsigned int x)
+void
+set_gpio_out(unsigned int x)
 {
     asm volatile("csrrw x0, 0x103, %0;" : : "r"(x));
 }
