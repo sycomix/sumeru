@@ -138,7 +138,7 @@ mc7_in <= bc_mc_in when reset_n = '0' else pbus_mc_in;
 
 bootcode_loader: entity work.memory_loader
         generic map(
-        DATA_FILE => "BOOTCODE.hex"
+        DATA_FILE => "BOOTCODE/BOOTCODE.hex"
     )
     port map(
         clk => clk,
