@@ -14,7 +14,7 @@ _start(void)
 
     x = -626222723;
     y = 5921;
-    z = x / y;
+    z = op_div(x, y);
 
     if (z == -105763)
         set_gpio_out(0);

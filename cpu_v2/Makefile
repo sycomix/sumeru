@@ -127,10 +127,8 @@ disa:
 	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
 	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
 
-BOOTCODE/BOOTCODE:
+BOOTCODE.hex:
 	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
-
-BOOTCODE.hex: BOOTCODE/BOOTCODE
 	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
 	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
 	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
