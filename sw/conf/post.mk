@@ -51,7 +51,7 @@ MK_CXXFLAGS += ${CXXFLAGS}
 
 # Linker flags
 MK_LDFLAGS += -N -EL
-MK_LDFLAGS += -gc-sections
+#MK_LDFLAGS += -gc-sections
 MK_LDFLAGS += ${LDFLAGS}
 
 
