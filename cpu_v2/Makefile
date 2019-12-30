@@ -18,6 +18,7 @@ SRCS = sumeru_constants.vhd \
         cpu_alu.vhd \
         cpu_shift.vhd \
         cpu_mult.vhd \
+        cpu_div.vhd \
         cpu_muldiv.vhd \
         readwritecache_256x4x32.vhd \
         cpu_stage_iexec.vhd \
@@ -62,10 +63,13 @@ memory_loader.o: memory_channel_types.o rom_512x16.o
 readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
 cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o
 cpu_stage_decode.o: cpu_types.o
-cpu_stage_iexec.o: cpu_types.o cpu_alu.vhd cpu_shift.vhd readwritecache_256x4x32.o
+cpu_stage_iexec.o: cpu_types.o cpu_muldiv.o cpu_alu.o cpu_shift.o readwritecache_256x4x32.o
 cpu_alu.o: cpu_types.o
 cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o
+cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
+cpu_mult.o: cpu_types.o
+cpu_div.o: cpu_types.o
 
 
 #****************************************************************
