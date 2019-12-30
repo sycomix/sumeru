@@ -1,6 +1,7 @@
 void _start(void) __attribute__ (( naked ));
 void set_gpio_dir(unsigned int x);
 void set_gpio_out(unsigned int x);
+int op_div(int a, int b);
 
 void
 _start(void)
@@ -13,13 +14,19 @@ _start(void)
 
     x = -626222723;
     y = 5921;
-    z = x / y;
+    z = op_div(-626222723, 5921);
 
-    if (z == -105763)
+    if (z == -105763) 
         set_gpio_out(0);
 
     while (1)
         ;
+}
+
+int
+op_div(int a, int b)
+{
+    return a / b;
 }
 
 void set_gpio_dir(unsigned int x)

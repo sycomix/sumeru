@@ -124,6 +124,10 @@ clean:
 prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
+disa:
+	@tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
+	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
+
 BOOTCODE.hex: BOOTCODE.c
 	env MAKEFILES=${SUMERU_MAKEFILES} make -f Makefile_bootcode
 	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
