@@ -114,12 +114,11 @@ editlpm:
                 su -c ${QDIR}/bin/qmegawizq r0h17
 
 clean:
+	env MAKEFILES=${SUMERU_MAKEFILES} make -f BOOTCODE/Makefile clean
 	rm -Rf output_files incremental_db db work-obj08.cf work-obj93.cf \
                 greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
                 sdram_controller_simlowdelay.vhd \
-                PLLJ_*.txt obj *.ppf *.cmp *.qdf \
-				*.vhd.bak \
-                BOOTCODE.bin BOOTCODE.hex BOOTCODE BOOTCODE.srec
+                PLLJ_*.txt obj *.ppf *.cmp *.qdf \ *.vhd.bak
 
 prog:
 	quartus_pgm -c 1 jtag_chain.cdf
