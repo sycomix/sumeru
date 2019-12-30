@@ -11,11 +11,11 @@ _start(void)
     set_gpio_dir(1);
     set_gpio_out(1);
 
-    x = -105763;
+    x = -626222723;
     y = 5921;
-    z = x * y;
+    z = x / y;
 
-    if (z == -626222723)
+    if (z == -105763)
         set_gpio_out(0);
 
     while (1)
