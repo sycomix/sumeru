@@ -131,8 +131,7 @@ depend:
 	    | sed "s/\(^[^ ]*\):/${OBJDIR_ESC}\/\1:/" > ${OBJDIR}/.depend
 
 clean:
-	rm -f ${OBJS} ${PROG} ${BIN} ${HEX} ${SREC}
-	rmdir ${OBJDIR} obj
+	rm -f ${OBJDIR}
 
 cleandepend:
 	rm -f ${OBJDIR}/.depend
