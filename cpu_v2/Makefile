@@ -125,7 +125,7 @@ prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
 BOOTCODE.hex: BOOTCODE.c
-	make -f Makefile_bootcode
+	env MAKEFILES=${SUMERU_MAKEFILES} make -f Makefile_bootcode
 	@riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
 	@riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
 	@tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
