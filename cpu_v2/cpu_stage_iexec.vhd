@@ -15,7 +15,7 @@ port(
     dcache_mc_out:              in mem_channel_out_t;
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
-    csr_out:                    in csr_channel_out_t
+    csr_sel_result:             inout std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -165,7 +165,7 @@ begin
     with cmd_result_mux select rd_write_data <=
         alu_result when CMD_ALU,
         shift_result when CMD_SHIFT,
-        csr_out.csr_sel_result when CMD_CSR,
+        csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
         pc_p4 when CMD_JALR,
         mul_result when CMD_MULDIV,
@@ -326,10 +326,10 @@ begin
             case csr_in.csr_sel_op is
                 when "10" =>
                     csr_in.csr_op_data <= 
-                    op_b or csr_out.csr_sel_result;
+                        op_b or csr_sel_result;
                 when "11" =>
                     csr_in.csr_op_data <= 
-                    not op_b and csr_out.csr_sel_result;
+                        not op_b and csr_sel_result;
                 when others =>
                     csr_in.csr_op_data <= op_b;
             end case;

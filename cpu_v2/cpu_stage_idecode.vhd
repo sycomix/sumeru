@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
+use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
 
 entity cpu_stage_idecode is
@@ -12,15 +13,20 @@ port(
     iexec_in:                   out iexec_channel_in_t;
     iexec_out:                  in iexec_channel_out_t;
     intr_in:                    out intr_channel_in_t;
-    intr_out:                   out intr_channel_out_t
+    intr_out:                   in intr_channel_out_t
     );
 end entity;
 
 
 architecture synth of cpu_stage_idecode is
     signal exec_valid:  std_logic := '0';
+    signal intr_trigger_save:   std_logic := '0';
+    signal intr_pending: std_logic := '0';
+    signal intr_pc_save: std_logic_vector(31 downto 0);
+    signal intr_reset_r: std_logic := '0';
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
+
 
     alias exec_busy:    std_logic is iexec_out.busy;
     alias fetch_valid:  std_logic is idecode_in.valid;
@@ -51,10 +57,11 @@ architecture synth of cpu_stage_idecode is
     end function;
 
 begin
-    idecode_out.busy <= exec_busy;
+    idecode_out.busy <= exec_busy or intr_pending;
     idecode_out.cxfer <= iexec_out.cxfer;
     idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
     iexec_in.valid <= exec_valid;
+    intr_in.intr_reset <= intr_reset_r;
 
     with inst_opcode select imm_wr_mux <=
         inst_imm_ui & "000000000000" when OP_TYPE_U_LUI,
@@ -69,8 +76,29 @@ begin
         if (rising_edge(clk)) then
             if (iexec_out.cxfer = '1') then
                 exec_valid <= '0';
+            elsif (intr_pending = '1') then
+                if (exec_busy = '0') then
+                    exec_valid <= '1';
+                    iexec_in.cmd <= CMD_ALU;
+                    iexec_in.cmd_op <= CMD_ALU_OP_ADD;
+                    iexec_in.cmd_use_reg <= '0';
+                    iexec_in.trigger_cxfer <= '1';
+                    iexec_in.imm <= 
+                        IVECTOR_RESET_ADDR & intr_out.intr_ivec_entry & "0000";
+                    iexec_in.rs1 <= (others => '0');
+                    iexec_in.rs2 <= (others => '0');
+                    iexec_in.rd <= (others => '0');
+                    intr_pc_save <= iexec_in.pc_p4;
+                    intr_pending <= '0';
+                else
+                    exec_valid <= '0';
+                end if;
             elsif (exec_busy = '0') then
                 exec_valid <= fetch_valid;
+                if (intr_out.intr_trigger /= intr_trigger_save) then
+                    intr_trigger_save <= not intr_trigger_save;
+                    intr_pending <= '1';
+                end if;
                 if (fetch_valid = '1') then
                     -- DO DECODE
                     iexec_in.rs1 <= inst_rs1;

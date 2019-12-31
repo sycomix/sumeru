@@ -8,7 +8,7 @@ entity csr_timer is
 port(
     clk:                        in std_logic;
     csr_in:                     in csr_channel_in_t;
-    csr_out:                    out csr_channel_out_t;
+    csr_sel_result:             inout std_logic_vector(31 downto 0);
     intr_trigger:               out std_logic
     );
 end entity;
@@ -22,6 +22,8 @@ architecture synth of csr_timer is
     alias timer_intr_enabled:   std_logic is timer_ctrl(1);
     alias timer_max_count:      std_logic_vector(27 downto 0) is timer_ctrl(31 downto 4);
 begin
+
+csr_sel_result <= result(31 downto 0);
 
 result <=
     "1" & timer_ctrl when csr_in.csr_sel_reg = x"110" else

@@ -8,7 +8,7 @@ entity csr_gpio is
 port(
     clk:                        in std_logic;
     csr_in:                     in csr_channel_in_t;
-    csr_out:                    out csr_channel_out_t;
+    csr_sel_result:             inout std_logic_vector(31 downto 0);
     gpio:                       inout std_logic_vector(31 downto 0)
     );
 end entity;
@@ -23,7 +23,7 @@ OUTPUTS: for I in 0 to 31 generate
     gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
 end generate OUTPUTS;
 
-csr_out.csr_sel_result <= result(31 downto 0);
+csr_sel_result <= result(31 downto 0);
 
 result <=
     "1" & reg_dir when csr_in.csr_sel_reg = x"100" else

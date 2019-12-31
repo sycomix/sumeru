@@ -66,9 +66,14 @@ architecture synth of cpu is
     signal iexec_out:           iexec_channel_out_t;
 
     signal csr_in:              csr_channel_in_t;
-    signal csr_out:             csr_channel_out_t;
+    signal csr_sel_result:      std_logic_vector(31 downto 0);
+
+    signal intr_in:             intr_channel_in_t;
+    signal intr_out:            intr_channel_out_t;
 
     signal gpio:                std_logic_vector(31 downto 0);
+
+    signal timer_intr_trigger:  std_logic;
 
 begin
 spi0_sck <= '0';
@@ -166,7 +171,9 @@ idecode: entity work.cpu_stage_idecode
         idecode_in => idecode_in,
         idecode_out => idecode_out,
         iexec_in => iexec_in,
-        iexec_out => iexec_out);
+        iexec_out => iexec_out,
+        intr_in => intr_in,
+        intr_out => intr_out);
 
 iexec: entity work.cpu_stage_iexec
     port map(
@@ -178,20 +185,29 @@ iexec: entity work.cpu_stage_iexec
         dcache_mc_out => mc1_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
-        csr_out => csr_out);
+        csr_sel_result => csr_sel_result);
 
 csr_gpio: entity work.csr_gpio
     port map(
         clk => clk,
         csr_in => csr_in,
-        csr_out => csr_out,
+        csr_sel_result => csr_sel_result,
         gpio => gpio);
 
 csr_timer: entity work.csr_timer
     port map(
         clk => clk,
         csr_in => csr_in,
-        csr_out => csr_out);
+        csr_sel_result => csr_sel_result,
+        intr_trigger => timer_intr_trigger
+        );
+
+intr_controller: entity work.intr_controller
+    port map(
+        clk => clk,
+        intr_in => intr_in,
+        intr_out => intr_out,
+        timer_intr_trigger => timer_intr_trigger);
 
 led <= gpio(0);
 
