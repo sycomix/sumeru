@@ -10,7 +10,9 @@ port(
     idecode_in:                 in idecode_channel_in_t;
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
-    iexec_out:                  in iexec_channel_out_t
+    iexec_out:                  in iexec_channel_out_t;
+    intr_in:                    out intr_channel_in_t;
+    intr_out:                   out intr_channel_out_t
     );
 end entity;
 
