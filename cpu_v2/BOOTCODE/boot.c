@@ -12,15 +12,22 @@ _start(void)
     set_gpio_dir(1);
     set_gpio_out(1);
 
-    x = -626222723;
-    y = 5921;
-    z = op_div(x, y);
+    x = 1 << 20;
+    y = op_mul(1024, 1024);
+    z = op_mul(y, 1024);
+    z = op_div(z, 1024);
 
-    if (z == -105763)
+    if (x == y && x == z)
         set_gpio_out(0);
 
     while (1)
         ;
+}
+
+int
+op_mul(int x, int y)
+{
+    return x * y;
 }
 
 int
