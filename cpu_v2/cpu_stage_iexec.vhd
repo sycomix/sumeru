@@ -298,7 +298,7 @@ begin
                                 cmd_result_mux <= CMD_STORE;
                                 busy_r <= '1';
                                 state <= DIV_WAIT;
-                                div_ctr <= "101";
+                                div_ctr <= "110";
                             end if;
                         when CMD_ALU | CMD_SHIFT | CMD_JALR =>
                             regfile_wren <= '1';
