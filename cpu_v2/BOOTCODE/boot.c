@@ -16,8 +16,9 @@ _start(void)
     y = op_mul(1024, 1024);
     z = op_mul(y, 1024);
     z = op_div(z, 1024);
+    z -= 1;
 
-    if (x == y && x == z)
+    if (x == y && (x - 1) == z)
         set_gpio_out(0);
 
     while (1)
