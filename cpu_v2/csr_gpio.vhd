@@ -16,7 +16,6 @@ end entity;
 architecture synth of csr_gpio is
     signal reg_output:          std_logic_vector(31 downto 0) := (others => '0');
     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
-    signal op_result:           std_logic_vector(31 downto 0);
     signal result:              std_logic_vector(32 downto 0);
 begin
 

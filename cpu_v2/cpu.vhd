@@ -187,6 +187,12 @@ csr_gpio: entity work.csr_gpio
         csr_out => csr_out,
         gpio => gpio);
 
+csr_timer: entity work.csr_timer
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_out => csr_out);
+
 led <= gpio(0);
 
 end architecture;
