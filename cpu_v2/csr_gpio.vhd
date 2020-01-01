@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
+use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
 
 entity csr_gpio is
@@ -29,7 +30,7 @@ result <=
     "1" & reg_dir when csr_in.csr_sel_reg = CSR_REG_GPIO_DIR else
     "1" & reg_output when csr_in.csr_sel_reg = CSR_REG_GPIO_OUTPUT else
     "0" & gpio when csr_in.csr_sel_reg = CSR_REG_GPIO_INPUT else
-    (others => 'Z');
+    "0ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 process(clk)
 begin

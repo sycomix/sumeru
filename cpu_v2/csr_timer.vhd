@@ -2,6 +2,7 @@ library work, ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.sumeru_constants.ALL;
 use work.cpu_types.all;
 
 entity csr_timer is
@@ -28,7 +29,7 @@ csr_sel_result <= result(31 downto 0);
 result <=
     "1" & timer_ctrl when csr_in.csr_sel_reg = CSR_REG_TIMER_CTRL else
     "0" & timer_value when csr_in.csr_sel_reg = CSR_REG_TIMER_VALUE else
-    (others => 'Z');
+    "0ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 intr_trigger <= intr_trigger_r;
 
