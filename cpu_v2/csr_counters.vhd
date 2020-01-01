@@ -1,7 +1,7 @@
 library ieee, lpm;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
-use lpm.lpm_components.ALL;
+use lpm.lpm_components.lpm_counter;
 
 use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
@@ -25,14 +25,15 @@ architecture synth of csr_counters is
     alias  sreg:                std_logic_vector(11 downto 0) is csr_in.csr_sel_reg;
 begin
 
-instret_counter: entity lpm.lpm_counter
+-- XXX CONNECT ACLR and reset counters on reset_n
+instret_counter: lpm_counter
     generic map(
         LPM_WIDTH => 64)
     port map(
         clock => clk_instret,
         q => ctr_instret);
 
-cycle_counter: entity lpm.lpm_counter
+cycle_counter: lpm_counter
     generic map(
         LPM_WIDTH => 64)
     port map(

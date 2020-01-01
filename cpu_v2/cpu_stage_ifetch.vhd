@@ -58,15 +58,19 @@ pc_p4 <= std_logic_vector(unsigned(pc) + 4);
 process(clk)
 begin
     if (rising_edge(clk)) then
-        if (idecode_out.busy = '0' and icache_hit = '1') then
             if (icache_flush_ack /= icache_flush) then
                 idecode_in.valid <= '0';
-            elsif (idecode_out.cxfer = '1' or cxfer_pending = '1') then
+                if (idecode_out.cxfer = '1') then
+                    cxfer_pending <= '1';
+                end if;
+            elsif ((idecode_out.cxfer = '1' or cxfer_pending = '1') and icache_hit = '1') then
+                -- We can only do cxfer when hit=1 because we don't want
+                -- to change the pc while a cache line is loading
                 cxfer_pending <= '0';
                 pc <= idecode_out.cxfer_pc;
                 idecode_in.valid <= '0';
-            else
-                clk_cycle <= not clk_cycle;
+            elsif (idecode_out.busy = '0' and icache_hit = '1') then
+                clk_cycle_r <= not clk_cycle_r;
                 pc <= pc_p4;
                 idecode_in.valid <= '1';
                 idecode_in.inst <= inst;
@@ -83,15 +87,14 @@ begin
                         end if;
                     when others =>
                 end case;
+            else
+                if (idecode_out.busy = '0' or idecode_out.cxfer = '1') then
+                    idecode_in.valid <= '0';
+                end if;
+                if (idecode_out.cxfer = '1') then
+                    cxfer_pending <= '1';
+                end if;
             end if;
-        else
-            if (idecode_out.busy = '0' or idecode_out.cxfer = '1') then
-                idecode_in.valid <= '0';
-            end if;
-            if (idecode_out.cxfer = '1') then
-                cxfer_pending <= '1';
-            end if;
-        end if;
     end if;
 end process;
 
