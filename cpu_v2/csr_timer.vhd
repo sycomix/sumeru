@@ -26,8 +26,8 @@ begin
 csr_sel_result <= result(31 downto 0);
 
 result <=
-    "1" & timer_ctrl when csr_in.csr_sel_reg = x"110" else
-    "0" & timer_value when csr_in.csr_sel_reg = x"112" else
+    "1" & timer_ctrl when csr_in.csr_sel_reg = CSR_REG_TIMER_CTRL else
+    "0" & timer_value when csr_in.csr_sel_reg = CSR_REG_TIMER_VALUE else
     (others => 'Z');
 
 intr_trigger <= intr_trigger_r;
