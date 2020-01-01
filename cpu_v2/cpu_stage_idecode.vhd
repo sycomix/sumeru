@@ -89,18 +89,24 @@ begin
                     iexec_in.rs1 <= (others => '0');
                     iexec_in.rs2 <= (others => '0');
                     iexec_in.rd <= (others => '0');
-                    ctx_pc_save <= iexec_in.pc_p4;
                     intr_pending <= '0';
                 else
                     exec_valid <= '0';
                 end if;
             elsif (exec_busy = '0') then
                 exec_valid <= fetch_valid;
-                if (intr_out.intr_trigger /= intr_trigger_save) then
-                    intr_trigger_save <= not intr_trigger_save;
-                    intr_pending <= '1';
-                end if;
                 if (fetch_valid = '1') then
+                    -- Check for "110" so that we don't switch during a 
+                    -- control transfer because we need to record the correct 
+                    -- ctx_pc_save
+                    if (intr_out.intr_trigger /= intr_trigger_save and
+                        inst_opcode(4 downto 2) /= "110")
+                    then
+                        intr_trigger_save <= not intr_trigger_save;
+                        intr_pending <= '1';
+                        ctx_pc_save <= iexec_in.pc_p4;
+                    end if;
+
                     -- DO DECODE
                     iexec_in.rs1 <= inst_rs1;
                     iexec_in.rs2 <= inst_rs2;
