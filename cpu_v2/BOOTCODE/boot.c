@@ -29,7 +29,7 @@ _start2(void)
 void
 set_timer(unsigned int x)
 {
-    asm volatile("csrrw x0, 0x110, %0;" : : "r"(x));
+    asm volatile("csrrw x0, 0x00A, %0;" : : "r"(x));
 }
 
 int
@@ -47,11 +47,11 @@ op_div(int x, int y)
 void
 set_gpio_dir(unsigned int x)
 {
-    asm volatile("csrrw x0, 0x100, %0;" : : "r"(x));
+    asm volatile("csrrw x0, 0x008, %0;" : : "r"(x));
 }
 
 void
 set_gpio_out(unsigned int x)
 {
-    asm volatile("csrrw x0, 0x103, %0;" : : "r"(x));
+    asm volatile("csrrw x0, 0x009, %0;" : : "r"(x));
 }
