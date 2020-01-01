@@ -13,7 +13,9 @@ port(
     iexec_in:                   out iexec_channel_in_t;
     iexec_out:                  in iexec_channel_out_t;
     intr_in:                    out intr_channel_in_t;
-    intr_out:                   in intr_channel_out_t
+    intr_out:                   in intr_channel_out_t;
+    ctx_pc_save:                out std_logic_vector(31 downto 0);
+    ctx_pc_switch:              out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -22,7 +24,6 @@ architecture synth of cpu_stage_idecode is
     signal exec_valid:  std_logic := '0';
     signal intr_trigger_save:   std_logic := '0';
     signal intr_pending: std_logic := '0';
-    signal intr_pc_save: std_logic_vector(31 downto 0);
     signal intr_reset_r: std_logic := '0';
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
@@ -88,7 +89,7 @@ begin
                     iexec_in.rs1 <= (others => '0');
                     iexec_in.rs2 <= (others => '0');
                     iexec_in.rd <= (others => '0');
-                    intr_pc_save <= iexec_in.pc_p4;
+                    ctx_pc_save <= iexec_in.pc_p4;
                     intr_pending <= '0';
                 else
                     exec_valid <= '0';

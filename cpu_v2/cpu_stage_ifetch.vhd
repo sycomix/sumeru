@@ -15,7 +15,8 @@ port(
     idecode_out:        in idecode_channel_out_t;
     icache_mc_in:       out mem_channel_in_t;
     icache_mc_out:      in mem_channel_out_t;
-    sdc_data_out:       in std_logic_vector(15 downto 0)
+    sdc_data_out:       in std_logic_vector(15 downto 0);
+    clk_cycle:          out std_logic
     );
 end entity;
 
@@ -28,8 +29,11 @@ architecture synth of cpu_stage_ifetch is
     signal jmp_pc:              std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
     signal cxfer_pending:       std_logic := '0';
+    signal clk_cycle_r:         std_logic := '0';
 
 begin
+    clk_cycle <= clk_cycle_r;
+
 icache: entity work.read_cache_256x4x32
     port map(
         clk => clk,
@@ -62,6 +66,7 @@ begin
                 pc <= idecode_out.cxfer_pc;
                 idecode_in.valid <= '0';
             else
+                clk_cycle <= not clk_cycle;
                 pc <= pc_p4;
                 idecode_in.valid <= '1';
                 idecode_in.inst <= inst;

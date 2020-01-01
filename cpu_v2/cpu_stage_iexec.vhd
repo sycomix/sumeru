@@ -15,7 +15,8 @@ port(
     dcache_mc_out:              in mem_channel_out_t;
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
-    csr_sel_result:             inout std_logic_vector(31 downto 0)
+    csr_sel_result:             inout std_logic_vector(31 downto 0);
+    clk_instret:                out std_logic
     );
 end entity;
 
@@ -69,6 +70,8 @@ architecture synth of cpu_stage_iexec is
     signal pc_p4:               std_logic_vector(31 downto 0);
     signal div_ctr:             std_logic_vector(2 downto 0);
 
+    signal clk_instret_r:       std_logic := '0';
+
     type state_t is (
         RUNNING,
         LS_1,
@@ -95,6 +98,8 @@ architecture synth of cpu_stage_iexec is
     end function;
 
 begin
+    clk_instret <= clk_instret_r;
+
     regfile_a: entity work.ram2p_simp_32x32
         port map(
             rdclock => clk_n,

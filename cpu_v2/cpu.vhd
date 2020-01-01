@@ -75,6 +75,12 @@ architecture synth of cpu is
 
     signal timer_intr_trigger:  std_logic;
 
+    signal clk_cycle:           std_logic;
+    signal clk_instret:         std_logic;
+
+    signal ctx_pc_save:         std_logic_vector(31 downto 0);
+    signal ctx_pc_switch:       std_logic_vector(31 downto 0);
+
 begin
 spi0_sck <= '0';
 spi0_ss <= '0';
@@ -85,7 +91,8 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => clk,
         c1 => clk_n,
-        locked => pll_locked);
+        locked => pll_locked
+        );
 
 sdram_controller: entity work.sdram_controller
     port map(
@@ -104,7 +111,8 @@ sdram_controller: entity work.sdram_controller
         sdram_clk => sdram_clk,
         sdram_we => sdram_we,
         sdram_cs => sdram_cs,
-        busy => sdc_busy);
+        busy => sdc_busy
+        );
         
 memory_arbitrator: entity work.memory_arbitrator
     port map(
@@ -151,7 +159,8 @@ bootcode_loader: entity work.memory_loader
 
         load_done => reset_n,
         mc_in => bc_mc_in,
-        mc_out => mc7_out);
+        mc_out => mc7_out
+        );
 
 ifetch: entity work.cpu_stage_ifetch
     port map(
@@ -162,7 +171,8 @@ ifetch: entity work.cpu_stage_ifetch
         idecode_out => idecode_out,
         icache_mc_in => mc0_in,
         icache_mc_out => mc0_out,
-        sdc_data_out => sdc_data_out
+        sdc_data_out => sdc_data_out,
+        clk_cycle => clk_cycle
         );
 
 idecode: entity work.cpu_stage_idecode
@@ -173,7 +183,10 @@ idecode: entity work.cpu_stage_idecode
         iexec_in => iexec_in,
         iexec_out => iexec_out,
         intr_in => intr_in,
-        intr_out => intr_out);
+        intr_out => intr_out,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
+        );
 
 iexec: entity work.cpu_stage_iexec
     port map(
@@ -185,14 +198,17 @@ iexec: entity work.cpu_stage_iexec
         dcache_mc_out => mc1_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
-        csr_sel_result => csr_sel_result);
+        csr_sel_result => csr_sel_result,
+        clk_instret => clk_instret
+        );
 
 csr_gpio: entity work.csr_gpio
     port map(
         clk => clk,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
-        gpio => gpio);
+        gpio => gpio
+        );
 
 csr_timer: entity work.csr_timer
     port map(
@@ -202,12 +218,24 @@ csr_timer: entity work.csr_timer
         intr_trigger => timer_intr_trigger
         );
 
+csr_counters: entity work.csr_counters
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        clk_cycle => clk_cycle,
+        clk_instret => clk_instret,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
+        );
+
 intr_controller: entity work.intr_controller
     port map(
         clk => clk,
         intr_in => intr_in,
         intr_out => intr_out,
-        timer_intr_trigger => timer_intr_trigger);
+        timer_intr_trigger => timer_intr_trigger
+        );
 
 led <= gpio(0);
 
