@@ -252,6 +252,7 @@ begin
                 end if;
             when RUNNING =>
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
+                    clk_instret <= not clk_instret;
                     alu_op <= iexec_in.cmd_op;
                     pc_p4 <= iexec_in.pc_p4;
 
