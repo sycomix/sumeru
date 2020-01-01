@@ -26,9 +26,9 @@ end generate OUTPUTS;
 csr_sel_result <= result(31 downto 0);
 
 result <=
-    "1" & reg_dir when csr_in.csr_sel_reg = x"100" else
-    "0" & gpio when csr_in.csr_sel_reg = x"102" else
-    "1" & reg_output when csr_in.csr_sel_reg = x"103" else
+    "1" & reg_dir when csr_in.csr_sel_reg = CSR_REG_GPIO_DIR else
+    "1" & reg_output when csr_in.csr_sel_reg = CSR_REG_GPIO_OUTPUT else
+    "0" & gpio when csr_in.csr_sel_reg = CSR_REG_GPIO_INPUT else
     (others => 'Z');
 
 process(clk)
