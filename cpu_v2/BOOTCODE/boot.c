@@ -10,7 +10,7 @@ _start(void)
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_timer(0x00000017);
+    set_timer(0x0000001F);
 
     while (1)
         ;

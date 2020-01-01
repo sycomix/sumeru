@@ -77,7 +77,7 @@ begin
             if (iexec_out.cxfer = '1') then
                 exec_valid <= '0';
             elsif (intr_pending = '1') then
-                if (exec_busy = '0') then
+                if (exec_busy = '0' and exec_valid = '0') then
                     exec_valid <= '1';
                     iexec_in.cmd <= CMD_ALU;
                     iexec_in.cmd_op <= CMD_ALU_OP_ADD;

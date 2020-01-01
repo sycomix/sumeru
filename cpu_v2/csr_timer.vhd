@@ -37,10 +37,11 @@ begin
     if (rising_edge(clk)) then
         timer_value <= std_logic_vector(unsigned(timer_value) + 1);
         if (result(32) = '1' and csr_in.csr_op_valid = '1') then
-            if (csr_in.csr_op_data(2)) then
+            if (csr_in.csr_op_data(2) = '1') then
                 timer_value <= (others => '0');
                 timer_ctrl <= csr_in.csr_op_data;
-            else
+            end if;
+            if (csr_in.csr_op_data(3) = '1') then
                 intr_trigger_r <= '0';
             end if;
         elsif (timer_enabled = '1') then
