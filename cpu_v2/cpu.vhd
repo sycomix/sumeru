@@ -68,7 +68,6 @@ architecture synth of cpu is
     signal csr_in:              csr_channel_in_t;
     signal csr_sel_result:      std_logic_vector(31 downto 0);
 
-    signal intr_in:             intr_channel_in_t;
     signal intr_out:            intr_channel_out_t;
 
     signal gpio:                std_logic_vector(31 downto 0);
@@ -182,7 +181,6 @@ idecode: entity work.cpu_stage_idecode
         idecode_out => idecode_out,
         iexec_in => iexec_in,
         iexec_out => iexec_out,
-        intr_in => intr_in,
         intr_out => intr_out,
         ctx_pc_save => ctx_pc_save,
         ctx_pc_switch => ctx_pc_switch
@@ -232,7 +230,6 @@ csr_counters: entity work.csr_counters
 intr_controller: entity work.intr_controller
     port map(
         clk => clk,
-        intr_in => intr_in,
         intr_out => intr_out,
         timer_intr_trigger => timer_intr_trigger
         );

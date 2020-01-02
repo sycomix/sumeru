@@ -8,7 +8,6 @@ use work.cpu_types.ALL;
 entity intr_controller is
 port(
     clk:                        in std_logic;
-    intr_in:                    in intr_channel_in_t;
     intr_out:                   out intr_channel_out_t;
     timer_intr_trigger:         in std_logic
     );
@@ -17,6 +16,7 @@ end entity;
 architecture synth of intr_controller is
     signal intr_frozen:                 std_logic := '0';
     signal intr_trigger_r:              std_logic := '0';
+    signal intr_reset:                  std_logic := '0';
 begin
 
 intr_out.intr_trigger <= intr_trigger_r;
@@ -25,7 +25,7 @@ process(clk)
 begin
     if (rising_edge(clk)) then
         if (intr_frozen = '1') then
-            if (intr_in.intr_reset = '1') then
+            if (intr_reset = '1') then
                 intr_frozen <= '0';
             end if;
         else

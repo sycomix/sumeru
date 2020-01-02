@@ -14,7 +14,7 @@ _start(void)
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_timer(0x0FFFFFFF);
+    set_timer(0x0000004F);
 
     while (1)
         ;
@@ -23,9 +23,13 @@ _start(void)
 void
 _start2(void)
 {
-    asm("lui sp, 1");
-    set_gpio_out(0);
-
+    asm volatile("csrrwi x0, 0x009, 0;");
+    asm volatile("              \
+        csrrsi x1,0xC82,0;      \
+        csrrw  x0,0x800,x1;     \
+        nop;                    \
+        nop;                    \
+        csrrwi x0,0x801,0;"); 
     while (1)
         ;
 }

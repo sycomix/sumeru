@@ -12,7 +12,6 @@ port(
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
     iexec_out:                  in iexec_channel_out_t;
-    intr_in:                    out intr_channel_in_t;
     intr_out:                   in intr_channel_out_t;
     ctx_pc_save:                out std_logic_vector(31 downto 0);
     ctx_pc_switch:              out std_logic_vector(31 downto 0)
@@ -25,6 +24,7 @@ architecture synth of cpu_stage_idecode is
     signal intr_trigger_save:   std_logic := '0';
     signal intr_pending: std_logic := '0';
     signal intr_reset_r: std_logic := '0';
+    signal intr_switch: std_logic := '0';
 
     signal imm_wr_mux:  std_logic_vector(31 downto 0);
 
@@ -58,11 +58,14 @@ architecture synth of cpu_stage_idecode is
     end function;
 
 begin
-    idecode_out.busy <= exec_busy or intr_pending;
+    -- XXX does this condition fix the intr and switch issue where we want
+    -- to be busy but also need the address of the next instruction
+    idecode_out.busy <= 
+        exec_busy or ((intr_pending or intr_switch) and fetch_valid)
+
     idecode_out.cxfer <= iexec_out.cxfer;
     idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
     iexec_in.valid <= exec_valid;
-    intr_in.intr_reset <= intr_reset_r;
 
     with inst_opcode select imm_wr_mux <=
         inst_imm_ui & "000000000000" when OP_TYPE_U_LUI,
@@ -77,7 +80,13 @@ begin
         if (rising_edge(clk)) then
             if (iexec_out.cxfer = '1') then
                 exec_valid <= '0';
-            elsif (intr_pending = '1') then
+                -- A switch is invalidated by cxfer as we don't want it
+                -- to trigger after the cxfer
+                intr_switch <= '0';
+            elsif (intr_pending = '1' or intr_switch = '1') then
+                -- XXX FIXME DEDLOCK HERE because we are checking fetch_valid
+                -- and setting busy (intr_pending) therefore fetch will not
+                -- output a valid instruction???
                 if (exec_busy = '0' and exec_valid = '0' and fetch_valid = '1') then
                     -- We need fetch_valid because we need to record the next
                     -- pc from where execution will/may continue
@@ -92,13 +101,23 @@ begin
                     iexec_in.cmd_op <= CMD_ALU_OP_ADD;
                     iexec_in.cmd_use_reg <= '0';
                     iexec_in.trigger_cxfer <= '1';
-                    iexec_in.imm <= 
-                        IVECTOR_RESET_ADDR & intr_out.intr_ivec_entry & "0000";
                     iexec_in.rs1 <= (others => '0');
                     iexec_in.rs2 <= (others => '0');
                     iexec_in.rd <= (others => '0');
-                    ctx_pc_save <= idecode_in.pc;
-                    intr_pending <= '0';
+                    -- XXX What to do if intr_pending and intr_switch occur
+                    -- simultaneously??? 
+                    -- The strategy below gives prcedence to switch over
+                    -- intr with the reasoning the intr will be correctly 
+                    -- processed after the switch has take place -- pls. verify
+                    if (intr_switch = '1') then
+                        intr_switch <= '0';
+                        iexec_in.imm <= ctx_pc_switch;
+                    else
+                        iexec_in.imm <= 
+                            IVECTOR_RESET_ADDR & intr_out.intr_ivec_entry & "0000";
+                        ctx_pc_save <= idecode_in.pc;
+                        intr_pending <= '0';
+                    end if;
                 else
                     exec_valid <= '0';
                 end if;
@@ -176,12 +195,19 @@ begin
                                 end if;
                             end case;
                         when OP_TYPE_CSR =>
-                            iexec_in.csr_reg <= inst(31 downto 20);
-                            iexec_in.imm <= ext(inst(19 downto 15), 32);
-                            iexec_in.rs2 <= inst_rs1;
-                            iexec_in.cmd_use_reg <= not inst_funct3(2);
-                            iexec_in.cmd <= CMD_CSR;
-                            iexec_in.cmd_op <= "0" & inst_funct3;
+                            -- XXX What happens if a simulatenous intr_pending
+                            -- occurs??
+                            if (inst(31 downto 20) = CSR_REG_SWITCH) then
+                                exec_valid <= '0';
+                                intr_switch <= '1';
+                            else
+                                iexec_in.csr_reg <= inst(31 downto 20);
+                                iexec_in.imm <= ext(inst(19 downto 15), 32);
+                                iexec_in.rs2 <= inst_rs1;
+                                iexec_in.cmd_use_reg <= not inst_funct3(2);
+                                iexec_in.cmd <= CMD_CSR;
+                                iexec_in.cmd_op <= "0" & inst_funct3;
+                            end if;
                         when others =>
                             -- XXX TODO Raise exception
                             exec_valid <= '0';

@@ -251,6 +251,8 @@ begin
                     busy_r <= '1';
                 end if;
             when RUNNING =>
+                -- iexec_out.cxfer=0 skips the cycle after a cxfer to
+                -- allow any outstanding iexec_in data to become invalid
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     clk_instret_r <= not clk_instret_r;
                     alu_op <= iexec_in.cmd_op;

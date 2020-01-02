@@ -23,5 +23,6 @@ constant CSR_REG_CTR_INSTRET_H: std_logic_vector(11 downto 0):= "1100" & "1000" 
 constant CSR_REG_CTX_PCSAVE:     std_logic_vector(11 downto 0) := "1100" & "1000" & "0010";
 
 constant CSR_REG_CTX_PCSWITCH:   std_logic_vector(11 downto 0) := "1000" & "0000" & "0000";
+constant CSR_REG_SWITCH:         std_logic_vector(11 downto 0) := "1000" & "0000" & "0001";
 
 end package;
