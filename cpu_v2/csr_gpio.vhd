@@ -18,6 +18,7 @@ architecture synth of csr_gpio is
     signal reg_output:          std_logic_vector(31 downto 0) := (others => '0');
     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
     signal result:              std_logic_vector(32 downto 0);
+    signal sel:                 std_logic := '0';
 begin
 
 OUTPUTS: for I in 0 to 31 generate
@@ -35,7 +36,8 @@ result <=
 process(clk)
 begin
     if (rising_edge(clk)) then
-        if (result(32) = '1' and csr_in.csr_op_valid = '1') then
+        sel <= result(32);
+        if (sel = '1' and csr_in.csr_op_valid = '1') then
             if (csr_in.csr_op_reg(0) = '0') then
                 reg_dir <= csr_in.csr_op_data;
             else

@@ -61,7 +61,7 @@ begin
     -- XXX does this condition fix the intr and switch issue where we want
     -- to be busy but also need the address of the next instruction
     idecode_out.busy <= 
-        exec_busy or ((intr_pending or intr_switch) and fetch_valid)
+        exec_busy or ((intr_pending or intr_switch) and fetch_valid);
 
     idecode_out.cxfer <= iexec_out.cxfer;
     idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
