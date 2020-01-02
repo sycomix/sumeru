@@ -19,6 +19,7 @@ port(
 end entity;
 
 architecture synth of csr_counters is
+    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
     signal result:              std_logic_vector(32 downto 0);
     signal ctr_instret:         std_logic_vector(63 downto 0);
     signal ctr_cycle:           std_logic_vector(63 downto 0);
@@ -27,6 +28,7 @@ architecture synth of csr_counters is
 begin
 
 csr_sel_result <= result(31 downto 0);
+ctx_pc_switch <= ctx_pc_switch_r;
 
 -- XXX CONNECT ACLR and reset counters on reset_n
 instret_counter: lpm_counter
@@ -57,7 +59,7 @@ begin
     if (rising_edge(clk)) then
         sel <= result(32);
         if (sel = '1' and csr_in.csr_op_valid = '1') then
-            ctx_pc_switch <= csr_in.csr_op_data;
+            ctx_pc_switch_r <= csr_in.csr_op_data;
         end if;
     end if;
 end process;
