@@ -41,6 +41,9 @@ package cpu_types is
     constant META_CMD_CLFLUSH:  std_logic_vector(3 downto 0) := "1001";
     constant META_CMD_EXCEPTION: std_logic_vector(3 downto 0) := "1111";
 
+    -- INSTRUCTIONS
+    constant INST_ADDI_Z_IMM:   std_logic_vector(31 downto 0) := x"00000013";
+
     -- COMMANDS
     constant CMD_ALU:           std_logic_vector(2 downto 0) := "000";
     constant CMD_SHIFT:         std_logic_vector(2 downto 0) := "001";

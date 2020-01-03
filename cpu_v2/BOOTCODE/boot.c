@@ -29,6 +29,7 @@ _start2(void)
         csrrw  x0,0x800,x1;     \
         nop;                    \
         nop;                    \
+        nop;                    \
         csrrwi x0,0x801,0;"); 
     while (1)
         ;
