@@ -26,7 +26,8 @@ signal inst_r:      std_logic_vector(31 downto 0);
 signal exec_valid:  std_logic := '0';
 signal intr_trigger_save:   std_logic := '0';
 signal intr_pending: std_logic := '0';
-signal intr_switch: std_logic;
+signal intr_pending_mux: std_logic := '0';
+signal intr_switch: std_logic := '0';
 
 alias exec_busy:    std_logic is iexec_out.busy;
 alias fetch_valid:  std_logic is idecode_in.valid;
@@ -69,39 +70,34 @@ iexec_in.pc_p4 <= std_logic_vector(unsigned(pc) + 4);
 iexec_in.csr_reg <= inst(31 downto 20);
 iexec_in.rd <= "00" & inst_funct3 when inst_opcode = OP_TYPE_S else inst_rd;
 
-process(inst_opcode)
+process(all)
 begin
-    if (inst_opcode'event) then
         case inst_opcode is 
             when OP_TYPE_L =>
                 iexec_in.rs2 <= "00" & inst_funct3;
-            when OP_TYPE_S =>
+            when OP_TYPE_CSR =>
                 iexec_in.rs2 <= inst_rs1;
             when others =>
                 iexec_in.rs2 <= inst_rs2;
         end case;
-    end if;
 end process;
 
-process(inst_opcode)
+process(all)
 begin
-    if (inst_opcode'event) then
         case inst_opcode is 
             when OP_TYPE_JAL | OP_TYPE_U_LUI | OP_TYPE_U_AUIPC =>
                 iexec_in.rs1 <= (others => '0');
             when others =>
                 iexec_in.rs1 <= inst_rs1;
         end case;
-    end if;
 end process;
 
 
 
 
-process(inst_opcode)
+process(all)
     variable add_ext: std_logic_vector(1 downto 0);
 begin
-    if (inst_opcode'event) then
         case inst_opcode is 
             when OP_TYPE_B =>
                 iexec_in.cmd <= CMD_BRANCH;
@@ -122,7 +118,11 @@ begin
             when OP_TYPE_S =>
                 iexec_in.cmd <= CMD_STORE;
                 iexec_in.cmd_op <= CMD_ALU_OP_ADD;
-                iexec_in.cmd_use_reg <= '1';
+                iexec_in.cmd_use_reg <= '0';
+            when OP_TYPE_CSR =>
+                iexec_in.cmd <= CMD_CSR;
+                iexec_in.cmd_op <= "0" & inst_funct3;
+                iexec_in.cmd_use_reg <= not inst_funct3(2);
             when others =>      -- OP_TYPE_R | OP_TYPE_I
                 iexec_in.cmd_use_reg <= inst_opcode(3);
                 if (inst_funct3(1 downto 0) = "01") then
@@ -150,14 +150,13 @@ begin
                     iexec_in.cmd_op <= "0" & inst_funct3;
                 end if;
         end case;
-    end if;
 end process;
 
 
-process(inst_opcode)
+process(all)
 begin
-    if (inst_opcode'event) then
-        if (intr_pending = '1') then
+        if (intr_pending_mux = '1') then
+            -- Priority to intr_switch is required
             if (intr_switch = '1') then
                 iexec_in.imm <= ctx_pc_switch;
             else
@@ -174,11 +173,11 @@ begin
                 when OP_TYPE_JAL  =>
                     iexec_in.imm <= std_logic_vector(unsigned(pc) + 4);
                 when OP_TYPE_U_LUI =>
+                    iexec_in.imm <= inst_imm_ui & "000000000000";
+                when OP_TYPE_U_AUIPC =>
                     iexec_in.imm <= 
                         std_logic_vector(unsigned(pc) + 
                         unsigned(inst_imm_ui & "000000000000"));
-                when OP_TYPE_U_AUIPC =>
-                    iexec_in.imm <= inst_imm_ui & "000000000000";
                 when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
                     iexec_in.imm <= sxt(inst_imm_i, 32);
                 when OP_TYPE_S =>
@@ -187,63 +186,69 @@ begin
                     iexec_in.imm <= ext(inst(19 downto 15), 32);
             end case;
         end if;
-    end if;
 end process;
 
 
 process(clk)
 begin
     if (rising_edge(clk)) then
+        intr_pending_mux <= '0';
         if (iexec_out.cxfer = '1') then
             exec_valid <= '0';
             -- A switch is invalidated by cxfer as we don't want it
             -- to trigger after the cxfer
-            intr_switch <= '0';
-            iexec_in.trigger_cxfer <= '0';
-        elsif (intr_pending = '1') then
-            if (exec_busy = '0' and exec_valid = '0' and fetch_valid = '1') then
-                -- We need fetch_valid because we need to record the next
-                -- pc from where execution will/may continue
-                -- exec_valid = 0 causes us to wait for a cycle if the
-                -- previous cycle issued an instruction. Thereby ensuring
-                -- iexec is free or busy with no instructions pending.
-                -- exec_valid=0 should also insure if the dispatched instr
-                -- was JALR or BRANCH we get to see the resultant 
-                -- iexec_out.cxfer before processing intr_pending.
-                exec_valid <= '1';
-                iexec_in.trigger_cxfer <= '1';
-                pc_r <= (others => '0');
-                inst_r <= INST_ADDI_Z_IMM;
-                ctx_pc_save <= idecode_in.pc;
+            if (intr_pending = '1' and intr_switch = '1') then
                 intr_pending <= '0';
+            end if;
+        elsif (intr_pending = '1') then
+            if (exec_busy = '0') then
+                if (exec_valid = '0' and fetch_valid = '1') then
+                    -- We need fetch_valid because we need to record the next
+                    -- pc from where execution will/may continue
+                    -- exec_valid = 0 causes us to wait for a cycle if the
+                    -- previous cycle issued an instruction. Thereby ensuring
+                    -- iexec is free or busy with no instructions pending.
+                    -- exec_valid=0 should also insure if the dispatched instr
+                    -- was JALR or BRANCH we get to see the resultant 
+                    -- iexec_out.cxfer before processing intr_pending.
+                    exec_valid <= '1';
+                    iexec_in.trigger_cxfer <= '1';
+                    pc_r <= (others => '0');
+                    inst_r <= INST_ADDI_Z_IMM;
+                    ctx_pc_save <= idecode_in.pc;
+                    intr_pending <= '0';
+                    intr_pending_mux <= '1';
+                else
+                    exec_valid <= '0';
+                end if;
+            end if;
+        elsif (exec_busy = '0') then
+            if (fetch_valid = '1') then
+                pc_r <= idecode_in.pc;
+                inst_r <= idecode_in.inst;
+
+                case idecode_in.inst(6 downto 2) is
+                    when OP_TYPE_JALR | OP_TYPE_B =>
+                        iexec_in.trigger_cxfer <= '1';
+                    when others =>
+                        iexec_in.trigger_cxfer <= '0';
+                end case;
+
+                if (idecode_in.inst(31 downto 20) = CSR_REG_SWITCH) then
+                    exec_valid <= '0';
+                    intr_switch <= '1';
+                    intr_pending <= '1';
+                elsif (intr_out.intr_trigger /= intr_trigger_save) then
+                    exec_valid <= '1';
+                    intr_trigger_save <= not intr_trigger_save;
+                    intr_switch <= '0';
+                    intr_pending <= '1';
+                else
+                    exec_valid <= '1';
+                end if;
             else
                 exec_valid <= '0';
-                iexec_in.trigger_cxfer <= '0';
             end if;
-        elsif (fetch_valid = '1' and exec_busy = '0') then
-            exec_valid <= '1';
-            pc_r <= idecode_in.pc;
-            inst_r <= idecode_in.inst;
-
-            if (idecode_in.inst(6 downto 2) = OP_TYPE_JALR or
-                idecode_in.inst(6 downto 2) = OP_TYPE_B) 
-            then
-                iexec_in.trigger_cxfer <= '1';
-            else
-                iexec_in.trigger_cxfer <= '0';
-            end if;
-
-            if (idecode_in.inst(31 downto 20) = CSR_REG_SWITCH) then
-                exec_valid <= '0';
-                intr_switch <= '1';
-                intr_pending <= '1';
-            elsif (intr_out.intr_trigger /= intr_trigger_save) then
-                intr_trigger_save <= not intr_trigger_save;
-                intr_switch <= '0';
-                intr_pending <= '1';
-            end if;
-        else
-            iexec_in.trigger_cxfer <= '0';
         end if;
     end if;
 end process;
