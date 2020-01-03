@@ -101,7 +101,7 @@ package cpu_types is
 
     type intr_channel_out_t is record
         intr_trigger:           std_logic;
-        intr_ivec_entry:        std_logic_vector(3 downto 0);
+        intr_ivec_entry:        std_logic_vector(31 downto 0);
     end record;
 
 end package;

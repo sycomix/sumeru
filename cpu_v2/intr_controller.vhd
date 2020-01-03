@@ -32,7 +32,8 @@ begin
             if (timer_intr_trigger = '1') then
                 intr_frozen <= '1';
                 intr_trigger_r <= not intr_trigger_r;
-                intr_out.intr_ivec_entry <= IVECTOR_ENTRY_TIMER;
+                intr_out.intr_ivec_entry <=
+                    IVECTOR_RESET_ADDR & IVECTOR_ENTRY_TIMER & "0000";
             end if;
         end if;
     end if;

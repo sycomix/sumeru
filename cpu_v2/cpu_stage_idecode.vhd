@@ -160,8 +160,7 @@ begin
             if (intr_switch = '1') then
                 iexec_in.imm <= ctx_pc_switch;
             else
-                iexec_in.imm <= 
-                    IVECTOR_RESET_ADDR & intr_out.intr_ivec_entry & "0000";
+                iexec_in.imm <= intr_out.intr_ivec_entry;
             end if;
         else
             case inst_opcode is 
@@ -228,7 +227,7 @@ begin
                 inst_r <= idecode_in.inst;
 
                 case idecode_in.inst(6 downto 2) is
-                    when OP_TYPE_JALR | OP_TYPE_B =>
+                    when OP_TYPE_JALR  =>
                         iexec_in.trigger_cxfer <= '1';
                     when others =>
                         iexec_in.trigger_cxfer <= '0';

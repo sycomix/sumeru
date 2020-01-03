@@ -11,12 +11,17 @@ int     op_div(int x, int y);
 void
 _start(void)
 {
+    int i;
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
     set_timer(0x0000004F);
 
-    while (1)
+    i = 0;
+    while (i++ < 0x7ffffff)
+        ;
+    asm volatile("csrrwi x0, 0x009, 1;");
+    while(1)
         ;
 }
 
