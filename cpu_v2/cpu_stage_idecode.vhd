@@ -99,6 +99,7 @@ end process;
 
 
 process(inst_opcode)
+    variable add_ext: std_logic_vector(1 downto 0);
 begin
     if (inst_opcode'event) then
         case inst_opcode is 
@@ -123,9 +124,31 @@ begin
                 iexec_in.cmd_op <= CMD_ALU_OP_ADD;
                 iexec_in.cmd_use_reg <= '1';
             when others =>      -- OP_TYPE_R | OP_TYPE_I
-                iexec_in.cmd <= CMD_ALU;
-                iexec_in.cmd_op <= "0" & inst_funct3;
                 iexec_in.cmd_use_reg <= inst_opcode(3);
+                if (inst_funct3(1 downto 0) = "01") then
+                    iexec_in.cmd <= CMD_SHIFT;
+                    iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
+                elsif (inst_opcode(3) = '1') then
+                    add_ext := inst(30) & inst(25);
+                    case add_ext is
+                        when "10" =>
+                            -- XXX funct3 = 000 check in not
+                            -- needed for spec 2.2 as besides
+                            -- sub there are no other register
+                            -- ALU ops that set bit 30
+                            iexec_in.cmd <= CMD_ALU;
+                            iexec_in.cmd_op <= CMD_ALU_OP_SUB;
+                        when "01" =>
+                            iexec_in.cmd <= CMD_MULDIV;
+                            iexec_in.cmd_op <= "0" & inst_funct3;
+                        when others =>
+                            iexec_in.cmd <= CMD_ALU;
+                            iexec_in.cmd_op <= "0" & inst_funct3;
+                    end case;
+                else
+                    iexec_in.cmd <= CMD_ALU;
+                    iexec_in.cmd_op <= "0" & inst_funct3;
+                end if;
         end case;
     end if;
 end process;
@@ -134,27 +157,36 @@ end process;
 process(inst_opcode)
 begin
     if (inst_opcode'event) then
-        case inst_opcode is 
-            when OP_TYPE_B =>
-                iexec_in.imm <= std_logic_vector(
-                                    signed(pc) + signed(inst(31) & inst(7) & 
-                                    inst(30 downto 25) & 
-                                    inst(11 downto 8) & "0"));
-            when OP_TYPE_JAL  =>
-                iexec_in.imm <= std_logic_vector(unsigned(pc) + 4);
-            when OP_TYPE_U_LUI =>
+        if (intr_pending = '1') then
+            if (intr_switch = '1') then
+                iexec_in.imm <= ctx_pc_switch;
+            else
                 iexec_in.imm <= 
-                    std_logic_vector(unsigned(pc) + 
-                    unsigned(inst_imm_ui & "000000000000"));
-            when OP_TYPE_U_AUIPC =>
-                iexec_in.imm <= inst_imm_ui & "000000000000";
-            when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
-                iexec_in.imm <= sxt(inst_imm_i, 32);
-            when OP_TYPE_S =>
-                iexec_in.imm <= sxt(inst(31 downto 25) & inst(11 downto 7), 32);
-            when others =>             -- OP_TYPE_CSR and others
-                iexec_in.imm <= ext(inst(19 downto 15), 32);
-        end case;
+                    IVECTOR_RESET_ADDR & intr_out.intr_ivec_entry & "0000";
+            end if;
+        else
+            case inst_opcode is 
+                when OP_TYPE_B =>
+                    iexec_in.imm <= std_logic_vector(
+                                        signed(pc) + signed(inst(31) & inst(7) & 
+                                        inst(30 downto 25) & 
+                                        inst(11 downto 8) & "0"));
+                when OP_TYPE_JAL  =>
+                    iexec_in.imm <= std_logic_vector(unsigned(pc) + 4);
+                when OP_TYPE_U_LUI =>
+                    iexec_in.imm <= 
+                        std_logic_vector(unsigned(pc) + 
+                        unsigned(inst_imm_ui & "000000000000"));
+                when OP_TYPE_U_AUIPC =>
+                    iexec_in.imm <= inst_imm_ui & "000000000000";
+                when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
+                    iexec_in.imm <= sxt(inst_imm_i, 32);
+                when OP_TYPE_S =>
+                    iexec_in.imm <= sxt(inst(31 downto 25) & inst(11 downto 7), 32);
+                when others =>             -- OP_TYPE_CSR and others
+                    iexec_in.imm <= ext(inst(19 downto 15), 32);
+            end case;
+        end if;
     end if;
 end process;
 
