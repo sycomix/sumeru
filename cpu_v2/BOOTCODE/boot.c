@@ -18,11 +18,13 @@ _start(void)
     set_timer(0x0000004F);
 
     i = 0;
-    while (i++ < 0x7f)
+    while (i++ < 0x7ffffff)
         ;
     asm volatile("csrrwi x0, 0x009, 1;");
-    while(1)
-        ;
+    while(1) {
+        asm volatile("csrrwi x0, 0x009, 1;");
+        asm volatile("csrrwi x0, 0x009, 0;");
+    }
 }
 
 void
@@ -32,6 +34,7 @@ _start2(void)
     asm volatile("              \
         csrrsi a0,0xC82,0;      \
         csrrw  x0,0x800,a0;     \
+        nop;                    \
         nop;                    \
         nop;                    \
         nop;                    \
