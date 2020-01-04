@@ -20,14 +20,10 @@ end entity;
 
 architecture synth of csr_counters is
     signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
-    signal result:              std_logic_vector(32 downto 0);
     signal ctr_instret:         std_logic_vector(63 downto 0);
     signal ctr_cycle:           std_logic_vector(63 downto 0);
-    alias  sreg:                std_logic_vector(11 downto 0) is csr_in.csr_sel_reg;
-    signal sel:                 std_logic := '0';
 begin
 
-csr_sel_result <= result(31 downto 0);
 ctx_pc_switch <= ctx_pc_switch_r;
 
 -- XXX CONNECT ACLR and reset counters on reset_n
@@ -45,20 +41,17 @@ cycle_counter: lpm_counter
         clock => clk_cycle,
         q => ctr_cycle);
 
-result <=
-    "0" & ctr_cycle(31 downto 0)  when sreg = CSR_REG_CTR_CYCLE else 
-    "0" & ctr_cycle(63 downto 32) when sreg = CSR_REG_CTR_CYCLE_H else 
-    "0" & ctr_instret(31 downto 0)  when sreg = CSR_REG_CTR_INSTRET else 
-    "0" & ctr_instret(63 downto 32) when sreg = CSR_REG_CTR_INSTRET_H else 
-    "0" & ctx_pc_save   when sreg = CSR_REG_CTX_PCSAVE else
-    "1" & ctx_pc_switch when sreg = CSR_REG_CTX_PCSWITCH else
-    "0ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+csr_sel_result <=
+    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
+    ctx_pc_switch when csr_in.csr_sel_reg = CSR_REG_CTX_PCSWITCH else
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 process(clk)
 begin
     if (rising_edge(clk)) then
-        sel <= result(32);
-        if (sel = '1' and csr_in.csr_op_valid = '1') then
+        if (csr_in.csr_op_valid = '1' and 
+            csr_in.csr_op_reg = CSR_REG_CTX_PCSWITCH) 
+        then
             ctx_pc_switch_r <= csr_in.csr_op_data;
         end if;
     end if;
