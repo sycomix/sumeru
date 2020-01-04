@@ -155,14 +155,6 @@ end process;
 
 process(all)
 begin
-        if (intr_pending_mux = '1') then
-            -- Priority to intr_switch is required
-            if (intr_switch = '1') then
-                iexec_in.imm <= ctx_pc_switch;
-            else
-                iexec_in.imm <= intr_out.intr_ivec_entry;
-            end if;
-        else
             case inst_opcode is 
                 when OP_TYPE_B =>
                     iexec_in.imm <= std_logic_vector(
@@ -177,14 +169,24 @@ begin
                     iexec_in.imm <= 
                         std_logic_vector(unsigned(pc) + 
                         unsigned(inst_imm_ui & "000000000000"));
-                when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
+                when  OP_TYPE_I =>
+                    if (intr_pending_mux = '1') then
+                        -- Priority to intr_switch is required
+                        if (intr_switch = '1') then
+                            iexec_in.imm <= ctx_pc_switch;
+                        else
+                            iexec_in.imm <= intr_out.intr_ivec_entry;
+                        end if;
+                    else
+                        iexec_in.imm <= sxt(inst_imm_i, 32);
+                    end if;
+                when OP_TYPE_R | OP_TYPE_JALR | OP_TYPE_L =>
                     iexec_in.imm <= sxt(inst_imm_i, 32);
                 when OP_TYPE_S =>
                     iexec_in.imm <= sxt(inst(31 downto 25) & inst(11 downto 7), 32);
                 when others =>             -- OP_TYPE_CSR and others
                     iexec_in.imm <= ext(inst(19 downto 15), 32);
             end case;
-        end if;
 end process;
 
 
