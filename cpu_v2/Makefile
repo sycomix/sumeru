@@ -135,7 +135,6 @@ prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
 #BC_FILE=BOOTCODE/BOOTCODE
-#fails: fence.i
 BC_FILE=../sw/riscv-tests/isa/rv32ui-p-fence_i
 
 disa:
