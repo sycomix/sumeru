@@ -140,10 +140,10 @@ disa:
 
 BOOTCODE.hex:
 	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
-	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/rv32ui-p-add
-	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/rv32ui-p-add BOOTCODE/rv32ui-p-add.bin
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/rv32ui-p-add
-	../tools/genbootcode < BOOTCODE/rv32ui-p-add.bin > BOOTCODE/BOOTCODE.hex
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
+	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
+	../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
 
 #compile_bootcode:
 #	(cd CPU-BOOTCODE; make)
