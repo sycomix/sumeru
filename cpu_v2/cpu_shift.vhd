@@ -22,6 +22,7 @@ architecture synth of cpu_shift is
     signal shiftll_stage1_result_b: std_logic_vector(15 downto 0);
     signal shiftll_result: std_logic_vector(31 downto 0);
     signal shiftrx_result: std_logic_vector(31 downto 0);
+    signal shiftrx_bit: std_logic;
 
     pure function sxt(
                     x:          std_logic_vector;
@@ -47,25 +48,27 @@ begin
             when shift_amt(0) = '0' else
         shiftll_stage1_result_b(14 downto 0) & shiftll_stage1_result_a & '0';
 
+    shiftrx_bit <= shift_bit and shift_data(31);
+
     shiftrx_result <= 
         shiftrx_stage1_result_b & shiftrx_stage1_result_a 
             when shift_amt(0) = '0' else
-        shift_bit & shiftrx_stage1_result_b & shiftrx_stage1_result_a(15 downto 1);
+        shiftrx_bit & shiftrx_stage1_result_b & shiftrx_stage1_result_a(15 downto 1);
 
     with to_bitvector(shift_amt(4 downto 1)) select
         shiftrx_stage1_result_b <= 
             shift_data(31 downto 16) when "0000",
-            sxt(shift_bit & shift_data(31 downto 18), 16) when "0001",
-            sxt(shift_bit & shift_data(31 downto 20), 16) when "0010",
-            sxt(shift_bit & shift_data(31 downto 22), 16) when "0011",
-            sxt(shift_bit & shift_data(31 downto 24), 16) when "0100",
-            sxt(shift_bit & shift_data(31 downto 26), 16) when "0101",
-            sxt(shift_bit & shift_data(31 downto 28), 16) when "0110",
-            sxt(shift_bit & shift_data(31 downto 30), 16) when "0111",
-            (shift_bit & shift_bit & shift_bit & shift_bit &
-                shift_bit & shift_bit & shift_bit & shift_bit &
-                shift_bit & shift_bit & shift_bit & shift_bit &
-                shift_bit & shift_bit & shift_bit & shift_bit) when others;
+            sxt(shiftrx_bit & shift_data(31 downto 18), 16) when "0001",
+            sxt(shiftrx_bit & shift_data(31 downto 20), 16) when "0010",
+            sxt(shiftrx_bit & shift_data(31 downto 22), 16) when "0011",
+            sxt(shiftrx_bit & shift_data(31 downto 24), 16) when "0100",
+            sxt(shiftrx_bit & shift_data(31 downto 26), 16) when "0101",
+            sxt(shiftrx_bit & shift_data(31 downto 28), 16) when "0110",
+            sxt(shiftrx_bit & shift_data(31 downto 30), 16) when "0111",
+            (shiftrx_bit & shiftrx_bit & shiftrx_bit & shiftrx_bit &
+                shiftrx_bit & shiftrx_bit & shiftrx_bit & shiftrx_bit &
+                shiftrx_bit & shiftrx_bit & shiftrx_bit & shiftrx_bit &
+                shiftrx_bit & shiftrx_bit & shiftrx_bit & shiftrx_bit) when others;
 
     with to_bitvector(shift_amt(4 downto 1)) select
         shiftrx_stage1_result_a <= 
@@ -78,13 +81,13 @@ begin
             shift_data(27 downto 12) when "0110",
             shift_data(29 downto 14) when "0111",
             shift_data(31 downto 16) when "1000",
-            sxt(shift_bit & shift_data(31 downto 18), 16) when "1001",
-            sxt(shift_bit & shift_data(31 downto 20), 16) when "1010",
-            sxt(shift_bit & shift_data(31 downto 22), 16) when "1011",
-            sxt(shift_bit & shift_data(31 downto 24), 16) when "1100",
-            sxt(shift_bit & shift_data(31 downto 26), 16) when "1101",
-            sxt(shift_bit & shift_data(31 downto 28), 16) when "1110",
-            sxt(shift_bit & shift_data(31 downto 30), 16) when "1111";
+            sxt(shiftrx_bit & shift_data(31 downto 18), 16) when "1001",
+            sxt(shiftrx_bit & shift_data(31 downto 20), 16) when "1010",
+            sxt(shiftrx_bit & shift_data(31 downto 22), 16) when "1011",
+            sxt(shiftrx_bit & shift_data(31 downto 24), 16) when "1100",
+            sxt(shiftrx_bit & shift_data(31 downto 26), 16) when "1101",
+            sxt(shiftrx_bit & shift_data(31 downto 28), 16) when "1110",
+            sxt(shiftrx_bit & shift_data(31 downto 30), 16) when "1111";
 
     with to_bitvector(shift_amt(4 downto 1)) select
         shiftll_stage1_result_b <= 
