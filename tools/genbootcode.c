@@ -7,7 +7,7 @@ main(int argc, char **argv)
     unsigned short addr, data, checksum, cb;
 
 
-    for (addr = 0; addr < 512; ++addr) {
+    for (addr = 0; addr < 1024; ++addr) {
         if (fread(&data, sizeof(data), 1, stdin) != 1)
             data = 0;
 

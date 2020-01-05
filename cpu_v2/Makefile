@@ -6,10 +6,11 @@ SRCS = sumeru_constants.vhd \
         sdram_controller_simlowdelay.vhd \
         pll.vhd \
         rom_512x16.vhd \
-        ram1p_256x32.o \
-        ram1p_256x16.o \
-        ram1p_256x36_byteena.o \
-        ram2p_simp_32x32.o \
+        rom_1024x16.vhd \
+        ram1p_256x32.vhd \
+        ram1p_256x16.vhd \
+        ram1p_256x36_byteena.vhd \
+        ram2p_simp_32x32.vhd \
         memory_arbitrator.vhd \
         memory_loader.vhd \
         readcache_256x4x32.vhd \
@@ -64,7 +65,7 @@ ${TOPLEVEL}.o: cpu_types.o \
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
-memory_loader.o: memory_channel_types.o rom_512x16.o
+memory_loader.o: memory_channel_types.o rom_1024x16.o
 readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
 cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o sumeru_constants.o
 cpu_stage_idecode.o: cpu_types.o sumeru_constants.o
@@ -81,6 +82,8 @@ intr_controller.o: sumeru_constants.o cpu_types.o
 
 
 #****************************************************************
+rom_1024x16.o: ${LIBSRC_DIR}/rom_1024x16.vhd
+	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
 
 rom_512x16.o: ${LIBSRC_DIR}/rom_512x16.vhd
 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
@@ -137,10 +140,10 @@ disa:
 
 BOOTCODE.hex:
 	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
-	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
-	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
-	../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/rv32ui-p-add
+	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/rv32ui-p-add BOOTCODE/rv32ui-p-add.bin
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/rv32ui-p-add
+	../tools/genbootcode < BOOTCODE/rv32ui-p-add.bin > BOOTCODE/BOOTCODE.hex
 
 #compile_bootcode:
 #	(cd CPU-BOOTCODE; make)

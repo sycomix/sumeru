@@ -16,7 +16,7 @@ port(
 end entity;
 
 architecture synth of memory_loader is
-    signal counter:             std_logic_vector(9 downto 0) := (others => '0');
+    signal counter:             std_logic_vector(10 downto 0) := (others => '0');
     signal rom_data:            std_logic_vector(15 downto 0);
     signal op_start:            std_logic := '0';
 
@@ -29,22 +29,20 @@ architecture synth of memory_loader is
 
 
 begin
-    load_done <= counter(9);
-    mc_in.op_addr <= "000000000000000" & counter(8 downto 0);
+    load_done <= counter(10);
+    mc_in.op_addr <= "00000000000000" & counter(9 downto 0);
     mc_in.op_start <= op_start;
     mc_in.op_wren <= '1';
     mc_in.op_burst <= '0';
     mc_in.op_dqm <= "00";
     mc_in.write_data <= rom_data;
 
-    rom: entity work.rom_512x16
+    rom: entity work.rom_1024x16
         generic map(
-            AWIDTH => 9,
-            DWIDTH => 16,
             DATA_FILE => DATA_FILE)
         port map(
             clock => clk,
-            address => counter(8 downto 0),
+            address => counter(9 downto 0),
             q => rom_data);
 
     process(clk)

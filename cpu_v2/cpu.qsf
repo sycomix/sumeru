@@ -34,6 +34,7 @@ set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
 
 set_global_assignment -name VHDL_FILE pll.vhd
 set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/rom_512x16.vhd
+set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/rom_1024x16.vhd
 set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x32.vhd
 set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x36_byteena.vhd
 set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x16.vhd

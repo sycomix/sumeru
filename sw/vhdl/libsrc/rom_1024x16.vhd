@@ -4,7 +4,7 @@ USE ieee.std_logic_1164.all;
 LIBRARY altera_mf;
 USE altera_mf.altera_mf_components.all;
 
-ENTITY rom_512x16 IS
+ENTITY rom_1024x16 IS
         GENERIC
         (
                 AWIDTH          : INTEGER := 10;
@@ -17,10 +17,10 @@ ENTITY rom_512x16 IS
 		clock		: IN STD_LOGIC  := '1';
 		q		: OUT STD_LOGIC_VECTOR ((DWIDTH - 1) DOWNTO 0)
 	);
-END rom_512x16;
+END rom_1024x16;
 
 
-ARCHITECTURE SYN OF rom_512x16 IS
+ARCHITECTURE SYN OF rom_1024x16 IS
 
 	SIGNAL sub_wire0	: STD_LOGIC_VECTOR (15 DOWNTO 0);
 
@@ -36,7 +36,7 @@ BEGIN
 		intended_device_family => "Cyclone IV E",
 		lpm_hint => "ENABLE_RUNTIME_MOD=NO",
 		lpm_type => "altsyncram",
-		numwords_a => 512,
+		numwords_a => 1024,
 		operation_mode => "ROM",
 		outdata_aclr_a => "NONE",
 		outdata_reg_a => "UNREGISTERED",
