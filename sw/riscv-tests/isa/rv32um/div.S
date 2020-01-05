@@ -25,9 +25,11 @@ RVTEST_CODE_BEGIN
   TEST_RR_OP( 6, div, -1<<31, -1<<31,  1 );
   TEST_RR_OP( 7, div, -1<<31, -1<<31, -1 );
 
+#if SAKE_DIVBY0_IS_NOTSUPPORTED
   TEST_RR_OP( 8, div, -1, -1<<31, 0 );
   TEST_RR_OP( 9, div, -1,      1, 0 );
   TEST_RR_OP(10, div, -1,      0, 0 );
+#endif
 
   TEST_PASSFAIL
 

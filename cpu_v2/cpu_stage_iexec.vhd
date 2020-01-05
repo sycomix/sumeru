@@ -68,7 +68,7 @@ architecture synth of cpu_stage_iexec is
     signal mul_result:          std_logic_vector(31 downto 0);
     signal div_result:          std_logic_vector(31 downto 0);
     signal pc_p4:               std_logic_vector(31 downto 0);
-    signal div_ctr:             std_logic_vector(2 downto 0);
+    signal div_ctr:             std_logic_vector(3 downto 0);
 
     signal clk_instret_r:       std_logic := '0';
 
@@ -226,7 +226,7 @@ begin
             csr_in.csr_sel_valid <= '0';
             case state is
             when DIV_WAIT =>
-                if (div_ctr = "000") then
+                if (div_ctr = "0000") then
                     state <= RUNNING;
                 else
                     busy_r <= '1';
@@ -306,7 +306,7 @@ begin
                                 cmd_result_mux <= CMD_STORE;
                                 busy_r <= '1';
                                 state <= DIV_WAIT;
-                                div_ctr <= "110";
+                                div_ctr <= "1111";
                             end if;
                         when CMD_ALU | CMD_SHIFT | CMD_JALR =>
                             regfile_wren <= '1';
