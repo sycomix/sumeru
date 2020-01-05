@@ -29,18 +29,6 @@ package cpu_types is
     constant FUNCT_OR:          std_logic_vector(2 downto 0) := "110";
     constant FUNCT_AND:         std_logic_vector(2 downto 0) := "111";
 
-    -- META COMMANDS
-    constant META_CMD_BASIC:    std_logic_vector(3 downto 0) := "0000";
-    constant META_CMD_LOAD:     std_logic_vector(3 downto 0) := "0001";
-    constant META_CMD_STORE:    std_logic_vector(3 downto 0) := "0010";
-    constant META_CMD_BRANCH:   std_logic_vector(3 downto 0) := "0011";
-    constant META_CMD_JALR:     std_logic_vector(3 downto 0) := "0100";
-    constant META_CMD_MISC:     std_logic_vector(3 downto 0) := "0101";
-    constant META_CMD_CSRXXX:   std_logic_vector(3 downto 0) := "0110";
-    constant META_CMD_MULDIV:   std_logic_vector(3 downto 0) := "1000";
-    constant META_CMD_CLFLUSH:  std_logic_vector(3 downto 0) := "1001";
-    constant META_CMD_EXCEPTION: std_logic_vector(3 downto 0) := "1111";
-
     -- INSTRUCTIONS
     constant INST_ADDI_Z_IMM:   std_logic_vector(31 downto 0) := x"00000013";
 

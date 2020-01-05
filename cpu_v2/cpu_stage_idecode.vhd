@@ -118,7 +118,7 @@ begin
                 iexec_in.cmd_use_reg <= not inst_funct3(2);
             when others =>      -- OP_TYPE_R | OP_TYPE_I
                 iexec_in.cmd_use_reg <= inst_opcode(3);
-                if (inst_funct3(1 downto 0) = "01") then
+                if (inst_funct3(1 downto 0) = "01" and inst(25) = '0') then
                     iexec_in.cmd <= CMD_SHIFT;
                     iexec_in.cmd_op <= "00" & inst(30) & inst_funct3(2);
                 elsif (inst_opcode(3) = '1') then

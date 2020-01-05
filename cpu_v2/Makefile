@@ -135,8 +135,8 @@ prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
 #BC_FILE=BOOTCODE/BOOTCODE
-#fails: fence.i mulh div divu rem remu
-BC_FILE=../sw/riscv-tests/isa/rv32um-p-remu
+#fails: fence.i div divu rem remu
+BC_FILE=../sw/riscv-tests/isa/rv32um-p-mulh
 
 disa:
 	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
