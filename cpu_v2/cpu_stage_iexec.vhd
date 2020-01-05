@@ -306,7 +306,7 @@ begin
                                 cmd_result_mux <= CMD_STORE;
                                 busy_r <= '1';
                                 state <= DIV_WAIT;
-                                div_ctr <= "1111";
+                                div_ctr <= "1001";
                             end if;
                         when CMD_ALU | CMD_SHIFT | CMD_JALR =>
                             regfile_wren <= '1';

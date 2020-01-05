@@ -87,7 +87,7 @@ BEGIN
 		lpm_drepresentation => "SIGNED",
 		lpm_hint => "MAXIMIZE_SPEED=6,LPM_REMAINDERPOSITIVE=FALSE",
 		lpm_nrepresentation => "SIGNED",
-		lpm_pipeline => 14,
+		lpm_pipeline => 8,
 		lpm_type => "LPM_DIVIDE",
 		lpm_widthd => 33,
 		lpm_widthn => 33
@@ -118,7 +118,7 @@ END SYN;
 -- Retrieval info: CONSTANT: LPM_DREPRESENTATION STRING "SIGNED"
 -- Retrieval info: CONSTANT: LPM_HINT STRING "MAXIMIZE_SPEED=6,LPM_REMAINDERPOSITIVE=FALSE"
 -- Retrieval info: CONSTANT: LPM_NREPRESENTATION STRING "SIGNED"
--- Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "14"
+-- Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "8"
 -- Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_DIVIDE"
 -- Retrieval info: CONSTANT: LPM_WIDTHD NUMERIC "33"
 -- Retrieval info: CONSTANT: LPM_WIDTHN NUMERIC "33"
