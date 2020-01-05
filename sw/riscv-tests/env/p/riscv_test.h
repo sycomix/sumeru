@@ -164,7 +164,8 @@ fail_loop:                                                              \
 
 #define EXTRA_DATA
 
-#define RVTEST_DATA_BEGIN
-#define RVTEST_DATA_END
+#define RVTEST_DATA_BEGIN .align 4; .global begin_signature; begin_signature:
+#define RVTEST_DATA_END .align 4; .global end_signature; end_signature:
+
 
 #endif
