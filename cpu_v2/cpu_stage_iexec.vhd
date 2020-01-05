@@ -258,7 +258,7 @@ begin
                     alu_op <= iexec_in.cmd_op;
                     pc_p4 <= iexec_in.pc_p4;
 
-                    if (iexec_in.rs1 = regfile_wraddr and regfile_wren = '1') then
+                    if (iexec_in.rs1 = regfile_wraddr and regfile_wren_nz = '1') then
                         op_a <= rd_write_data;
                     else
                         op_a <= rs1_read_data;
@@ -266,7 +266,7 @@ begin
 
                     if (iexec_in.cmd_use_reg = '0') then
                         op_b <= iexec_in.imm;
-                    elsif (iexec_in.rs2 = regfile_wraddr and regfile_wren = '1') then
+                    elsif (iexec_in.rs2 = regfile_wraddr and regfile_wren_nz = '1') then
                         op_b <= rd_write_data;
                     else
                         op_b <= rs2_read_data;
