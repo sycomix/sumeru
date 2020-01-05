@@ -8,7 +8,7 @@ _start(void)
     int i;
     asm("lui sp, 1");
     set_gpio_dir(1);
-    set_gpio_out(1);
+    set_gpio_out(0);
 
     i = 0;
     while (i++ < 0x7ffffff)
