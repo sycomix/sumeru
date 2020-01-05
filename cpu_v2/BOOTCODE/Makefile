@@ -4,7 +4,7 @@ CFLAGS = -O0 -nostdinc -ffreestanding
 LDFLAGS = -nostdlib --section-start=.text=0x0000
 
 CFILES = boot.c
-ASFILES = ivec.s
+ASFILES = entry.s
 
 WITHOUT_FLOAT = true
 
