@@ -22,7 +22,7 @@ end entity;
 
 architecture synth of cpu_stage_ifetch is
     signal icache_hit:          std_logic;
-    signal pc:                  std_logic_vector(31 downto 0) := IVECTOR_RESET_ADDR & IVECTOR_ENTRY_BOOT & "0000"; 
+    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
     signal inst:                std_logic_vector(31 downto 0);
     signal icache_flush:        std_logic := '0';
     signal icache_flush_ack:    std_logic;

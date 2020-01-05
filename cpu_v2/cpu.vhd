@@ -68,11 +68,7 @@ architecture synth of cpu is
     signal csr_in:              csr_channel_in_t;
     signal csr_sel_result:      std_logic_vector(31 downto 0);
 
-    signal intr_out:            intr_channel_out_t;
-
     signal gpio:                std_logic_vector(31 downto 0);
-
-    signal timer_intr_trigger:  std_logic;
 
     signal clk_cycle:           std_logic;
     signal clk_instret:         std_logic;
@@ -181,7 +177,6 @@ idecode: entity work.cpu_stage_idecode
         idecode_out => idecode_out,
         iexec_in => iexec_in,
         iexec_out => iexec_out,
-        intr_out => intr_out,
         ctx_pc_save => ctx_pc_save,
         ctx_pc_switch => ctx_pc_switch
         );
@@ -206,32 +201,6 @@ csr_gpio: entity work.csr_gpio
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         gpio => gpio
-        );
-
-csr_timer: entity work.csr_timer
-    port map(
-        clk => clk,
-        csr_in => csr_in,
-        csr_sel_result => csr_sel_result,
-        intr_trigger => timer_intr_trigger
-        );
-
-csr_counters: entity work.csr_counters
-    port map(
-        clk => clk,
-        csr_in => csr_in,
-        csr_sel_result => csr_sel_result,
-        clk_cycle => clk_cycle,
-        clk_instret => clk_instret,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
-        );
-
-intr_controller: entity work.intr_controller
-    port map(
-        clk => clk,
-        intr_out => intr_out,
-        timer_intr_trigger => timer_intr_trigger
         );
 
 led <= gpio(0);

@@ -12,7 +12,6 @@ port(
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
     iexec_out:                  in iexec_channel_out_t;
-    intr_out:                   in intr_channel_out_t;
     ctx_pc_save:                out std_logic_vector(31 downto 0);
     ctx_pc_switch:              out std_logic_vector(31 downto 0)
     );
@@ -24,10 +23,6 @@ signal pc_r:        std_logic_vector(31 downto 0);
 signal inst_r:      std_logic_vector(31 downto 0);
 
 signal exec_valid:  std_logic := '0';
-signal intr_trigger_save:   std_logic := '0';
-signal intr_pending: std_logic := '0';
-signal intr_pending_mux: std_logic := '0';
-signal intr_switch: std_logic := '0';
 
 alias exec_busy:    std_logic is iexec_out.busy;
 alias fetch_valid:  std_logic is idecode_in.valid;
@@ -59,9 +54,7 @@ end function;
 
 begin
 
--- XXX This condition should fix the intr and switch issue where we want
--- to be busy but also need the address of the next instruction
-idecode_out.busy <= exec_busy or (intr_pending and fetch_valid);
+idecode_out.busy <= exec_busy;
 
 idecode_out.cxfer <= iexec_out.cxfer;
 idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
@@ -169,18 +162,7 @@ begin
                     iexec_in.imm <= 
                         std_logic_vector(unsigned(pc) + 
                         unsigned(inst_imm_ui & "000000000000"));
-                when  OP_TYPE_I =>
-                    if (intr_pending_mux = '1') then
-                        -- Priority to intr_switch is required
-                        if (intr_switch = '1') then
-                            iexec_in.imm <= ctx_pc_switch;
-                        else
-                            iexec_in.imm <= intr_out.intr_ivec_entry;
-                        end if;
-                    else
-                        iexec_in.imm <= sxt(inst_imm_i, 32);
-                    end if;
-                when OP_TYPE_R | OP_TYPE_JALR | OP_TYPE_L =>
+                when OP_TYPE_R | OP_TYPE_I | OP_TYPE_JALR | OP_TYPE_L =>
                     iexec_in.imm <= sxt(inst_imm_i, 32);
                 when OP_TYPE_S =>
                     iexec_in.imm <= sxt(inst(31 downto 25) & inst(11 downto 7), 32);
@@ -193,59 +175,17 @@ end process;
 process(clk)
 begin
     if (rising_edge(clk)) then
-        intr_pending_mux <= '0';
         if (iexec_out.cxfer = '1') then
             exec_valid <= '0';
-            -- A switch is invalidated by cxfer as we don't want it
-            -- to trigger after the cxfer
-            if (intr_pending = '1' and intr_switch = '1') then
-                intr_pending <= '0';
-            end if;
-        elsif (intr_pending = '1') then
-            if (exec_busy = '0') then
-                if (exec_valid = '0' and fetch_valid = '1') then
-                    -- We need fetch_valid because we need to record the next
-                    -- pc from where execution will/may continue
-                    -- exec_valid = 0 causes us to wait for a cycle if the
-                    -- previous cycle issued an instruction. Thereby ensuring
-                    -- iexec is free or busy with no instructions pending.
-                    -- exec_valid=0 should also insure if the dispatched instr
-                    -- was JALR or BRANCH we get to see the resultant 
-                    -- iexec_out.cxfer before processing intr_pending.
-                    exec_valid <= '1';
-                    iexec_in.trigger_cxfer <= '1';
-                    pc_r <= (others => '0');
-                    inst_r <= INST_ADDI_Z_IMM;
-                    ctx_pc_save <= idecode_in.pc;
-                    intr_pending <= '0';
-                    intr_pending_mux <= '1';
-                else
-                    exec_valid <= '0';
-                end if;
-            end if;
         elsif (exec_busy = '0') then
             if (fetch_valid = '1') then
                 pc_r <= idecode_in.pc;
                 inst_r <= idecode_in.inst;
-
-                case idecode_in.inst(6 downto 2) is
-                    when OP_TYPE_JALR  =>
-                        iexec_in.trigger_cxfer <= '1';
-                    when others =>
-                        iexec_in.trigger_cxfer <= '0';
-                end case;
-
-                if (idecode_in.inst(31 downto 20) = CSR_REG_SWITCH) then
-                    exec_valid <= '0';
-                    intr_switch <= '1';
-                    intr_pending <= '1';
-                elsif (intr_out.intr_trigger /= intr_trigger_save) then
-                    exec_valid <= '1';
-                    intr_trigger_save <= not intr_trigger_save;
-                    intr_switch <= '0';
-                    intr_pending <= '1';
+                exec_valid <= '1';
+                if (idecode_in.inst(6 downto 2) = OP_TYPE_JALR) then
+                    iexec_in.trigger_cxfer <= '1';
                 else
-                    exec_valid <= '1';
+                    iexec_in.trigger_cxfer <= '0';
                 end if;
             else
                 exec_valid <= '0';
