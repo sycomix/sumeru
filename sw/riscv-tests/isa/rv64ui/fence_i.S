@@ -21,6 +21,17 @@ lh a1, insn+2
 .align 6
 sh a0, 1f, t0
 sh a1, 1f+2, t0
+
+# Flush D-Cache Line
+la a0, 1f
+li a1, 0x10000
+xor x1,a0,a1
+# Sake FLUSH Inst is specially coded STORE instruction.
+# DCACHE FLUSH LINE - addr in x1, STORE ifunct3 = 011
+#0000000 00000 00001 011 00000 0100011
+#0000 0000 0000 0000 1011 0000 0010 0011
+.word 0x0000B023
+
 fence.i
 
 1: addi a3, a3, 222
