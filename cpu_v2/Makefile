@@ -134,15 +134,18 @@ clean:
 prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
+#BC_FILE=BOOTCODE/BOOTCODE
+BC_FILE=../sw/riscv-tests/isa/rv32ui-p-add
+
 disa:
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
-	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d ${BC_FILE}
 
 BOOTCODE.hex:
 	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
-	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE/BOOTCODE
-	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE/BOOTCODE BOOTCODE/BOOTCODE.bin
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE/BOOTCODE
+	riscv32-unknown-linux-gnu-objdump -M no-aliases -d ${BC_FILE}
+	riscv32-unknown-linux-gnu-objcopy -O binary ${BC_FILE} BOOTCODE/BOOTCODE.bin
+	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
 	../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
 
 #compile_bootcode:
