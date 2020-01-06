@@ -177,8 +177,8 @@ begin
             exec_valid <= '0';
         elsif (exec_busy = '0') then
             if (fetch_valid = '1') then
-                pc_r <= idecode_in.pc;
-                inst_r <= idecode_in.inst;
+                pc <= idecode_in.pc;
+                inst <= idecode_in.inst;
                 exec_valid <= '1';
                 if (idecode_in.inst(6 downto 2) = OP_TYPE_JALR) then
                     iexec_in.trigger_cxfer <= '1';
