@@ -135,7 +135,7 @@ prog:
 	quartus_pgm -c 1 jtag_chain.cdf
 
 #BC_FILE=BOOTCODE/BOOTCODE
-BC_FILE=../sw/riscv-tests/isa/rv32ui-p-fence_i
+BC_FILE=../sw/riscv-tests/isa/rv32um-p-mulhsu
 
 disa:
 	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
