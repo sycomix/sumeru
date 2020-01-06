@@ -133,7 +133,7 @@ _start:                                                                 \
         j reset_vector;                                                 \
         .align 2;                                                       \
 reset_vector:                                                           \
-        csrrwi zero,0x8,1;                                              \
+        csrrwi zero,0x881,1;                                              \
         la t0, 1f;                                                      \
 1:
 
@@ -148,13 +148,13 @@ reset_vector:                                                           \
 //-----------------------------------------------------------------------
 
 #define RVTEST_PASS                                                     \
-        csrrwi zero,0x9,0;                                              \
+        csrrwi zero,0x882,0;                                              \
 pass_loop:                                                              \
         j pass_loop
 
 #define TESTNUM gp
 #define RVTEST_FAIL                                                     \
-        csrrwi zero,0x9,1;                                              \
+        csrrwi zero,0x882,1;                                              \
 fail_loop:                                                              \
         j fail_loop
 

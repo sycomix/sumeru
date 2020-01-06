@@ -206,12 +206,23 @@ csr_gpio: entity work.csr_gpio
         gpio => gpio
         );
 
-csr_timer: entity work.csr_gpio
+csr_timer: entity work.csr_timer
     port map(
         clk => clk,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         intr_trigger => timer_intr_trigger
+        );
+
+csr_counters: entity work.csr_counters
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        clk_cycle => clk_cycle,
+        clk_instret => clk_instret,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
         );
 
 intr_controller: entity work.intr_controller

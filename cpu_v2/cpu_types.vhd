@@ -87,4 +87,9 @@ package cpu_types is
         csr_op_data:            std_logic_vector(31 downto 0);
     end record;
 
+    type intr_channel_out_t is record
+        intr_trigger:           std_logic;
+        intr_vec:               std_logic_vector(3 downto 0);
+    end record;
+
 end package;
