@@ -35,8 +35,6 @@ _start2(void)
         csrrw  x0,0x880,a0;     \
         nop;                    \
         nop;                    \
-        nop;                    \
-        nop;                    \
         csrrwi x0,0x9C0,0;"); 
     while (1)
         ;
