@@ -4,7 +4,7 @@ JedecChain;
 	DefaultMfr(6E);
 
 	P ActionCode(Cfg)
-		Device PartName(EP4CE10E22) Path("/home/r0h17/workspace-vhdl/sumeru/cpu_v2/output_files/") File("cpu.sof") MfrSpec(OpMask(1));
+		Device PartName(EP4CE10E22) Path("/home/r0h17/workspace-vhdl/sumeru/cpu/output_files/") File("cpu.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 
