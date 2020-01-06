@@ -19,6 +19,7 @@ port(
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_instret:                out std_logic;
     intr_out:                   in intr_channel_out_t;
+    intr_reset:                 out std_logic;
     ctx_pc_save:                out std_logic_vector(31 downto 0);
     ctx_pc_switch:              in std_logic_vector(31 downto 0)
     );
@@ -78,6 +79,7 @@ architecture synth of cpu_stage_iexec is
     signal clk_instret_r:       std_logic := '0';
 
     signal intr_trigger_save:   std_logic := '0';
+    signal intr_reset_r:        std_logic := '0';
 
     type state_t is (
         RUNNING,
@@ -107,6 +109,7 @@ architecture synth of cpu_stage_iexec is
 begin
     clk_instret <= clk_instret_r;
     ctx_pc_save <= ctx_pc_save_r;
+    intr_reset <= intr_reset_r;
 
     regfile_a: entity work.ram2p_simp_32x32
         port map(
@@ -232,6 +235,7 @@ begin
             trigger_cxfer <= '0';
             busy_r <= '0';
             csr_in.csr_sel_valid <= '0';
+            intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>
                 if (div_ctr = "0000") then
@@ -295,6 +299,7 @@ begin
                           iexec_in.csr_reg = CSR_REG_SWITCH) then
                         trigger_cxfer <= '1';
                         cxfer_pc <= ctx_pc_switch;
+                        intr_reset_r <= '1';
                     elsif (intr_out.intr_trigger /= intr_trigger_save) then
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';

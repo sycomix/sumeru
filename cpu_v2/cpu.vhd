@@ -77,6 +77,7 @@ architecture synth of cpu is
     signal ctx_pc_switch:       std_logic_vector(31 downto 0);
 
     signal intr_out:            intr_channel_out_t;
+    signal intr_reset:          std_logic;
     signal timer_intr_trigger:  std_logic;
 
 begin
@@ -195,6 +196,7 @@ iexec: entity work.cpu_stage_iexec
         csr_sel_result => csr_sel_result,
         clk_instret => clk_instret,
         intr_out => intr_out,
+        intr_reset => intr_reset,
         ctx_pc_save => ctx_pc_save,
         ctx_pc_switch => ctx_pc_switch
         );
@@ -230,6 +232,7 @@ intr_controller: entity work.intr_controller
     port map(
         clk => clk,
         intr_out => intr_out,
+        intr_reset => intr_reset,
         timer_intr_trigger => timer_intr_trigger);
 
 led <= gpio(0);

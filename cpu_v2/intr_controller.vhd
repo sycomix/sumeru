@@ -9,6 +9,7 @@ entity intr_controller is
 port(
     clk:                        in std_logic;
     intr_out:                   out intr_channel_out_t;
+    intr_reset:                 in std_logic;
     timer_intr_trigger:         in std_logic
     );
 end entity;
@@ -16,7 +17,6 @@ end entity;
 architecture synth of intr_controller is
     signal intr_frozen:                 std_logic := '0';
     signal intr_trigger_r:              std_logic := '0';
-    signal intr_reset:                  std_logic := '0';
 begin
 
 intr_out.intr_trigger <= intr_trigger_r;
