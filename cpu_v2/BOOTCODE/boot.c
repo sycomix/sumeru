@@ -30,6 +30,14 @@ void
 _start2(void)
 {
     asm volatile("csrrwi x0, 0x882, 0;");
+    asm volatile("              \
+        csrrsi a0,0xCC0,0;      \
+        csrrw  x0,0x880,a0;     \
+        nop;                    \
+        nop;                    \
+        nop;                    \
+        nop;                    \
+        csrrwi x0,0x9C0,0;"); 
     while (1)
         ;
 }

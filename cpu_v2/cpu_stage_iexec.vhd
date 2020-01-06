@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
+use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
 use work.memory_channel_types.ALL;
 
@@ -18,7 +19,8 @@ port(
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_instret:                out std_logic;
     intr_out:                   in intr_channel_out_t;
-    ctx_pc_save:                out std_logic_vector(31 downto 0)
+    ctx_pc_save:                out std_logic_vector(31 downto 0);
+    ctx_pc_switch:              in std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -289,6 +291,10 @@ begin
                         trigger_cxfer <= '1';
                     elsif (iexec_in.cmd = CMD_BRANCH) then
                         trigger_cxfer <= '0';
+                    elsif(iexec_in.cmd = CMD_CSR and 
+                          iexec_in.csr_reg = CSR_REG_SWITCH) then
+                        trigger_cxfer <= '1';
+                        cxfer_pc <= ctx_pc_switch;
                     elsif (intr_out.intr_trigger /= intr_trigger_save) then
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';
