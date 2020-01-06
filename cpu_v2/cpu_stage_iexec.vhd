@@ -73,7 +73,7 @@ architecture synth of cpu_stage_iexec is
     signal load_result:         std_logic_vector(31 downto 0);
     signal mul_result:          std_logic_vector(31 downto 0);
     signal div_result:          std_logic_vector(31 downto 0);
-    signal pc_p4:               std_logic_vector(31 downto 0);
+    signal intr_nextpc:         std_logic_vector(31 downto 0);
     signal div_ctr:             std_logic_vector(3 downto 0);
 
     signal clk_instret_r:       std_logic := '0';
@@ -183,7 +183,7 @@ begin
         shift_result when CMD_SHIFT,
         csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
-        pc_p4 when CMD_JALR,
+        intr_nextpc when CMD_JALR,
         mul_result when CMD_MULDIV,
         div_result when others;
         
@@ -268,7 +268,7 @@ begin
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     clk_instret_r <= not clk_instret_r;
                     alu_op <= iexec_in.cmd_op;
-                    pc_p4 <= iexec_in.pc_p4;
+                    intr_nextpc <= iexec_in.intr_nextpc;
 
                     if (iexec_in.rs1 = regfile_wraddr and regfile_wren_nz = '1') then
                         op_a <= rd_write_data;
@@ -304,7 +304,7 @@ begin
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';
                         cxfer_pc <= x"000000" & intr_out.intr_vec & "0000";
-                        ctx_pc_save_r <= iexec_in.pc_p4;
+                        ctx_pc_save_r <= iexec_in.intr_nextpc;
                     else
                         trigger_cxfer <= '0';
                     end if;
