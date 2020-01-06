@@ -179,9 +179,7 @@ idecode: entity work.cpu_stage_idecode
         idecode_in => idecode_in,
         idecode_out => idecode_out,
         iexec_in => iexec_in,
-        iexec_out => iexec_out,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
+        iexec_out => iexec_out
         );
 
 iexec: entity work.cpu_stage_iexec

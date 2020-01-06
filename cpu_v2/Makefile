@@ -78,6 +78,7 @@ csr_counters.o: cpu_types.o sumeru_constants.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o
+cpu_alu.o: cpu_types.o
 intr_controller.o: sumeru_constants.o cpu_types.o
 
 
