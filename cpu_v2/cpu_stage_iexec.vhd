@@ -16,7 +16,8 @@ port(
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
     csr_sel_result:             inout std_logic_vector(31 downto 0);
-    clk_instret:                out std_logic
+    clk_instret:                out std_logic;
+    intr_out:                   in intr_channel_out_t
     );
 end entity;
 

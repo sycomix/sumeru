@@ -61,7 +61,8 @@ ${TOPLEVEL}.o: cpu_types.o \
         cpu_stage_iexec.o \
         csr_gpio.o \
         csr_timer.o \
-        csr_counters.o
+        csr_counters.o \
+        intr_controller.o 
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
@@ -69,8 +70,7 @@ memory_loader.o: memory_channel_types.o rom_1024x16.o
 readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
 cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o sumeru_constants.o
 cpu_stage_idecode.o: cpu_types.o sumeru_constants.o
-cpu_stage_iexec.o: cpu_types.o cpu_muldiv.o cpu_alu.o cpu_shift.o readwritecache_256x4x32.o
-cpu_alu.o: cpu_types.o
+cpu_stage_iexec.o: cpu_types.o cpu_muldiv.o cpu_alu.o cpu_shift.o readwritecache_256x4x32.o cpu_alu.o cpu_types.o
 cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
