@@ -196,7 +196,8 @@ iexec: entity work.cpu_stage_iexec
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         clk_instret => clk_instret,
-        intr_out => intr_out
+        intr_out => intr_out,
+        ctx_pc_save => ctx_pc_save
         );
 
 csr_gpio: entity work.csr_gpio

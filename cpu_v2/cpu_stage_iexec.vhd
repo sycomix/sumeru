@@ -17,11 +17,13 @@ port(
     csr_in:                     out csr_channel_in_t;
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_instret:                out std_logic;
-    intr_out:                   in intr_channel_out_t
+    intr_out:                   in intr_channel_out_t;
+    ctx_pc_save:                out std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture synth of cpu_stage_iexec is
+    signal ctx_pc_save_r:       std_logic_vector(31 downto 0);
     signal regfile_wren:        std_logic := '0';
     signal regfile_wren_nz:     std_logic;
     signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
@@ -73,6 +75,8 @@ architecture synth of cpu_stage_iexec is
 
     signal clk_instret_r:       std_logic := '0';
 
+    signal intr_trigger_save:   std_logic := '0';
+
     type state_t is (
         RUNNING,
         LS_1,
@@ -100,6 +104,7 @@ architecture synth of cpu_stage_iexec is
 
 begin
     clk_instret <= clk_instret_r;
+    ctx_pc_save <= ctx_pc_save_r;
 
     regfile_a: entity work.ram2p_simp_32x32
         port map(
@@ -279,8 +284,20 @@ begin
                         store_data <= rs2_read_data;
                     end if;
 
-                    trigger_cxfer <= iexec_in.trigger_cxfer;
-                    cxfer_mux <= '0';
+                    cxfer_mux <= not iexec_in.trigger_cxfer;
+                    if (iexec_in.trigger_cxfer = '1') then
+                        trigger_cxfer <= '1';
+                    elsif (iexec_in.cmd = CMD_BRANCH) then
+                        trigger_cxfer <= '0';
+                    elsif (intr_out.intr_trigger /= intr_trigger_save) then
+                        intr_trigger_save <= not intr_trigger_save;
+                        trigger_cxfer <= '1';
+                        cxfer_pc <= x"000000" & intr_out.intr_vec & "0000";
+                        ctx_pc_save_r <= iexec_in.pc_p4;
+                    else
+                        trigger_cxfer <= '0';
+                    end if;
+
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
                     cmd_result_mux <= iexec_in.cmd;
@@ -314,7 +331,6 @@ begin
                         when CMD_BRANCH =>
                             br_inst <= '1';
                             cxfer_pc <= iexec_in.imm;
-                            cxfer_mux <= '1';
                         when CMD_CSR =>
                             regfile_wren <= '1';
                             csr_in.csr_sel_valid <= '1';
