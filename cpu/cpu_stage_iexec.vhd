@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 
+use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
 use work.memory_channel_types.ALL;
 
@@ -16,11 +17,16 @@ port(
     sdc_data_out:               in std_logic_vector(15 downto 0);
     csr_in:                     out csr_channel_in_t;
     csr_sel_result:             inout std_logic_vector(31 downto 0);
-    clk_instret:                out std_logic
+    clk_instret:                out std_logic;
+    intr_out:                   in intr_channel_out_t;
+    intr_reset:                 out std_logic;
+    ctx_pc_save:                out std_logic_vector(31 downto 0);
+    ctx_pc_switch:              in std_logic_vector(31 downto 0)
     );
 end entity;
 
 architecture synth of cpu_stage_iexec is
+    signal ctx_pc_save_r:       std_logic_vector(31 downto 0);
     signal regfile_wren:        std_logic := '0';
     signal regfile_wren_nz:     std_logic;
     signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
@@ -67,10 +73,13 @@ architecture synth of cpu_stage_iexec is
     signal load_result:         std_logic_vector(31 downto 0);
     signal mul_result:          std_logic_vector(31 downto 0);
     signal div_result:          std_logic_vector(31 downto 0);
-    signal pc_p4:               std_logic_vector(31 downto 0);
+    signal intr_nextpc:         std_logic_vector(31 downto 0);
     signal div_ctr:             std_logic_vector(3 downto 0);
 
     signal clk_instret_r:       std_logic := '0';
+
+    signal intr_trigger_save:   std_logic := '0';
+    signal intr_reset_r:        std_logic := '0';
 
     type state_t is (
         RUNNING,
@@ -99,6 +108,8 @@ architecture synth of cpu_stage_iexec is
 
 begin
     clk_instret <= clk_instret_r;
+    ctx_pc_save <= ctx_pc_save_r;
+    intr_reset <= intr_reset_r;
 
     regfile_a: entity work.ram2p_simp_32x32
         port map(
@@ -172,7 +183,7 @@ begin
         shift_result when CMD_SHIFT,
         csr_sel_result when CMD_CSR,
         load_result when CMD_LOAD,
-        pc_p4 when CMD_JALR,
+        intr_nextpc when CMD_JALR,
         mul_result when CMD_MULDIV,
         div_result when others;
         
@@ -224,6 +235,7 @@ begin
             trigger_cxfer <= '0';
             busy_r <= '0';
             csr_in.csr_sel_valid <= '0';
+            intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>
                 if (div_ctr = "0000") then
@@ -256,7 +268,7 @@ begin
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
                     clk_instret_r <= not clk_instret_r;
                     alu_op <= iexec_in.cmd_op;
-                    pc_p4 <= iexec_in.pc_p4;
+                    intr_nextpc <= iexec_in.intr_nextpc;
 
                     if (iexec_in.rs1 = regfile_wraddr and regfile_wren_nz = '1') then
                         op_a <= rd_write_data;
@@ -278,8 +290,25 @@ begin
                         store_data <= rs2_read_data;
                     end if;
 
-                    trigger_cxfer <= iexec_in.trigger_cxfer;
-                    cxfer_mux <= '0';
+                    cxfer_mux <= not iexec_in.trigger_cxfer;
+                    if (iexec_in.trigger_cxfer = '1') then
+                        trigger_cxfer <= '1';
+                    elsif (iexec_in.cmd = CMD_BRANCH) then
+                        trigger_cxfer <= '0';
+                    elsif(iexec_in.cmd = CMD_CSR and 
+                          iexec_in.csr_reg = CSR_REG_SWITCH) then
+                        trigger_cxfer <= '1';
+                        cxfer_pc <= ctx_pc_switch;
+                        intr_reset_r <= '1';
+                    elsif (intr_out.intr_trigger /= intr_trigger_save) then
+                        intr_trigger_save <= not intr_trigger_save;
+                        trigger_cxfer <= '1';
+                        cxfer_pc <= x"000000" & intr_out.intr_vec & "0000";
+                        ctx_pc_save_r <= iexec_in.intr_nextpc;
+                    else
+                        trigger_cxfer <= '0';
+                    end if;
+
                     shift_bit <= iexec_in.cmd_op(1);
                     shift_dir_lr <= iexec_in.cmd_op(0);
                     cmd_result_mux <= iexec_in.cmd;
@@ -313,7 +342,6 @@ begin
                         when CMD_BRANCH =>
                             br_inst <= '1';
                             cxfer_pc <= iexec_in.imm;
-                            cxfer_mux <= '1';
                         when CMD_CSR =>
                             regfile_wren <= '1';
                             csr_in.csr_sel_valid <= '1';

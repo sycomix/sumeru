@@ -68,7 +68,7 @@ package cpu_types is
         rs2:                    std_logic_vector(4 downto 0);
         rd:                     std_logic_vector(4 downto 0);
         csr_reg:                std_logic_vector(11 downto 0);
-        pc_p4:                  std_logic_vector(31 downto 0);
+        intr_nextpc:            std_logic_vector(31 downto 0);
     end record;
 
     type iexec_channel_out_t is record
@@ -85,6 +85,11 @@ package cpu_types is
         csr_op_valid:           std_logic;
         csr_op_reg:             std_logic_vector(11 downto 0);
         csr_op_data:            std_logic_vector(31 downto 0);
+    end record;
+
+    type intr_channel_out_t is record
+        intr_trigger:           std_logic;
+        intr_vec:               std_logic_vector(3 downto 0);
     end record;
 
 end package;

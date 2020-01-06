@@ -76,6 +76,10 @@ architecture synth of cpu is
     signal ctx_pc_save:         std_logic_vector(31 downto 0);
     signal ctx_pc_switch:       std_logic_vector(31 downto 0);
 
+    signal intr_out:            intr_channel_out_t;
+    signal intr_reset:          std_logic;
+    signal timer_intr_trigger:  std_logic;
+
 begin
 spi0_sck <= '0';
 spi0_ss <= '0';
@@ -176,9 +180,7 @@ idecode: entity work.cpu_stage_idecode
         idecode_in => idecode_in,
         idecode_out => idecode_out,
         iexec_in => iexec_in,
-        iexec_out => iexec_out,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
+        iexec_out => iexec_out
         );
 
 iexec: entity work.cpu_stage_iexec
@@ -192,7 +194,11 @@ iexec: entity work.cpu_stage_iexec
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
-        clk_instret => clk_instret
+        clk_instret => clk_instret,
+        intr_out => intr_out,
+        intr_reset => intr_reset,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
         );
 
 csr_gpio: entity work.csr_gpio
@@ -202,6 +208,32 @@ csr_gpio: entity work.csr_gpio
         csr_sel_result => csr_sel_result,
         gpio => gpio
         );
+
+csr_timer: entity work.csr_timer
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        intr_trigger => timer_intr_trigger
+        );
+
+csr_counters: entity work.csr_counters
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        clk_cycle => clk_cycle,
+        clk_instret => clk_instret,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
+        );
+
+intr_controller: entity work.intr_controller
+    port map(
+        clk => clk,
+        intr_out => intr_out,
+        intr_reset => intr_reset,
+        timer_intr_trigger => timer_intr_trigger);
 
 led <= gpio(0);
 

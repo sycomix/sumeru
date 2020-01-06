@@ -11,9 +11,7 @@ port(
     idecode_in:                 in idecode_channel_in_t;
     idecode_out:                out idecode_channel_out_t;
     iexec_in:                   out iexec_channel_in_t;
-    iexec_out:                  in iexec_channel_out_t;
-    ctx_pc_save:                out std_logic_vector(31 downto 0);
-    ctx_pc_switch:              out std_logic_vector(31 downto 0)
+    iexec_out:                  in iexec_channel_out_t
     );
 end entity;
 
@@ -59,7 +57,15 @@ idecode_out.busy <= exec_busy;
 idecode_out.cxfer <= iexec_out.cxfer;
 idecode_out.cxfer_pc <= iexec_out.cxfer_pc;
 iexec_in.valid <= exec_valid;
-iexec_in.pc_p4 <= std_logic_vector(unsigned(pc) + 4);
+
+-- nextpc is also used for interupt processing, during execution of 
+-- JALR and BRANCH intr processing is avoided. So there is no return
+-- PC issue. But for JALs we don't know the return PC hence we use the
+-- current instruction PC, causing the JMP to be re-executed when the intr
+-- returns.
+iexec_in.intr_nextpc <= 
+    pc when (inst_opcode = OP_TYPE_JAL) else std_logic_vector(unsigned(pc) + 4);
+
 iexec_in.csr_reg <= inst(31 downto 20);
 iexec_in.rd <= "00" & inst_funct3 when inst_opcode = OP_TYPE_S else inst_rd;
 
