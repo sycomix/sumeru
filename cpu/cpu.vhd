@@ -28,8 +28,8 @@ port(
 end entity;
 
 architecture synth of cpu is
-    signal sys_clk:             std_logic;
-    signal mem_clk:             std_logic;
+    signal clk:                 std_logic;
+    signal clk_n:               std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
 
@@ -63,20 +63,18 @@ architecture synth of cpu is
     signal idecode_out:         idecode_channel_out_t;
 
     signal iexec_in:            iexec_channel_in_t;
-    signal iexec_out_decode:    iexec_channel_out_decode_t := ('0','0');
-    signal iexec_out_fetch:     iexec_channel_out_fetch_t := ('0','0',(others => '0'));
+    signal iexec_out:           iexec_channel_out_t;
 
     signal csr_in:              csr_channel_in_t;
-    signal csr_out:             csr_channel_out_t;
+    signal csr_sel_result:      std_logic_vector(31 downto 0);
 
     signal gpio:                std_logic_vector(31 downto 0);
 
-    type state_t is (
-        START,
-        RUNNING
-    );
-        
-    signal state:               state_t := START;
+    signal clk_cycle:           std_logic;
+    signal clk_instret:         std_logic;
+
+    signal ctx_pc_save:         std_logic_vector(31 downto 0);
+    signal ctx_pc_switch:       std_logic_vector(31 downto 0);
 
 begin
 spi0_sck <= '0';
@@ -86,14 +84,15 @@ spi0_mosi <= '0';
 pll: entity work.pll 
     port map(
         inclk0 => clk_50m,
-        c0 => sys_clk,
-        c1 => mem_clk,
-        locked => pll_locked);
+        c0 => clk,
+        c1 => clk_n,
+        locked => pll_locked
+        );
 
 sdram_controller: entity work.sdram_controller
     port map(
-        sys_clk => sys_clk,
-        mem_clk => mem_clk,
+        clk => clk,
+        clk_n => clk_n,
         mc_in => sdc_in,
         mc_out => sdc_out,
         data_out => sdc_data_out,
@@ -107,11 +106,12 @@ sdram_controller: entity work.sdram_controller
         sdram_clk => sdram_clk,
         sdram_we => sdram_we,
         sdram_cs => sdram_cs,
-        busy => sdc_busy);
+        busy => sdc_busy
+        );
         
 memory_arbitrator: entity work.memory_arbitrator
     port map(
-        clk => sys_clk,
+        clk => clk,
 
         sdc_busy => sdc_busy,
         sdc_in => sdc_in,
@@ -146,59 +146,62 @@ mc7_in <= bc_mc_in when reset_n = '0' else pbus_mc_in;
 
 bootcode_loader: entity work.memory_loader
         generic map(
-        DATA_FILE => "BOOTCODE.hex"
+        DATA_FILE => "BOOTCODE/BOOTCODE.hex"
     )
     port map(
-        sys_clk => sys_clk,
-        mem_clk => mem_clk,
+        clk => clk,
         reset_n => pll_locked,
 
         load_done => reset_n,
         mc_in => bc_mc_in,
-        mc_out => mc7_out);
+        mc_out => mc7_out
+        );
 
 ifetch: entity work.cpu_stage_ifetch
     port map(
-        sys_clk => sys_clk,
-        cache_clk => mem_clk,
+        clk => clk,
+        clk_n => clk_n,
         enable => reset_n,
-        cache_mc_in => mc0_in,
-        cache_mc_out => mc0_out,
-        sdc_data_out => sdc_data_out,
         idecode_in => idecode_in,
         idecode_out => idecode_out,
-        iexec_out => iexec_out_fetch
-    );
+        icache_mc_in => mc0_in,
+        icache_mc_out => mc0_out,
+        sdc_data_out => sdc_data_out,
+        clk_cycle => clk_cycle
+        );
 
 idecode: entity work.cpu_stage_idecode
     port map(
-        sys_clk => sys_clk,
+        clk => clk,
         idecode_in => idecode_in,
         idecode_out => idecode_out,
         iexec_in => iexec_in,
-        iexec_out => iexec_out_decode
-    );
+        iexec_out => iexec_out,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
+        );
 
 iexec: entity work.cpu_stage_iexec
     port map(
-        sys_clk => sys_clk,
-        cache_clk => mem_clk,
+        clk => clk,
+        clk_n => clk_n,
         iexec_in => iexec_in,
-        iexec_out_fetch => iexec_out_fetch,
-        iexec_out_decode => iexec_out_decode,
-        cache_mc_in => mc1_in,
-        cache_mc_out => mc1_out,
+        iexec_out => iexec_out,
+        dcache_mc_in => mc1_in,
+        dcache_mc_out => mc1_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
-        csr_out => csr_out
-    );
+        csr_sel_result => csr_sel_result,
+        clk_instret => clk_instret
+        );
 
 csr_gpio: entity work.csr_gpio
     port map(
-        sys_clk => sys_clk,
+        clk => clk,
         csr_in => csr_in,
-        csr_out => csr_out,
-        gpio => gpio);
+        csr_sel_result => csr_sel_result,
+        gpio => gpio
+        );
 
 led <= gpio(0);
 

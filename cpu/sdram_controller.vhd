@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
-use work.cpu_types.ALL;
 use work.memory_channel_types.ALL;
 
 --
@@ -23,8 +22,8 @@ entity sdram_controller is
         STARTUP_CYCLE_BITNR:    natural := 14
     );
     port(
-        sys_clk:                in std_logic;
-        mem_clk:                in std_logic;
+        clk:                    in std_logic;
+        clk_n:                  in std_logic;
         mc_in:                  in mem_channel_in_t;
         mc_out:                 out mem_channel_out_t;
         data_out:               out std_logic_vector(15 downto 0);
@@ -113,7 +112,7 @@ architecture synth of sdram_controller is
 begin
     mc_out.op_strobe <= strobe;
 
-    sdram_clk <= mem_clk;
+    sdram_clk <= clk_n;
     sdram_cke <= cke;
     sdram_addr <= addr;
     sdram_ba <= bank;
@@ -152,16 +151,16 @@ begin
     cur_bank_active <= bank_states(to_integer(unsigned(op_addr_bank))).active;
     cur_bank_row <= bank_states(to_integer(unsigned(op_addr_bank))).row;
     
-    process(mem_clk)
+    process(clk_n)
     begin
-        if (rising_edge(mem_clk)) then
+        if (rising_edge(clk_n)) then
             data_out <= sdram_data;
         end if;
     end process;
 
-    process(sys_clk)
+    process(clk)
     begin
-        if (rising_edge(sys_clk)) then
+        if (rising_edge(clk)) then
             cycle_counter <= std_logic_vector(unsigned(cycle_counter) + 1);
             strobe <= strobe_r1;
             strobe_r1 <= strobe_r2;

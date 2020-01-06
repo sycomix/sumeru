@@ -29,25 +29,18 @@ package cpu_types is
     constant FUNCT_OR:          std_logic_vector(2 downto 0) := "110";
     constant FUNCT_AND:         std_logic_vector(2 downto 0) := "111";
 
-    -- META COMMANDS
-    constant META_CMD_BASIC:    std_logic_vector(3 downto 0) := "0000";
-    constant META_CMD_LOAD:     std_logic_vector(3 downto 0) := "0001";
-    constant META_CMD_STORE:    std_logic_vector(3 downto 0) := "0010";
-    constant META_CMD_BRANCH:   std_logic_vector(3 downto 0) := "0011";
-    constant META_CMD_JALR:     std_logic_vector(3 downto 0) := "0100";
-    constant META_CMD_MISC:     std_logic_vector(3 downto 0) := "0101";
-    constant META_CMD_CSRXXX:   std_logic_vector(3 downto 0) := "0110";
-    constant META_CMD_MULDIV:   std_logic_vector(3 downto 0) := "1000";
-    constant META_CMD_CLFLUSH:  std_logic_vector(3 downto 0) := "1001";
-    constant META_CMD_EXCEPTION: std_logic_vector(3 downto 0) := "1111";
+    -- INSTRUCTIONS
+    constant INST_ADDI_Z_IMM:   std_logic_vector(31 downto 0) := x"00000013";
 
     -- COMMANDS
     constant CMD_ALU:           std_logic_vector(2 downto 0) := "000";
     constant CMD_SHIFT:         std_logic_vector(2 downto 0) := "001";
     constant CMD_BRANCH:        std_logic_vector(2 downto 0) := "010";
     constant CMD_CSR:           std_logic_vector(2 downto 0) := "011";
+    constant CMD_JALR:          std_logic_vector(2 downto 0) := "100";
     constant CMD_LOAD:          std_logic_vector(2 downto 0) := "101";
-    constant CMD_UNKNOWN:       std_logic_vector(2 downto 0) := "111";
+    constant CMD_STORE:         std_logic_vector(2 downto 0) := "110";
+    constant CMD_MULDIV:        std_logic_vector(2 downto 0) := "111";
 
     constant CMD_ALU_OP_ADD:    std_logic_vector(3 downto 0) := "0000";
     constant CMD_ALU_OP_SUB:    std_logic_vector(3 downto 0) := "1000";
@@ -60,6 +53,8 @@ package cpu_types is
 
     type idecode_channel_out_t is record
         busy:                   std_logic;
+        cxfer:                  std_logic;
+        cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
     type iexec_channel_in_t is record
@@ -67,33 +62,29 @@ package cpu_types is
         cmd:                    std_logic_vector(2 downto 0);
         cmd_op:                 std_logic_vector(3 downto 0);
         cmd_use_reg:            std_logic;
+        trigger_cxfer:          std_logic;
         imm:                    std_logic_vector(31 downto 0);
         rs1:                    std_logic_vector(4 downto 0);
         rs2:                    std_logic_vector(4 downto 0);
         rd:                     std_logic_vector(4 downto 0);
-        strobe_cxfer_sync:      std_logic;
         csr_reg:                std_logic_vector(11 downto 0);
+        pc_p4:                  std_logic_vector(31 downto 0);
     end record;
 
-    type iexec_channel_out_decode_t is record
+    type iexec_channel_out_t is record
         busy:                   std_logic;
-        cxfer_async_strobe:     std_logic;
-    end record;
-
-    type iexec_channel_out_fetch_t is record
-        cxfer_async_strobe:     std_logic;
-        cxfer_sync_strobe:      std_logic;
+        cxfer:                  std_logic;
         cxfer_pc:               std_logic_vector(31 downto 0);
     end record;
 
     type csr_channel_in_t is record
-        csr_reg:                std_logic_vector(11 downto 0);
+        csr_sel_valid:          std_logic;
+        csr_sel_reg:            std_logic_vector(11 downto 0);
+        csr_sel_op:             std_logic_vector(1 downto 0);
+
         csr_op_valid:           std_logic;
-        csr_op:                 std_logic_vector(1 downto 0);
+        csr_op_reg:             std_logic_vector(11 downto 0);
         csr_op_data:            std_logic_vector(31 downto 0);
     end record;
 
-    type csr_channel_out_t is record
-        csr_op_result:          std_logic_vector(31 downto 0);
-    end record;
 end package;
