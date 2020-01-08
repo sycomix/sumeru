@@ -32,6 +32,7 @@ architecture synth of cpu is
     signal clk_n:               std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
+    signal reset:               std_logic;
 
     signal sdc_in:              mem_channel_in_t;
     signal sdc_out:             mem_channel_out_t;
@@ -147,6 +148,7 @@ memory_arbitrator: entity work.memory_arbitrator
     );
 
 mc7_in <= bc_mc_in when reset_n = '0' else pbus_mc_in;
+reset <= not reset_n;
 
 bootcode_loader: entity work.memory_loader
         generic map(
@@ -220,6 +222,7 @@ csr_timer: entity work.csr_timer
 csr_counters: entity work.csr_counters
     port map(
         clk => clk,
+        reset => reset,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         clk_cycle => clk_cycle,

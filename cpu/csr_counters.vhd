@@ -9,6 +9,7 @@ use work.cpu_types.ALL;
 entity csr_counters is
 port(
     clk:                        in std_logic;
+    reset:                      in std_logic;
     csr_in:                     in csr_channel_in_t;
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_cycle:                  in std_logic;
@@ -26,12 +27,12 @@ begin
 
 ctx_pc_switch <= ctx_pc_switch_r;
 
--- XXX CONNECT ACLR and reset counters on reset_n
 instret_counter: lpm_counter
     generic map(
         LPM_WIDTH => 64)
     port map(
         clock => clk_instret,
+        aclr => reset,
         q => ctr_instret);
 
 cycle_counter: lpm_counter
@@ -39,6 +40,7 @@ cycle_counter: lpm_counter
         LPM_WIDTH => 64)
     port map(
         clock => clk_cycle,
+        aclr => reset,
         q => ctr_cycle);
 
 csr_sel_result <=
