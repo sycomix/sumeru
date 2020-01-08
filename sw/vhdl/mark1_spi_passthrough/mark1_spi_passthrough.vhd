@@ -4,7 +4,7 @@ use IEEE.STD_LOGIC_ARITH.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 use lpm.lpm_components.all;
 
-entity toplevel is
+entity mark1_spi_passthrough is
 	port(
 		clk_50m: in std_logic;
 		led: out std_logic;
@@ -19,9 +19,9 @@ entity toplevel is
 		flash_mosi: out std_logic;
 		flash_nce: out std_logic
 		);
-end toplevel;
+end entity;
 
-architecture behav of toplevel is
+architecture synth of mark1_spi_passthrough is
 	signal ctr : std_logic_vector(31 downto 0);
 	signal pll_clk_0 : std_logic;
 	signal pll_locked : std_logic;

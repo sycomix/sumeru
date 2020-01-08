@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE10E22C8
-set_global_assignment -name TOP_LEVEL_ENTITY toplevel
+set_global_assignment -name TOP_LEVEL_ENTITY mark1_spi_passthrough
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "14.1.0 SP0.19"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "13:06:18  JULY 10, 2018"
 set_global_assignment -name LAST_QUARTUS_VERSION "14.1.0 SP0.19"
@@ -58,7 +58,7 @@ set_location_assignment PIN_23 -to clk_50m
 set_location_assignment PIN_85 -to led
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
-set_global_assignment -name VHDL_FILE toplevel.vhd
+set_global_assignment -name VHDL_FILE mark1_spi_passthrough.vhd
 set_global_assignment -name VHDL_FILE pll.vhd
 set_global_assignment -name ENABLE_OCT_DONE OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF

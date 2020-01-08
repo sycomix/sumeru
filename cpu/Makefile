@@ -139,14 +139,14 @@ BC_FILE=BOOTCODE/BOOTCODE
 #BC_FILE=../sw/riscv-tests/isa/rv32um-p-mulhsu
 
 disa:
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
+	tclsh /home/r0h17/workspace-vhdl/sumeru/sw/../tools/isa_check.tcl riscv ${BC_FILE}
 	riscv32-unknown-linux-gnu-objdump -M no-aliases -d ${BC_FILE} | less
 
 BOOTCODE.hex:
 	(cd BOOTCODE; env MAKEFILES=${SUMERU_MAKEFILES} make)
 	riscv32-unknown-linux-gnu-objdump -M no-aliases -d ${BC_FILE}
 	riscv32-unknown-linux-gnu-objcopy -O binary ${BC_FILE} BOOTCODE/BOOTCODE.bin
-	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv ${BC_FILE}
+	tclsh /home/r0h17/workspace-vhdl/sumeru/sw/../tools/isa_check.tcl riscv ${BC_FILE}
 	../tools/genbootcode < BOOTCODE/BOOTCODE.bin > BOOTCODE/BOOTCODE.hex
 
 #compile_bootcode:
@@ -159,7 +159,7 @@ BOOTCODE.hex:
 #	mkdir -p obj/riscv
 #	riscv32-unknown-linux-gnu-as -march=rv32im -mabi=ilp32 -o obj/riscv/BOOTCODE.o BOOTCODE.s
 #	riscv32-unknown-linux-gnu-ld -N -EL -gc-sections -nostdlib --section-start=.text=0x0000 -o BOOTCODE  ./obj/riscv/BOOTCODE.o  
-#	tclsh /home/r0h17/workspace-vhdl/sake/sw/../tools/isa_check.tcl riscv BOOTCODE
+#	tclsh /home/r0h17/workspace-vhdl/sumeru/sw/../tools/isa_check.tcl riscv BOOTCODE
 #	riscv32-unknown-linux-gnu-objdump -M no-aliases -d BOOTCODE
 #	riscv32-unknown-linux-gnu-objcopy -O binary BOOTCODE BOOTCODE.bin
 #	../tools/genbootcode < BOOTCODE.bin > BOOTCODE.hex
