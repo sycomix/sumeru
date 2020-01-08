@@ -39,7 +39,7 @@ editlpm:
 
 clean:
 	rm -Rf output_files incremental_db db work-obj08.cf work-obj93.cf \
-                greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
+                greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL) \
                 sdram_controller_simlowdelay.vhd \
                 PLLJ_*.txt obj *.ppf *.cmp *.qdf \ *.vhd.bak
 
