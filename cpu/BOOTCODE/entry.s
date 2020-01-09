@@ -10,3 +10,8 @@ ivec_timer:
     nop 
     nop
     nop
+ivec_uart_tx:
+    j _start2
+    nop 
+    nop
+    nop

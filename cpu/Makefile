@@ -26,7 +26,7 @@ SRCS = sumeru_constants.vhd \
         csr_gpio.vhd \
         csr_timer.vhd \
         csr_counters.vhd \
-        csr_sio_rs232.vhd \
+        csr_uart_rs232.vhd \
         intr_controller.vhd \
 	${TOPLEVEL}.vhd \
         sim_sdram_mt48lc16m16a2.vhd \
@@ -63,7 +63,7 @@ ${TOPLEVEL}.o: cpu_types.o \
         csr_gpio.o \
         csr_timer.o \
         csr_counters.o \
-        csr_sio_rs232.o \
+        csr_uart_rs232.o \
         intr_controller.o 
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
@@ -77,7 +77,7 @@ cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
 csr_counters.o: cpu_types.o sumeru_constants.o
-csr_sio_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o
+csr_uart_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o

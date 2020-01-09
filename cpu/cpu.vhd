@@ -25,8 +25,8 @@ port(
     sdram_clk:                  out std_logic;
     sdram_we:                   out std_logic;
     sdram_cs:                   out std_logic;
-    uart0_tx:                     out std_logic;
-    uart0_rx:                     in std_logic
+    uart0_tx:                   out std_logic;
+    uart0_rx:                   in std_logic
     );
 end entity;
 
@@ -84,7 +84,7 @@ architecture synth of cpu is
     signal intr_out:            intr_channel_out_t;
     signal intr_reset:          std_logic;
     signal timer_intr_trigger:  std_logic;
-    signal sio_tx_intr_trigger: std_logic;
+    signal uart_tx_intr_trigger: std_logic;
 
 begin
 spi0_sck <= '0';
@@ -237,16 +237,16 @@ csr_counters: entity work.csr_counters
         ctx_pc_switch => ctx_pc_switch
         );
 
-csr_sio_rs232: entity work.csr_sio_rs232
+csr_uart_rs232: entity work.csr_uart_rs232
     port map(
         clk => clk,
-        clk_siox16 => clk_1m842105,
+        clk_uartx16 => clk_1m842105,
         mc_in => mc2_in,
         mc_out => mc2_out,
         sdc_data_out => sdc_data_out,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
-        tx_intr_trigger => sio_tx_intr_trigger,
+        tx_intr_trigger => uart_tx_intr_trigger,
         uart0_tx => uart0_tx,
         uart0_rx => uart0_rx
         );
@@ -257,7 +257,9 @@ intr_controller: entity work.intr_controller
         clk => clk,
         intr_out => intr_out,
         intr_reset => intr_reset,
-        timer_intr_trigger => timer_intr_trigger);
+        timer_intr_trigger => timer_intr_trigger,
+        uart_tx_intr_trigger => uart_tx_intr_trigger
+        );
 
 led <= gpio(0);
 
