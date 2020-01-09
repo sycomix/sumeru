@@ -243,9 +243,10 @@ csr_sio_rs232: entity work.csr_sio_rs232
         clk_siox16 => clk_1m842105,
         mc_in => mc2_in,
         mc_out => mc2_out,
+        sdc_data_out => sdc_data_out,
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
-        intr_trigger => sio_tx_intr_trigger,
+        tx_intr_trigger => sio_tx_intr_trigger,
         uart0_tx => uart0_tx,
         uart0_rx => uart0_rx
         );

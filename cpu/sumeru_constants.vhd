@@ -22,4 +22,7 @@ constant CSR_REG_CTX_PCSAVE:    std_logic_vector(11 downto 0) := x"CC0";
 constant CSR_REG_CTX_PCSWITCH:  std_logic_vector(11 downto 0) := x"880";
 constant CSR_REG_SWITCH:        std_logic_vector(11 downto 0) := x"9C0";
 
+constant CSR_REG_UART0_RX:      std_logic_vector(11 downto 0) := x"885";
+constant CSR_REG_UART0_TX:      std_logic_vector(11 downto 0) := x"886";
+
 end package;
