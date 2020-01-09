@@ -3,6 +3,13 @@ void    _start2(void) __attribute__ (( naked ));
 
 __attribute__ ((always_inline))
 inline void
+set_uart_tx(unsigned int x)
+{
+    asm volatile("csrrw x0, 0x886, %0;" : : "r"(x));
+}
+
+__attribute__ ((always_inline))
+inline void
 set_timer(unsigned int x)
 {
     asm volatile("csrrw x0, 0x884, %0;" : : "r"(x));
@@ -28,7 +35,7 @@ _start(void)
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_timer(0x0400000F);
+    set_uart_tx(0x00000001);
 
     while(1)
         ;
@@ -45,8 +52,8 @@ _start2(void)
                                 \
         csrrsi a0,0xCC0,0;      \
         csrrw  x0,0x880,a0;     \
-        li a0,0x0400000f;       \
-        csrrw x0,0x884,a0;      \
+        li a0,0x00000000;       \
+        csrrw x0,0x886,a0;      \
         csrrwi x0,0x9C0,0;"); 
 
     /* Not reached */
