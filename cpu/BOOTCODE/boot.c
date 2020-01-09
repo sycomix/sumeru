@@ -1,5 +1,5 @@
 void    _start(void) __attribute__ (( naked ));
-void    _start2(void) __attribute__ (( naked ));
+void    handle_interrupt(int id);
 
 __attribute__ ((always_inline))
 inline void
@@ -40,35 +40,35 @@ set_gpio_out(unsigned int x)
     asm volatile("csrrw x0, 0x882, %0;" : : "r"(x));
 }
 
+__attribute__ ((always_inline))
+inline unsigned int
+get_gpio_out()
+{
+    unsigned int x;
+    asm volatile("csrrsi %0, 0x882, 0;" : "=r"(x));
+    return x;
+}
+
 void
 _start(void)
 {
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    flush_word(0x0a726d73);
-    set_uart_tx(0x00000004);
+    set_timer(0x0400000F);
 
     while(1)
         ;
 }
 
 void
-_start2(void)
+handle_interrupt(int id)
 {
-    asm volatile("              \
-        csrrsi a0,0x882,0;      \
-        xori a0,a0,-1;          \
-        csrrw x0,0x882,a0;      \
-                                \
-                                \
-        csrrsi a0,0xCC0,0;      \
-        csrrw  x0,0x880,a0;     \
-        li a0,0x00000004;       \
-        csrrw x0,0x886,a0;      \
-        csrrwi x0,0x9C0,0;"); 
-
-    /* Not reached */
-    while (1)
-        ;
+    if (id == 1) {
+        unsigned int x; 
+        x = get_gpio_out();
+        x ^= 1;
+        set_gpio_out(x);
+        set_timer(0x0400000F);
+    }
 }
