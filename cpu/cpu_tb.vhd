@@ -50,8 +50,10 @@ begin
                 clk_50m => clk_50m,
                 btn => btn,
                 led => led,
-                
+               
                 -- uart
+                uart0_rx => '0',
+
                 -- gpio
                 
                 -- spio_*
