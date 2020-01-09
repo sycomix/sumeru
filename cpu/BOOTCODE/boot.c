@@ -52,7 +52,7 @@ _start2(void)
                                 \
         csrrsi a0,0xCC0,0;      \
         csrrw  x0,0x880,a0;     \
-        li a0,0x00000000;       \
+        li a0,0x00000001;       \
         csrrw x0,0x886,a0;      \
         csrrwi x0,0x9C0,0;"); 
 
