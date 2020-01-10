@@ -15,6 +15,11 @@ ivec_uart_tx:
     li x1,2
     j asm_handle_interrupt
     nop
+ivec_uart_rx:
+    sw x1,0(zero)
+    li x1,3
+    j asm_handle_interrupt
+    nop
 
 #stack pointer points to next free for use 
 asm_handle_interrupt:

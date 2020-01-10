@@ -21,6 +21,13 @@ set_uart_tx(unsigned int x)
 
 __attribute__ ((always_inline))
 inline void
+set_uart_rx(unsigned int x)
+{
+    asm volatile("csrrw x0, 0x885, %0;" : : "r"(x));
+}
+
+__attribute__ ((always_inline))
+inline void
 set_timer(unsigned int x)
 {
     asm volatile("csrrw x0, 0x884, %0;" : : "r"(x));
@@ -56,6 +63,7 @@ _start(void)
     set_gpio_dir(1);
     set_gpio_out(1);
     set_uart_tx(0x1);
+    set_uart_rx(0x00080001);
 
     while(1)
         ;
@@ -70,5 +78,7 @@ handle_interrupt(int id)
         x ^= 1;
         set_gpio_out(x);
         set_uart_tx(0x1);
+    } else if (id == 3) {
+        set_uart_rx(0x00080001);
     }
 }

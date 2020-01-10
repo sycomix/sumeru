@@ -11,7 +11,8 @@ port(
     intr_out:                   out intr_channel_out_t;
     intr_reset:                 in std_logic;
     timer_intr_trigger:         in std_logic;
-    uart_tx_intr_trigger:       in std_logic
+    uart_tx_intr_trigger:       in std_logic;
+    uart_rx_intr_trigger:       in std_logic
     );
 end entity;
 
@@ -38,6 +39,10 @@ begin
                 intr_frozen <= '1';
                 intr_trigger_r <= not intr_trigger_r;
                 intr_out.intr_vec <= IVEC_UART_TX;
+            elsif (uart_rx_intr_trigger = '1') then
+                intr_frozen <= '1';
+                intr_trigger_r <= not intr_trigger_r;
+                intr_out.intr_vec <= IVEC_UART_RX;
             end if;
         end if;
     end if;

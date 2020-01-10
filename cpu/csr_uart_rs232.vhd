@@ -61,7 +61,7 @@ signal rx_wait_counter: std_logic_vector(3 downto 0);
 signal rx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
 signal rx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
-signal rx_byte:         std_logic_vector(8 downto 0);
+signal rx_byte:         std_logic_vector(7 downto 0) := (others => '0');
 signal rx_done:         std_logic := '0';
 signal rx_detect:       std_logic := '0';
 signal rx_bit_count:    std_logic_vector(3 downto 0);
@@ -97,7 +97,7 @@ begin
                     mc_in.op_addr <= rx_ctrl(16 downto 0) & rx_buf_curpos(7 downto 1);
                     mem_op_start <= not mem_op_start;
                     mc_in.op_wren <= '1';
-                    mc_in.write_data <= rx_byte(7 downto 0) & rx_byte(7 downto 0);
+                    mc_in.write_data <= rx_byte & rx_byte;
                     mc_in.op_dqm(0) <= rx_buf_curpos(0);
                     mc_in.op_dqm(1) <= not rx_buf_curpos(0);
                     mem_op_strobe_save <= mc_out.op_strobe;
@@ -181,7 +181,7 @@ begin
                 else
                     if (rx_detect = '1') then
                         -- rx_baud_counter now contains bit delay
-                        rx_bit_count <= "0000";
+                        rx_bit_count <= "1000";
                         rx_state <= RX_BITS;
                         -- center wait for first bit
                         rx_wait_counter <= "0" & rx_baud_counter(3 downto 1);
@@ -193,6 +193,8 @@ begin
                         std_logic_vector(unsigned(rx_wait_counter) - 1);
                 else
                     rx_wait_counter <= rx_baud_counter;
+                    rx_bit_count <= 
+                        std_logic_vector(unsigned(rx_bit_count) - 1);
                     if (rx_bit_count = "0000") then
                         -- stop bit check -- else error
                         if (uart_rx = '1') then
@@ -200,7 +202,7 @@ begin
                         end if;
                         rx_state <= RX_RUNNING;
                     else
-                        rx_byte <= rx_byte (6 downto 1) & uart_rx;
+                        rx_byte <= uart_rx & rx_byte(7 downto 1);
                     end if;
                 end if;
         end case;
