@@ -56,7 +56,6 @@ type tx_state_t is (
 
 signal tx_state:        tx_state_t := TX_RUNNING;
 
-signal rx_baud_counter: std_logic_vector(4 downto 0);
 signal rx_wait_counter: std_logic_vector(4 downto 0);
 signal rx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
@@ -64,7 +63,6 @@ signal rx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
 signal rx_byte:         std_logic_vector(7 downto 0) := (others => '0');
 signal rx_done:         std_logic := '0';
 signal rx_done_ack:     std_logic := '0';
-signal rx_detect:       std_logic := '0';
 signal rx_bit_count:    std_logic_vector(3 downto 0);
 
 type rx_state_t is (
@@ -173,21 +171,9 @@ begin
         case rx_state is
             when RX_RUNNING =>
                 if (uart_rx = '0') then
-                    if (rx_detect = '0') then
-                        rx_baud_counter <= (others => '0');
-                        rx_detect <= '1';
-                    else
-                        rx_baud_counter <= 
-                            std_logic_vector(unsigned(rx_baud_counter) + 1);
-                    end if;
-                else
-                    if (rx_detect = '1') then
-                        -- rx_baud_counter now contains bit delay
-                        rx_bit_count <= "1000";
-                        rx_state <= RX_BITS;
-                        -- center wait for first bit
-                        rx_wait_counter <= "0" & rx_baud_counter(4 downto 1);
-                    end if;
+                    rx_wait_counter <= "11000";
+                    rx_bit_count <= "1000";
+                    rx_state <= RX_BITS;
                 end if;
             when RX_WAIT_ERROR =>
                 if (uart_rx = '1') then
@@ -198,12 +184,11 @@ begin
                     rx_wait_counter <= 
                         std_logic_vector(unsigned(rx_wait_counter) - 1);
                 else
-                    rx_wait_counter <= rx_baud_counter;
+                    rx_wait_counter <= "01111";
                     rx_bit_count <= 
                         std_logic_vector(unsigned(rx_bit_count) - 1);
                     if (rx_bit_count = "0000") then
                         -- stop bit check -- else error
-                        rx_detect <= '0';
                         if (uart_rx = '1') then
                             rx_done <= not rx_done;
                             rx_state <= RX_RUNNING;
