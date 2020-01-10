@@ -40,11 +40,11 @@ signal mem_op_strobe_save: std_logic;
 signal mem_op_start:    std_logic := '0';
 
 type tx_state_t is (
-    RUNNING,
-    MEM_OP_WAIT,
-    WAIT_TX_BYTE);
+    TX_RUNNING,
+    TX_MEM_OP_WAIT,
+    TX_WAIT_BYTE);
 
-signal tx_state:        tx_state_t := RUNNING;
+signal tx_state:        tx_state_t := TX_RUNNING;
 
 begin
 
@@ -117,11 +117,11 @@ begin
         end if;
 
         case tx_state is 
-            when RUNNING =>
+            when TX_RUNNING =>
                 if (tx_buf_len /= tx_buf_curpos) then
                     if (tx_buf_curpos(0) = '1') then
                         tx_mem_word(7 downto 0) <= tx_mem_word(15 downto 8);
-                        tx_state <= WAIT_TX_BYTE;
+                        tx_state <= TX_WAIT_BYTE;
                         tx_start <= not tx_start;
                     else
                         mc_in.op_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos(7 downto 1);
@@ -129,21 +129,21 @@ begin
                         mc_in.op_wren <= '0';
                         mc_in.op_burst <= '0';
                         mc_in.op_dqm <= "00";
-                        tx_state <= MEM_OP_WAIT;
+                        tx_state <= TX_MEM_OP_WAIT;
                         mem_op_strobe_save <= mc_out.op_strobe;
                     end if;
                 end if;
-            when MEM_OP_WAIT =>
+            when TX_MEM_OP_WAIT =>
                 if (mc_out.op_strobe /= mem_op_strobe_save) then
                     tx_mem_word <= sdc_data_out;                    
-                    tx_state <= WAIT_TX_BYTE;
+                    tx_state <= TX_WAIT_BYTE;
                     tx_start <= not tx_start;
                 end if;
-            when WAIT_TX_BYTE =>
+            when TX_WAIT_BYTE =>
                 if (tx_done = '1') then
                     tx_buf_curpos <= 
                         std_logic_vector(unsigned(tx_buf_curpos) + 1); 
-                    tx_state <= RUNNING;
+                    tx_state <= TX_RUNNING;
                 end if;
         end case;
     end if;
