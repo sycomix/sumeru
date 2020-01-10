@@ -86,10 +86,8 @@ architecture synth of cpu is
     signal timer_intr_trigger:  std_logic;
     signal uart_tx_intr_trigger: std_logic;
     signal uart_rx_intr_trigger: std_logic;
-    signal uart_tx_loop:        std_logic;
 
 begin
-uart_tx_loop <= uart0_tx;
 spi0_sck <= '0';
 spi0_ss <= '0';
 spi0_mosi <= '0';
@@ -252,7 +250,7 @@ csr_uart_rs232: entity work.csr_uart_rs232
         tx_intr_trigger => uart_tx_intr_trigger,
         rx_intr_trigger => uart_rx_intr_trigger,
         uart_tx => uart0_tx,
-        uart_rx => uart_tx_loop
+        uart_rx => uart0_rx
         );
 
 
