@@ -247,8 +247,8 @@ csr_uart_rs232: entity work.csr_uart_rs232
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         tx_intr_trigger => uart_tx_intr_trigger,
-        uart0_tx => uart0_tx,
-        uart0_rx => uart0_rx
+        uart_tx => uart0_tx,
+        uart_rx => uart0_rx
         );
 
 
