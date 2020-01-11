@@ -226,7 +226,6 @@ with tx_bstate select
         '1'             when others;
 
 tx_done <= '1' when tx_start = tx_start_ack else '0';
-tx_intr_trigger <= '1' when (tx_buf_curpos = tx_buf_len and tx_buf_len /= "00000000") else '0';
 
 process(tx_clk)
 begin
@@ -250,21 +249,20 @@ end process;
 process(clk)
 begin
     if (rising_edge(clk)) then
-        if (csr_in.csr_op_valid = '1') then
-            case csr_in.csr_op_reg is
-                when CSR_REG_UART0_TX =>
-                   tx_ctrl <= csr_in.csr_op_data(31 downto 8);
-                   tx_buf_curpos <= (others => '0');
-                   tx_buf_len <= csr_in.csr_op_data(7 downto 0);
-                when others =>
-            end case;
-        end if;
-
         case tx_state is 
             when TX_RUNNING =>
-                if (tx_buf_len /= tx_buf_curpos) then
+                if (csr_in.csr_op_valid = '1' and 
+                    csr_in.csr_op_reg = CSR_REG_UART0_TX)
+                then
+                    tx_ctrl <= csr_in.csr_op_data(31 downto 8);
+                    tx_buf_curpos <= (others => '0');
+                    tx_buf_len <= csr_in.csr_op_data(7 downto 0);
+                    tx_intr_trigger <= '0';
+                elsif (tx_buf_len /= tx_buf_curpos) then
                     mem_read <=  not mem_read;
                     tx_state <= TX_MEM_OP_WAIT;
+                elsif (tx_buf_len /= "00000000") then
+                    tx_intr_trigger <= '1';
                 end if;
             when TX_MEM_OP_WAIT =>
                 if (mem_read = mem_read_ack) then
