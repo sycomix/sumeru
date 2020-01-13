@@ -43,6 +43,7 @@ asm_handle_interrupt:
     addi sp,sp,-60
     addi a0,x1,0  
     jal ra,handle_interrupt
+    addi sp,sp,60
     lw x5,-4(sp)
     lw x6,-8(sp)
     lw x7,-12(sp)
