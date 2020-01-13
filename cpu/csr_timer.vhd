@@ -33,19 +33,17 @@ intr_trigger <= intr_trigger_r;
 process(clk)
 begin
     if (rising_edge(clk)) then
-        timer_value <= std_logic_vector(unsigned(timer_value) + 1);
         if (csr_in.csr_op_valid = '1' and
             csr_in.csr_op_reg = CSR_REG_TIMER_CTRL) 
         then
-            if (csr_in.csr_op_data(2) = '1') then
-                timer_value <= (others => '0');
-                timer_ctrl <= csr_in.csr_op_data;
-            end if;
-            if (csr_in.csr_op_data(3) = '1') then
-                intr_trigger_r <= '0';
-            end if;
-        elsif (timer_enabled = '1') then
-            if (timer_value(31 downto 0) = (timer_max_count & "0000")) then
+            timer_value <= (others => '0');
+            timer_ctrl <= csr_in.csr_op_data;
+            intr_trigger_r <= '0';
+        else
+            timer_value <= std_logic_vector(unsigned(timer_value) + 1);
+            if (timer_enabled = '1' and 
+                timer_value(31 downto 0) = (timer_max_count & "0000")) 
+            then
                 intr_trigger_r <= timer_intr_enabled;
             end if;
         end if;
