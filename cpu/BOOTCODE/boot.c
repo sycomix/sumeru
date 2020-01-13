@@ -59,24 +59,19 @@ get_gpio_out()
 void
 _start(void)
 {
+    unsigned int i = 0;
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_uart_rx(0x00000001);
+    set_timer(0x40F);
 
-    while(1)
-        ;
+    while(1) {
+        set_gpio_out((i++ >> 20) & 1);
+    }
 }
 
 void
 handle_interrupt(int id)
-{
-    set_gpio_out(0);
-    if (id == 3) {
-        set_uart_rx(0x00000000);
-        set_uart_tx(0x00000001);
-    } else {
-        set_uart_tx(0x00000000);
-        set_uart_rx(0x00000001);
-    }
+{ 
+    set_timer(0x40F);
 }
