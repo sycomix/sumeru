@@ -17,8 +17,8 @@ port(
 end entity;
 
 architecture synth of periph_dma is
-signal read_ack:        std_logic := '0';
-signal write_ack:       std_logic := '0';
+signal read_ack_r:      std_logic := '0';
+signal write_ack_r:     std_logic := '0';
 signal mem_op_start:    std_logic := '0';
 signal mem_op_strobe_save: std_logic;
 
@@ -36,6 +36,9 @@ begin
 mc_in.op_start <= mem_op_start;
 mc_in.op_burst <= '0';
 
+pdma_out.write_ack <= write_ack_r;
+pdma_out.read_ack <= read_ack_r;
+
 process(clk)
 begin
     if (rising_edge(clk)) then
@@ -43,40 +46,40 @@ begin
             when MS_RUNNING =>
                 -- read check must have priority as we don't set
                 -- read ack in MS_WAIT and set in below instead
-                if (pdma_in.read /= read_ack) then
-                    if (last_read_addr = pdma_in.addr(24 downto 1)) 
+                if (pdma_in.read /= read_ack_r) then
+                    if (last_read_addr = pdma_in.read_addr(24 downto 1)) 
                     then
-                        read_ack <= not read_ack;
-                        if (pdma_in.addr(0) = '0') then
+                        read_ack_r <= not read_ack_r;
+                        if (pdma_in.read_addr(0) = '0') then
                             pdma_out.read_data <= mem_read_word(7 downto 0);
                         else
                             pdma_out.read_data <= mem_read_word(15 downto 8);
                         end if;
                     else
-                        mc_in.op_addr <= pdma_in.addr(24 downto 1);
+                        mc_in.op_addr <= pdma_in.read_addr(24 downto 1);
                         mem_op_start <= not mem_op_start;
                         mc_in.op_wren <= '0';
                         mc_in.op_dqm <= "00";
                         mem_op_strobe_save <= mc_out.op_strobe;
                         mem_state <= MS_WAIT;
                     end if;
-                elsif (pdma_in.write /= write_ack) then
-                    mc_in.op_addr <= pdma_in.addr(24 downto 1);
+                elsif (pdma_in.write /= write_ack_r) then
+                    mc_in.op_addr <= pdma_in.write_addr(24 downto 1);
                     mem_op_start <= not mem_op_start;
                     mc_in.op_wren <= '1';
                     mc_in.write_data <= pdma_in.write_data & pdma_in.write_data;
-                    mc_in.op_dqm(0) <= pdma_in.addr(0);
-                    mc_in.op_dqm(1) <= not pdma_in.addr(0);
+                    mc_in.op_dqm(0) <= pdma_in.write_addr(0);
+                    mc_in.op_dqm(1) <= not pdma_in.write_addr(0);
                     mem_op_strobe_save <= mc_out.op_strobe;
                     mem_state <= MS_WAIT;
                 end if;
             when MS_WAIT =>
                 if (mc_out.op_strobe /= mem_op_strobe_save) then
                     if (mc_in.op_wren = '1') then
-                        write_ack <= not write_ack;
+                        write_ack_r <= not write_ack_r;
                     else
-                        -- read_ack is set above refer to comment
-                        last_read_addr <= pdma_in.addr(24 downto 1);
+                        -- read_ack_r is set above refer to comment
+                        last_read_addr <= pdma_in.read_addr(24 downto 1);
                         mem_read_word <= sdc_data_out;                    
                     end if;
                     mem_state <= MS_RUNNING;

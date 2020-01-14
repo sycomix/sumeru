@@ -93,14 +93,17 @@ package cpu_types is
     end record;
 
     type periph_dma_channel_in_t is record
-        addr:                   std_logic_vector(24 downto 0);
         read:                   std_logic;
+        read_addr:              std_logic_vector(24 downto 0);
         write:                  std_logic;
+        write_addr:             std_logic_vector(24 downto 0);
         write_data:             std_logic_vector(7 downto 0);
     end record;
 
     type periph_dma_channel_out_t is record
+        read_ack:               std_logic;
         read_data:              std_logic_vector(7 downto 0);
+        write_ack:              std_logic;
     end record;
 
 end package;

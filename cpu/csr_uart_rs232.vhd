@@ -145,8 +145,13 @@ begin
                 tx_state <= TX_RUNNING;
             end if;
     end case;
-
 end process;
+
+process(tx_clk)
+begin
+    if (txd_start /= tx_start_ack) then
+        txd_bcounter <= 
+end if;
 
 
 end architecture;
