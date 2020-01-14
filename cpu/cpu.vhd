@@ -33,7 +33,6 @@ end entity;
 architecture synth of cpu is
     signal clk:                 std_logic;
     signal clk_n:               std_logic;
-    signal clk_1m842105:        std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
     signal reset:               std_logic;
@@ -97,7 +96,6 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => clk,
         c1 => clk_n,
-        c2 => clk_1m842105,
         locked => pll_locked
         );
 
@@ -241,7 +239,6 @@ csr_counters: entity work.csr_counters
 csr_uart_rs232: entity work.csr_uart_rs232
     port map(
         clk => clk,
-        clk_uartx16 => clk_1m842105,
         mc_in => mc2_in,
         mc_out => mc2_out,
         sdc_data_out => sdc_data_out,
