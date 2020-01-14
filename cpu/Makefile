@@ -35,7 +35,7 @@ SRCS = sumeru_constants.vhd \
 
 OBJS = $(SRCS:.vhd=.o)
 
-SIM_PERIOD = 75us
+SIM_PERIOD = 200us
 LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
 
 #****************************************************************
@@ -78,13 +78,13 @@ cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
 csr_counters.o: cpu_types.o sumeru_constants.o
-csr_uart_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o periph_dma.o
+csr_uart_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o perip_dma.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o
 cpu_alu.o: cpu_types.o
 intr_controller.o: sumeru_constants.o cpu_types.o
-periph_dma.o: cpu_types.o memory_channel_types.o
+perip_dma.o: cpu_types.o memory_channel_types.o
 
 
 #****************************************************************

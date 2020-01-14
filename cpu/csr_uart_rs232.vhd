@@ -37,7 +37,7 @@ signal mem_state: mem_state_t := MS_RUNNING;
 
 signal rx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
-signal rx_buf_curpos:   std_logic_vector(23 downto 0) := (others => '0');
+signal rx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
 signal rx_intr:         std_logic := '0';
 
 signal pdma_in:         periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
@@ -57,13 +57,17 @@ type tx_state_t is (
     TX_IDLE,
     TX_RUNNING,
     TX_READ_MEM,
-    TX_WAIT);
+    TX_WAIT_MEM,
+    TX_WAIT_TX);
 
 signal tx_state: tx_state_t := TX_IDLE;
+
+signal tx_byte:         std_logic_vector(7 downto 0) := (others => '1');
 
 signal txd_start:       std_logic := '0';
 signal txd_start_ack:   std_logic := '0';
 signal txd_busy:        std_logic := '0';
+signal txd_bitnr:       std_logic_vector(3 downto 0) := (others => '0');
 
 
 begin
@@ -74,10 +78,6 @@ csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
     (tx_ctrl & tx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_TX else
     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
-
--- Memory Read/Write process
-mc_in.op_start <= mem_op_start;
-mc_in.op_burst <= '0';
 
 dma_engine: entity work.periph_dma
     port map(
@@ -108,7 +108,7 @@ begin
             csr_in.csr_op_reg = CSR_REG_UART0_TX) 
         then
             tx_ctrl <= csr_in.csr_op_data(31 downto 8);
-            tx_buf_len <= csr_in.csr_op_data(31 downto 8);
+            tx_buf_len <= csr_in.csr_op_data(7 downto 0);
             tx_intr <= '0';
         elsif (tx_intr_raise /= tx_intr_raise_ack) then
             tx_intr_raise_ack <= not tx_intr_raise_ack;
@@ -137,21 +137,53 @@ begin
             end if;
         when TX_READ_MEM =>
             if (pdma_in.read = pdma_out.read_ack) then
-                txd_start <= not txd_start;
+                tx_state <= TX_WAIT_MEM;
             end if;
-        when TX_WAIT =>
+        when TX_WAIT_MEM =>
             if (txd_start = txd_start_ack) then
+                txd_start <= not txd_start;
+                tx_byte <= pdma_out.read_data;
                 tx_buf_curpos <= std_logic_vector(unsigned(tx_buf_curpos) + 1);
+                tx_state <= TX_WAIT_TX;
+            end if;
+        when TX_WAIT_TX =>
+            if (txd_start = txd_start_ack) then
                 tx_state <= TX_RUNNING;
             end if;
     end case;
 end process;
 
+with txd_bitnr select
+    uart_tx <=
+        tx_byte(7)      when "0001",
+        tx_byte(6)      when "0010",
+        tx_byte(5)      when "0011",
+        tx_byte(4)      when "0100",
+        tx_byte(3)      when "0101",
+        tx_byte(2)      when "0110",
+        tx_byte(1)      when "0111",
+        tx_byte(0)      when "1000",
+        '0'             when "1001",
+        '1'             when others;
+
 process(tx_clk)
 begin
-    if (txd_start /= tx_start_ack) then
-        txd_bcounter <= 
-end if;
-
+    if (rising_edge(tx_clk)) then
+        if (txd_start /= txd_start_ack) then
+            if (txd_bitnr = "0000") then
+            txd_bitnr <= "1001";
+                txd_busy <= '1';
+            else
+                if (txd_bitnr = "0001") then
+                    txd_start_ack <= not txd_start_ack;
+                    txd_bitnr <= (others => '0');
+                    txd_busy <= '0';
+                else
+                    txd_bitnr <= std_logic_vector(unsigned(txd_bitnr) - 1);
+                end if;
+            end if;
+        end if;
+    end if;
+end process;
 
 end architecture;
