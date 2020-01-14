@@ -80,7 +80,7 @@ begin
                     else
                         -- read_ack_r is set above refer to comment
                         last_read_addr <= pdma_in.read_addr(24 downto 1);
-                        mem_read_word <= sdc_data_out;                    
+                        mem_read_word <= sdc_data_out;
                     end if;
                     mem_state <= MS_RUNNING;
                 end if;
