@@ -45,6 +45,9 @@ signal tx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
 signal tx_buf_curpos:   std_logic_vector(23 downto 0) := (others => '0');
 signal tx_mem_word:     std_logic_vector(15 downto 0);
 
+signal pdma_in:         periph_dma_channel_in_t := ((others => '0'), '0', '0', (others => '0'));
+signal pdma_out:        periph_dma_channel_out_t;
+
 begin
 csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
@@ -54,6 +57,16 @@ csr_sel_result <=
 -- Memory Read/Write process
 mc_in.op_start <= mem_op_start;
 mc_in.op_burst <= '0';
+
+dma_engine: entity work.periph_dma
+    port map(
+        clk => clk,
+        mc_in => mc_in,
+        mc_out => mc_out,
+        sdc_data_out => sdc_data_out,
+        pdma_in => pdma_in,
+        pdma_out => pdma_out
+    );
 
 process(clk)
 begin
