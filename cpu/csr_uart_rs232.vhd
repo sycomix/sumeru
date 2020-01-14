@@ -38,17 +38,38 @@ signal mem_state: mem_state_t := MS_RUNNING;
 signal rx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
 signal rx_buf_curpos:   std_logic_vector(23 downto 0) := (others => '0');
-signal rx_byte:         std_logic_vector(7 downto 0);
+signal rx_intr:         std_logic := '0';
+
+signal pdma_in:         periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
+signal pdma_out:        periph_dma_channel_out_t;
+
+signal tx_clk:          std_logic := '0';
+signal tx_ctr:          std_logic_vector(8 downto 0) := (others => '0');
 
 signal tx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal tx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
-signal tx_buf_curpos:   std_logic_vector(23 downto 0) := (others => '0');
-signal tx_mem_word:     std_logic_vector(15 downto 0);
+signal tx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
+signal tx_intr:         std_logic := '0';
+signal tx_intr_raise:   std_logic := '0';
+signal tx_intr_raise_ack: std_logic := '0';
 
-signal pdma_in:         periph_dma_channel_in_t := ((others => '0'), '0', '0', (others => '0'));
-signal pdma_out:        periph_dma_channel_out_t;
+type tx_state_t is (
+    TX_IDLE,
+    TX_RUNNING,
+    TX_READ_MEM,
+    TX_WAIT);
+
+signal tx_state: tx_state_t := TX_IDLE;
+
+signal txd_start:       std_logic := '0';
+signal txd_start_ack:   std_logic := '0';
+signal txd_busy:        std_logic := '0';
+
 
 begin
+tx_intr_trigger <= tx_intr;
+rx_intr_trigger <= rx_intr;
+
 csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
     (tx_ctrl & tx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_TX else
@@ -68,45 +89,64 @@ dma_engine: entity work.periph_dma
         pdma_out => pdma_out
     );
 
-process(clk)
+tx_clk_gen: process(clk)
 begin
     if (rising_edge(clk)) then
-        case mem_state is
-            when MS_RUNNING =>
-                if (mem_write /= mem_write_ack) then
-                    mc_in.op_addr <= rx_ctrl(16 downto 0) & rx_buf_curpos(7 downto 1);
-                    mem_op_start <= not mem_op_start;
-                    mc_in.op_wren <= '1';
-                    mc_in.write_data <= rx_byte & rx_byte;
-                    mc_in.op_dqm(0) <= rx_buf_curpos(0);
-                    mc_in.op_dqm(1) <= not rx_buf_curpos(0);
-                    mem_op_strobe_save <= mc_out.op_strobe;
-                    mem_state <= MS_WAIT;
-                elsif (mem_read /= mem_read_ack) then
-                    if (tx_buf_curpos(0) = '1') then
-                        tx_mem_word(7 downto 0) <= tx_mem_word(15 downto 8);
-                        mem_read_ack <= not mem_read_ack;
-                    else
-                        mc_in.op_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos(7 downto 1);
-                        mem_op_start <= not mem_op_start;
-                        mc_in.op_wren <= '0';
-                        mc_in.op_dqm <= "00";
-                        mem_op_strobe_save <= mc_out.op_strobe;
-                        mem_state <= MS_WAIT;
-                    end if;
-                end if;
-            when MS_WAIT =>
-                if (mc_out.op_strobe /= mem_op_strobe_save) then
-                    if (mc_in.op_wren = '1') then
-                        mem_write_ack <= not mem_write_ack;
-                    else
-                        mem_read_ack <= not mem_read_ack;
-                        tx_mem_word <= sdc_data_out;                    
-                    end if;
-                    mem_state <= MS_RUNNING;
-                end if;
-        end case;
+        if (unsigned(tx_ctr) = 368) then
+            tx_clk <= not tx_clk;
+            tx_ctr <= (others => '0');
+        else
+            tx_ctr <= std_logic_vector(unsigned(tx_ctr) + 1);
+        end if;
     end if;
 end process;
+
+tx_reg_update: process(clk)
+begin
+    if (rising_edge(clk)) then
+        if (csr_in.csr_op_valid = '1' and
+            csr_in.csr_op_reg = CSR_REG_UART0_TX) 
+        then
+            tx_ctrl <= csr_in.csr_op_data(31 downto 8);
+            tx_buf_len <= csr_in.csr_op_data(31 downto 8);
+            tx_intr <= '0';
+        elsif (tx_intr_raise /= tx_intr_raise_ack) then
+            tx_intr_raise_ack <= not tx_intr_raise_ack;
+            tx_intr <= '1';
+        end if;
+
+    end if;
+end process;
+
+process(clk)
+begin
+    case tx_state is 
+        when TX_IDLE =>
+            if (tx_buf_len /= tx_buf_curpos and tx_buf_len /= x"00")  then
+                tx_buf_curpos <= (others => '0');                
+                tx_state <= TX_RUNNING;
+            end if;
+        when TX_RUNNING =>
+            if (tx_buf_curpos /= tx_buf_len and txd_busy = '0') then
+                pdma_in.read_addr <= '0' & tx_ctrl(23 downto 8) & tx_buf_curpos;                
+                pdma_in.read <= not pdma_in.read;
+                tx_state <= TX_READ_MEM;
+            else
+                tx_intr_raise <= not tx_intr_raise;
+                tx_state <= TX_IDLE;
+            end if;
+        when TX_READ_MEM =>
+            if (pdma_in.read = pdma_out.read_ack) then
+                txd_start <= not txd_start;
+            end if;
+        when TX_WAIT =>
+            if (txd_start = txd_start_ack) then
+                tx_buf_curpos <= std_logic_vector(unsigned(tx_buf_curpos) + 1);
+                tx_state <= TX_RUNNING;
+            end if;
+    end case;
+
+end process;
+
 
 end architecture;
