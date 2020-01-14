@@ -22,19 +22,6 @@ port(
 end entity;
 
 architecture synth of csr_uart_rs232 is
-signal mem_read:        std_logic := '0';
-signal mem_write:       std_logic := '0';
-signal mem_read_ack:    std_logic := '0';
-signal mem_write_ack:   std_logic := '0';
-signal mem_op_start:    std_logic := '0';
-signal mem_op_strobe_save: std_logic;
-
-type mem_state_t is (
-    MS_RUNNING,
-    MS_WAIT);
-
-signal mem_state: mem_state_t := MS_RUNNING;
-
 signal rx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
 signal rx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
@@ -52,12 +39,13 @@ signal tx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
 signal tx_intr:         std_logic := '0';
 signal tx_intr_raise:   std_logic := '0';
 signal tx_intr_raise_ack: std_logic := '0';
+signal tx_start:        std_logic := '0';
+signal tx_start_ack:    std_logic := '0';
 
 type tx_state_t is (
     TX_IDLE,
     TX_RUNNING,
     TX_READ_MEM,
-    TX_WAIT_MEM,
     TX_WAIT_TX);
 
 signal tx_state: tx_state_t := TX_IDLE;
@@ -66,7 +54,6 @@ signal tx_byte:         std_logic_vector(7 downto 0) := (others => '1');
 
 signal txd_start:       std_logic := '0';
 signal txd_start_ack:   std_logic := '0';
-signal txd_busy:        std_logic := '0';
 signal txd_bitnr:       std_logic_vector(3 downto 0) := (others => '0');
 
 
@@ -110,6 +97,7 @@ begin
             tx_ctrl <= csr_in.csr_op_data(31 downto 8);
             tx_buf_len <= csr_in.csr_op_data(7 downto 0);
             tx_intr <= '0';
+            tx_start <= not tx_start;
         elsif (tx_intr_raise /= tx_intr_raise_ack) then
             tx_intr_raise_ack <= not tx_intr_raise_ack;
             tx_intr <= '1';
@@ -120,37 +108,41 @@ end process;
 
 process(clk)
 begin
-    case tx_state is 
-        when TX_IDLE =>
-            if (tx_buf_len /= tx_buf_curpos and tx_buf_len /= x"00")  then
-                tx_buf_curpos <= (others => '0');                
-                tx_state <= TX_RUNNING;
-            end if;
-        when TX_RUNNING =>
-            if (tx_buf_curpos /= tx_buf_len and txd_busy = '0') then
-                pdma_in.read_addr <= '0' & tx_ctrl(23 downto 8) & tx_buf_curpos;                
-                pdma_in.read <= not pdma_in.read;
-                tx_state <= TX_READ_MEM;
-            else
-                tx_intr_raise <= not tx_intr_raise;
-                tx_state <= TX_IDLE;
-            end if;
-        when TX_READ_MEM =>
-            if (pdma_in.read = pdma_out.read_ack) then
-                tx_state <= TX_WAIT_MEM;
-            end if;
-        when TX_WAIT_MEM =>
-            if (txd_start = txd_start_ack) then
-                txd_start <= not txd_start;
-                tx_byte <= pdma_out.read_data;
-                tx_buf_curpos <= std_logic_vector(unsigned(tx_buf_curpos) + 1);
-                tx_state <= TX_WAIT_TX;
-            end if;
-        when TX_WAIT_TX =>
-            if (txd_start = txd_start_ack) then
-                tx_state <= TX_RUNNING;
-            end if;
-    end case;
+    if (rising_edge(clk)) then
+        case tx_state is 
+            when TX_IDLE =>
+                if (tx_start /= tx_start_ack)  then
+                    tx_start_ack <= not tx_start_ack;
+                    if (tx_buf_len /= "00000000") then
+                        tx_state <= TX_RUNNING;
+                        tx_buf_curpos <= (others => '0');
+                    end if;
+                end if;
+            when TX_RUNNING =>
+                if (tx_start /= tx_start_ack) then
+                    -- TX CTRL has been updated, abort transmit
+                    state <= IDLE;
+                elsif (tx_buf_curpos /= tx_buf_len) then
+                    pdma_in.read_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos;
+                    pdma_in.read <= not pdma_in.read;
+                    tx_state <= TX_READ_MEM;
+                else
+                    tx_intr_raise <= not tx_intr_raise;
+                    tx_state <= TX_IDLE;
+                end if;
+            when TX_READ_MEM =>
+                if (pdma_in.read = pdma_out.read_ack) then
+                    txd_start <= not txd_start;
+                    tx_byte <= pdma_out.read_data;
+                    tx_state <= TX_WAIT_TX;
+                end if;
+            when TX_WAIT_TX =>
+                if (txd_start = txd_start_ack) then
+                    tx_state <= TX_RUNNING;
+                    tx_buf_curpos <= std_logic_vector(unsigned(tx_buf_curpos) + 1);
+                end if;
+        end case;
+    end if;
 end process;
 
 with txd_bitnr select
@@ -171,16 +163,12 @@ begin
     if (rising_edge(tx_clk)) then
         if (txd_start /= txd_start_ack) then
             if (txd_bitnr = "0000") then
-            txd_bitnr <= "1001";
-                txd_busy <= '1';
+                txd_bitnr <= "1001";
             else
                 if (txd_bitnr = "0001") then
                     txd_start_ack <= not txd_start_ack;
-                    txd_bitnr <= (others => '0');
-                    txd_busy <= '0';
-                else
-                    txd_bitnr <= std_logic_vector(unsigned(txd_bitnr) - 1);
                 end if;
+                txd_bitnr <= std_logic_vector(unsigned(txd_bitnr) - 1);
             end if;
         end if;
     end if;
