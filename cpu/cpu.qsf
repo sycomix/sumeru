@@ -53,7 +53,7 @@ set_global_assignment -name VHDL_FILE cpu_mult.vhd
 set_global_assignment -name VHDL_FILE cpu_div.vhd
 set_global_assignment -name VHDL_FILE cpu_muldiv.vhd
 set_global_assignment -name VHDL_FILE cpu_stage_iexec.vhd
-set_global_assignment -name VHDL_FILE perip_dma.vhd
+set_global_assignment -name VHDL_FILE periph_dma.vhd
 set_global_assignment -name VHDL_FILE csr_gpio.vhd
 set_global_assignment -name VHDL_FILE csr_timer.vhd
 set_global_assignment -name VHDL_FILE csr_counters.vhd
