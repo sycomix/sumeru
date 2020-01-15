@@ -35,12 +35,18 @@ signal tx_ctr:          std_logic_vector(8 downto 0) := (others => '0');
 
 signal tx_ctrl:         std_logic_vector(23 downto 0) := (others => '0');
 signal tx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
-signal tx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
 signal tx_intr:         std_logic := '0';
-signal tx_intr_raise:   std_logic := '0';
 signal tx_intr_raise_ack: std_logic := '0';
 signal tx_start:        std_logic := '0';
+
+signal tx_buf_curpos:   std_logic_vector(7 downto 0) := (others => '0');
+signal tx_intr_raise:   std_logic := '0';
 signal tx_start_ack:    std_logic := '0';
+
+signal tx_byte:         std_logic_vector(7 downto 0) := (others => '1');
+signal txd_start:       std_logic := '0';
+signal txd_start_ack:   std_logic := '0';
+signal txd_bitnr:       std_logic_vector(3 downto 0) := (others => '0');
 
 type tx_state_t is (
     TX_IDLE,
@@ -49,13 +55,6 @@ type tx_state_t is (
     TX_WAIT_TX);
 
 signal tx_state: tx_state_t := TX_IDLE;
-
-signal tx_byte:         std_logic_vector(7 downto 0) := (others => '1');
-
-signal txd_start:       std_logic := '0';
-signal txd_start_ack:   std_logic := '0';
-signal txd_bitnr:       std_logic_vector(3 downto 0) := (others => '0');
-
 
 begin
 tx_intr_trigger <= tx_intr;
@@ -121,7 +120,7 @@ begin
             when TX_RUNNING =>
                 if (tx_start /= tx_start_ack) then
                     -- TX CTRL has been updated, abort transmit
-                    state <= IDLE;
+                    tx_state <= TX_IDLE;
                 elsif (tx_buf_curpos /= tx_buf_len) then
                     pdma_in.read_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos;
                     pdma_in.read <= not pdma_in.read;

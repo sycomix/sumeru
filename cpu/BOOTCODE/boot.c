@@ -75,6 +75,6 @@ void
 handle_interrupt(int id)
 {
     if (id == 2) {
-        set_uart_tx(0x0);
+        set_uart_tx(0x10);
     }
 }
