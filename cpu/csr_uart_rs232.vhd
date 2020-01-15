@@ -118,10 +118,7 @@ begin
                     end if;
                 end if;
             when TX_RUNNING =>
-                if (tx_start /= tx_start_ack) then
-                    -- TX CTRL has been updated, abort transmit
-                    tx_state <= TX_IDLE;
-                elsif (tx_buf_curpos /= tx_buf_len) then
+                if (tx_buf_curpos /= tx_buf_len) then
                     pdma_in.read_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos;
                     pdma_in.read <= not pdma_in.read;
                     tx_state <= TX_READ_MEM;
