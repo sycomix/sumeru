@@ -33,7 +33,6 @@ end entity;
 architecture synth of cpu is
     signal clk:                 std_logic;
     signal clk_n:               std_logic;
-    signal clk_1m842105:        std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
     signal reset:               std_logic;
@@ -95,7 +94,6 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => clk,
         c1 => clk_n,
-        c2 => clk_1m842105,
         locked => pll_locked
         );
 
