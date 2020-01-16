@@ -34,7 +34,7 @@ SRCS = sumeru_constants.vhd \
 
 OBJS = $(SRCS:.vhd=.o)
 
-SIM_PERIOD = 75us
+SIM_PERIOD = 150us
 LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
 
 #****************************************************************
