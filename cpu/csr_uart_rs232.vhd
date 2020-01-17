@@ -16,7 +16,9 @@ port(
     pdma_out:                   in periph_dma_channel_out_t;
     tx_intr_toggle:             out std_logic;
     uart_tx:                    out std_logic;
-    uart_rx:                    in std_logic);
+    uart_rx:                    in std_logic
+    ; debug:                    out std_logic
+    );
 end entity;
 
 architecture synth of csr_uart_rs232 is
@@ -47,7 +49,11 @@ type tx_state_t is (
 
 signal tx_state:                tx_state_t := TX_IDLE;
 
+signal debug_r:                 std_logic := '0';
+
 begin
+debug <= debug_r;
+
 csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
     (tx_ctrl & tx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_TX else
@@ -96,18 +102,20 @@ begin
     end if;
 end process;
 
+debug_r <= csr_in.csr_op_valid;
+
 process(clk)
 begin
     if (rising_edge(clk)) then
         case tx_state is 
             when TX_IDLE =>
                 if (csr_in.csr_op_valid = '1' and 
-                    csr_in.csr_op_reg = CSR_REG_UART0_TX) 
+                    csr_in.csr_op_reg = CSR_REG_UART0_TX)
                 then
                     tx_ctrl <= csr_in.csr_op_data(31 downto 8);
                     tx_buf_len <= csr_in.csr_op_data(7 downto 0);
                     tx_buf_curpos <= (others => '0');
-                    -- tx_state <= TX_RUNNING;
+                    tx_state <= TX_RUNNING;
                 end if;
             when TX_RUNNING =>
                 if (tx_buf_curpos /= tx_buf_len) then
