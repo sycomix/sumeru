@@ -43,7 +43,7 @@ begin
             if (timer_enabled = '1' and 
                 timer_value(31 downto 0) = (timer_max_count & "0000")) 
             then
-                intr_trigger_r <= timer_intr_enabled;
+                intr_trigger_r <= '1';
             end if;
         end if;
     end if;

@@ -23,6 +23,7 @@ SRCS = sumeru_constants.vhd \
         cpu_muldiv.vhd \
         readwritecache_256x4x32.vhd \
         cpu_stage_iexec.vhd \
+        periph_dma.vhd \
         csr_gpio.vhd \
         csr_timer.vhd \
         csr_counters.vhd \
@@ -60,6 +61,7 @@ ${TOPLEVEL}.o: cpu_types.o \
         cpu_stage_ifetch.o \
         cpu_stage_idecode.o \
         cpu_stage_iexec.o \
+        periph_dma.o \
         csr_gpio.o \
         csr_timer.o \
         csr_counters.o \
@@ -83,6 +85,7 @@ cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o
 cpu_alu.o: cpu_types.o
 intr_controller.o: sumeru_constants.o cpu_types.o
+periph_dma.o: cpu_types.o memory_channel_types.o
 
 
 #****************************************************************
