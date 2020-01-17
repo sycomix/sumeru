@@ -79,7 +79,7 @@ cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
 csr_counters.o: cpu_types.o sumeru_constants.o
-csr_uart_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o
+csr_uart_rs232.o: cpu_types.o sumeru_constants.o periph_dma.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o

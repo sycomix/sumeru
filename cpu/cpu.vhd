@@ -83,6 +83,7 @@ architecture synth of cpu is
     signal intr_out:            intr_channel_out_t;
     signal intr_reset:          std_logic;
     signal timer_intr_trigger:  std_logic;
+    signal uart0_tx_intr_toggle: std_logic;
 
     signal pdma_in:             periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
     signal pdma_out:            periph_dma_channel_out_t := ('0', (others => '0'), '0');
@@ -242,7 +243,8 @@ intr_controller: entity work.intr_controller
         clk => clk,
         intr_out => intr_out,
         intr_reset => intr_reset,
-        timer_intr_trigger => timer_intr_trigger
+        timer_intr_trigger => timer_intr_trigger,
+        uart0_tx_intr_toggle => uart0_tx_intr_toggle
         );
 
 uart0_pdma: entity work.periph_dma
@@ -255,8 +257,19 @@ uart0_pdma: entity work.periph_dma
         pdma_out => pdma_out
         );
 
+uart0: entity work.csr_uart_rs232
+    port map(
+        clk => clk,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        pdma_in => pdma_in,
+        pdma_out => pdma_out,
+        tx_intr_toggle => uart0_tx_intr_toggle,
+        uart_tx => uart0_tx,
+        uart_rx => uart0_rx
+        );
+
 
 led <= gpio(0);
-uart0_tx <= '1';
 
 end architecture;
