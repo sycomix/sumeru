@@ -16,14 +16,14 @@ __attribute__ ((always_inline))
 inline void
 set_uart_tx(unsigned int x)
 {
-    asm volatile("csrrw x0, 0x886, %0;" : : "r"(x));
+    asm volatile("csrrw x0, 0x889, %0;" : : "r"(x));
 }
 
 __attribute__ ((always_inline))
 inline void
 set_uart_rx(unsigned int x)
 {
-    asm volatile("csrrw x0, 0x885, %0;" : : "r"(x));
+    asm volatile("csrrw x0, 0x888, %0;" : : "r"(x));
 }
 
 __attribute__ ((always_inline))
@@ -63,8 +63,7 @@ _start(void)
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_timer(0x0400F);
-    set_uart_tx(0x10);
+    set_timer(0x04F);
 
     while(1) {
         ++i;
@@ -75,8 +74,7 @@ _start(void)
 void
 handle_interrupt(int id)
 {
-    switch (id) {
-    case 1:
-        set_timer(0x0400F);
+    if (id == 1) {
+        set_timer(0x04F);
     }
 }

@@ -107,7 +107,7 @@ begin
                     tx_ctrl <= csr_in.csr_op_data(31 downto 8);
                     tx_buf_len <= csr_in.csr_op_data(7 downto 0);
                     tx_buf_curpos <= (others => '0');
-                    tx_state <= TX_RUNNING;
+                    -- tx_state <= TX_RUNNING;
                 end if;
             when TX_RUNNING =>
                 if (tx_buf_curpos /= tx_buf_len) then
