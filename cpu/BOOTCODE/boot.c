@@ -63,7 +63,7 @@ _start(void)
     asm("lui sp, 1");
     set_gpio_dir(1);
     set_gpio_out(1);
-    set_timer(0x0400F);
+    set_timer(0x04000F);
     set_uart_tx(0x10);
 
     while(1) {
@@ -77,7 +77,7 @@ void
 handle_interrupt(int id)
 {
     if (id == 1) {
-        set_timer(0x400F0);
+        set_timer(0x4000F);
     } else if (id == 2) {
         set_uart_tx(0x10);
     }
