@@ -47,7 +47,7 @@ compile: $(TOPLEVEL)_tb
 
 #****************************************************************
 
-${TOPLEVEL}_tb.o: ${TOPLEVEL}.o sim_sdram_mt48lc16m16a2.o
+${TOPLEVEL}_tb.o: ${TOPLEVEL}.o sim_sdram_mt48lc16m16a2.o ${TOPLEVEL}.o
 
 ${TOPLEVEL}.o: cpu_types.o \
         sumeru_constants.o \
@@ -66,7 +66,7 @@ ${TOPLEVEL}.o: cpu_types.o \
         csr_timer.o \
         csr_counters.o \
         csr_uart_rs232.o \
-        intr_controller.o 
+        intr_controller.o
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
