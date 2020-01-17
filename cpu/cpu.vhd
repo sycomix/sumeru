@@ -27,7 +27,6 @@ port(
     sdram_cs:                   out std_logic;
     uart0_tx:                   out std_logic;
     uart0_rx:                   in std_logic
-    ; debug:                      out std_logic
     );
 end entity;
 
@@ -268,7 +267,6 @@ uart0: entity work.csr_uart_rs232
         tx_intr_toggle => uart0_tx_intr_toggle,
         uart_tx => uart0_tx,
         uart_rx => uart0_rx
-        , debug => debug
         );
 
 

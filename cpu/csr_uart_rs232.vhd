@@ -17,7 +17,6 @@ port(
     tx_intr_toggle:             out std_logic;
     uart_tx:                    out std_logic;
     uart_rx:                    in std_logic
-    ; debug:                    out std_logic
     );
 end entity;
 
@@ -49,10 +48,7 @@ type tx_state_t is (
 
 signal tx_state:                tx_state_t := TX_IDLE;
 
-signal debug_r:                 std_logic := '0';
-
 begin
-debug <= debug_r;
 
 csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
@@ -101,8 +97,6 @@ begin
         end if;
     end if;
 end process;
-
-debug_r <= csr_in.csr_op_valid;
 
 process(clk)
 begin
