@@ -116,7 +116,6 @@ set_location_assignment PIN_25 -to c1_unused_05
 ## VCC 3.3v
 ## VEE Gnd
 ## ... TODO
-set_location_assignment PIN_143 -to debug
 
 
 ## SDRAM Wiring
