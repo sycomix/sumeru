@@ -28,9 +28,6 @@ type mem_state_t is (
 
 signal mem_state: mem_state_t := MS_RUNNING;
 
-signal last_read_addr:  std_logic_vector(23 downto 0);
-signal mem_read_word:   std_logic_vector(15 downto 0);                
-
 begin
 
 mc_in.op_start <= mem_op_start;
@@ -47,22 +44,12 @@ begin
                 -- read check must have priority as we don't set
                 -- read ack in MS_WAIT and set in below instead
                 if (pdma_in.read /= read_ack_r) then
-                    if (last_read_addr = pdma_in.read_addr(24 downto 1)) 
-                    then
-                        read_ack_r <= not read_ack_r;
-                        if (pdma_in.read_addr(0) = '0') then
-                            pdma_out.read_data <= mem_read_word(7 downto 0);
-                        else
-                            pdma_out.read_data <= mem_read_word(15 downto 8);
-                        end if;
-                    else
-                        mc_in.op_addr <= pdma_in.read_addr(24 downto 1);
-                        mem_op_start <= not mem_op_start;
-                        mc_in.op_wren <= '0';
-                        mc_in.op_dqm <= "00";
-                        mem_op_strobe_save <= mc_out.op_strobe;
-                        mem_state <= MS_WAIT;
-                    end if;
+                    mc_in.op_addr <= pdma_in.read_addr(24 downto 1);
+                    mem_op_start <= not mem_op_start;
+                    mc_in.op_wren <= '0';
+                    mc_in.op_dqm <= "00";
+                    mem_op_strobe_save <= mc_out.op_strobe;
+                    mem_state <= MS_WAIT;
                 elsif (pdma_in.write /= write_ack_r) then
                     mc_in.op_addr <= pdma_in.write_addr(24 downto 1);
                     mem_op_start <= not mem_op_start;
@@ -78,9 +65,12 @@ begin
                     if (mc_in.op_wren = '1') then
                         write_ack_r <= not write_ack_r;
                     else
-                        -- read_ack_r is set above refer to comment
-                        last_read_addr <= pdma_in.read_addr(24 downto 1);
-                        mem_read_word <= sdc_data_out;
+                        read_ack_r <= not read_ack_r;
+                        if (pdma_in.read_addr(0) = '0') then
+                            pdma_out.read_data <= sdc_data_out(7 downto 0);
+                        else
+                            pdma_out.read_data <= sdc_data_out(15 downto 8);
+                        end if;
                     end if;
                     mem_state <= MS_RUNNING;
                 end if;
