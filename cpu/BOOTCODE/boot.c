@@ -64,7 +64,7 @@ _start(void)
     set_gpio_dir(1);
     set_gpio_out(1);
     set_timer(0x004F);
-    set_uart_tx(0x10);
+    set_uart_rx(0xa0001);
 
     while(1) {
         ++i;
@@ -79,6 +79,8 @@ handle_interrupt(int id)
     if (id == 1) {
         set_timer(0x04F);
     } else if (id == 2) {
-        set_uart_tx(0x10);
+        set_uart_rx(0xa0001);
+    } else if (id == 3) {
+        set_uart_tx(0xa0001);
     }
 }
