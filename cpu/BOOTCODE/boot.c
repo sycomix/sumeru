@@ -68,7 +68,7 @@ _start(void)
 
     while(1) {
         ++i;
-        set_gpio_out((i >> 20) & 1);
+        set_gpio_out((i >> 23) & 1);
     }
 }
 

@@ -240,6 +240,7 @@ begin
             trigger_cxfer <= '0';
             busy_r <= '0';
             csr_sel_valid_r <= '0';
+            csr_in.csr_sel_reg <= (others => '0');
             intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>

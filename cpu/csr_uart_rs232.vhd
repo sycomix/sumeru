@@ -2,6 +2,7 @@ library ieee, lpm;
 use ieee.std_logic_1164.ALL;
 use ieee.numeric_std.ALL;
 use lpm.lpm_components.lpm_counter;
+use lpm.lpm_components.lpm_shiftreg;
 
 use work.sumeru_constants.ALL;
 use work.cpu_types.ALL;
@@ -10,11 +11,13 @@ use work.memory_channel_types.ALL;
 entity csr_uart_rs232 is
 port(
     clk:                        in std_logic;
+    reset:                      in std_logic;
     csr_in:                     in csr_channel_in_t;
     csr_sel_result:             out std_logic_vector(31 downto 0);
     pdma_in:                    out periph_dma_channel_in_t;
     pdma_out:                   in periph_dma_channel_out_t;
     tx_intr_toggle:             out std_logic;
+    rx_intr_toggle:             out std_logic;
     uart_tx:                    out std_logic;
     uart_rx:                    in std_logic
     );
@@ -29,6 +32,7 @@ signal rx_ctrl:                 std_logic_vector(23 downto 0) := (others => '0')
 signal rx_buf_curpos:           std_logic_vector(7 downto 0) := (others => '0');
 
 signal tx_intr_toggle_r:        std_logic := '0';
+signal rx_intr_toggle_r:        std_logic := '0';
 
 signal tx_clk:                  std_logic := '0';
 signal tx_clk_ctr:              std_logic_vector(8 downto 0) := (others => '0');
@@ -48,7 +52,34 @@ type tx_state_t is (
 
 signal tx_state:                tx_state_t := TX_IDLE;
 
+signal read_r:                  std_logic := '0';
+signal write_r:                 std_logic := '0';
+
+type rxd_state_t is (
+    RXD_IDLE,
+    RXD_RUNNING,
+    RXD_CHECK_STOPBIT,
+    RXD_MEM_WAIT,
+    RXD_WAIT_STOPBIT
+    );
+
+signal rxd_state: rxd_state_t := RXD_IDLE;
+
+signal rx_shreg_data:   std_logic_vector(15 downto 0);
+signal rx_datareg_clk:  std_logic := '0';
+signal rx_datareg_data: std_logic_vector(7 downto 0);
+
+signal rx_reset_curpos: std_logic := '0';
+signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
+
+signal rx_counter:      std_logic_vector(10 downto 0);
+signal rx_bitnr:        std_logic_vector(3 downto 0);
+signal rx_reset_curpos_ack: std_logic := '0';
+
 begin
+
+pdma_in.read <= read_r;
+pdma_in.write <= write_r;
 
 csr_sel_result <=
     (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
@@ -56,11 +87,116 @@ csr_sel_result <=
     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 tx_intr_toggle <= tx_intr_toggle_r;
+rx_intr_toggle <= rx_intr_toggle_r;
+
+rx_shreg: lpm_shiftreg
+    generic map(
+        LPM_DIRECTION => "RIGHT",
+        LPM_WIDTH => 16)
+    port map(
+        clock => clk,
+        aset => reset,
+        shiftin => uart_rx,
+        q => rx_shreg_data);
+
+rx_datreg: lpm_shiftreg
+    generic map(
+        LPM_DIRECTION => "RIGHT",
+        LPM_WIDTH => 8)
+    port map(
+        clock => rx_datareg_clk,
+        shiftin => uart_rx,
+        q => rx_datareg_data);
+
+rx_reg_update: process(clk)
+begin
+    if (rising_edge(clk)) then
+        if (csr_in.csr_op_valid = '1' and
+            csr_in.csr_op_reg = CSR_REG_UART0_RX)
+        then
+            rx_ctrl <= csr_in.csr_op_data(31 downto 8);
+            rx_buf_len <= csr_in.csr_op_data(7 downto 0);
+            rx_reset_curpos <= not rx_reset_curpos;
+        end if;
+    end if;
+end process;
+
+process(clk)
+begin
+    if (rising_edge(clk)) then
+        rx_datareg_clk <= '0';
+        case rxd_state is
+            when RXD_IDLE =>
+                if (rx_shreg_data = x"0000") then
+                    -- RX Start Bit
+                    rx_counter <= "10000000100"; -- 348 * 3 - 16 =  1028 (0x404)
+                    rxd_state <= RXD_RUNNING;
+                    rx_bitnr <= "0000";
+                end if;
+            when RXD_RUNNING =>
+                if (rx_counter = "00000000000") then
+                    rx_datareg_clk <= '1';
+                    rx_counter <= "01010111000"; -- 348 * 2 = 696 (0x2b8)
+                    rx_bitnr <= std_logic_vector(unsigned(rx_bitnr) + 1);
+                    if (rx_bitnr = "0111") then
+                        rxd_state <= RXD_CHECK_STOPBIT;
+                    end if;
+                else
+                    rx_counter <= std_logic_vector(unsigned(rx_counter) - 1);
+                end if;
+            when RXD_CHECK_STOPBIT =>
+                if (rx_counter = "00000000000") then
+                    if (rx_shreg_data = x"FFFF") then
+                        -- DMA BYTE TO MEM
+                        pdma_in.write_data <= rx_datareg_data;
+                        if (rx_reset_curpos /= rx_reset_curpos_ack) then
+                            rx_reset_curpos_ack <= not rx_reset_curpos_ack;
+                            pdma_in.write_addr <= rx_ctrl(16 downto 0) & "00000000";
+                            if (rx_buf_len /= "00000000") then
+                                write_r <= not write_r;
+                                rxd_state <= RXD_MEM_WAIT;
+                                rx_buf_curpos <= "00000001";
+                            else
+                                rx_buf_curpos <= "00000000";
+                                rxd_state <= RXD_IDLE;
+                            end if;
+                        else
+                            pdma_in.write_addr <= rx_ctrl(16 downto 0) & rx_buf_curpos;
+                            if (rx_buf_len /= "00000000" and
+                                rx_buf_curpos /= rx_buf_len)
+                            then
+                                rx_buf_curpos <= std_logic_vector(unsigned(rx_buf_curpos) + 1);
+                                write_r <= not write_r;
+                                rxd_state <= RXD_MEM_WAIT;
+                            else
+                                rxd_state <= RXD_IDLE;
+                            end if;
+                        end if;
+                    else
+                        rxd_state <= RXD_WAIT_STOPBIT;
+                    end if;
+                else
+                    rx_counter <= std_logic_vector(unsigned(rx_counter) - 1);
+                end if;
+            when RXD_MEM_WAIT =>
+                if (write_r = pdma_out.write_ack) then
+                    if (rx_buf_curpos = rx_buf_len) then
+                        rx_intr_toggle_r <= not rx_intr_toggle_r;
+                    end if;
+                    rxd_state <= RXD_IDLE;
+                end if;
+            when RXD_WAIT_STOPBIT =>
+                if (rx_shreg_data = x"FFFF") then
+                    rxd_state <= RXD_IDLE;
+                end if;
+        end case;
+    end if;
+end process;
 
 tx_clk_gen: process(clk)
 begin
     if (rising_edge(clk)) then
-        if (unsigned(tx_clk_ctr) = 368) then
+        if (unsigned(tx_clk_ctr) = 348) then
             tx_clk <= not tx_clk;
             tx_clk_ctr <= (others => '0');
         else
@@ -114,7 +250,7 @@ begin
             when TX_RUNNING =>
                 if (tx_buf_curpos /= tx_buf_len) then
                     pdma_in.read_addr <= tx_ctrl(16 downto 0) & tx_buf_curpos;
-                    pdma_in.read <= not pdma_in.read;
+                    read_r <= not read_r;
                     tx_state <= TX_READMEM_WAIT;
                 else
                     tx_intr_toggle_r <= not tx_intr_toggle_r;
