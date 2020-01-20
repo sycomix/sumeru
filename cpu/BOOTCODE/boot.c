@@ -1,5 +1,21 @@
-void    _start(void) __attribute__ (( naked ));
-void    handle_interrupt(int id);
+#include <machine/csr.h>
+
+void
+start(void)
+{
+    unsigned int i = 0;
+    asm("lui sp, 1");
+    gpio_set_dir(1);
+    gpio_set_out(1);
+    timer_set(0x004F);
+    uart0_set_rx(0xa0001);
+
+    while(1) {
+        ++i;
+        gpio_set_out((i >> 23) & 1);
+    }
+}
+
 
 __attribute__ ((always_inline))
 inline void
@@ -12,75 +28,14 @@ flush_word(unsigned int x)
 
 }
 
-__attribute__ ((always_inline))
-inline void
-set_uart_tx(unsigned int x)
-{
-    asm volatile("csrrw x0, 0x889, %0;" : : "r"(x));
-}
-
-__attribute__ ((always_inline))
-inline void
-set_uart_rx(unsigned int x)
-{
-    asm volatile("csrrw x0, 0x888, %0;" : : "r"(x));
-}
-
-__attribute__ ((always_inline))
-inline void
-set_timer(unsigned int x)
-{
-    asm volatile("csrrw x0, 0x884, %0;" : : "r"(x));
-}
-
-__attribute__ ((always_inline))
-inline void
-set_gpio_dir(unsigned int x)
-{
-    asm volatile("csrrw x0, 0x881, %0;" : : "r"(x));
-}
-
-__attribute__ ((always_inline))
-inline void
-set_gpio_out(unsigned int x)
-{
-    asm volatile("csrrw x0, 0x882, %0;" : : "r"(x));
-}
-
-__attribute__ ((always_inline))
-inline unsigned int
-get_gpio_out()
-{
-    unsigned int x;
-    asm volatile("csrrsi %0, 0x882, 0;" : "=r"(x));
-    return x;
-}
-
-void
-_start(void)
-{
-    unsigned int i = 0;
-    asm("lui sp, 1");
-    set_gpio_dir(1);
-    set_gpio_out(1);
-    set_timer(0x004F);
-    set_uart_rx(0xa0001);
-
-    while(1) {
-        ++i;
-        set_gpio_out((i >> 23) & 1);
-    }
-}
-
-
 void
 handle_interrupt(int id)
 {
     if (id == 1) {
-        set_timer(0x04F);
+        timer_set(0x04F);
     } else if (id == 2) {
-        set_uart_rx(0xa0001);
+        uart0_set_rx(0xa0001);
     } else if (id == 3) {
-        set_uart_tx(0xa0001);
+        uart0_set_tx(0xa0001);
     }
 }

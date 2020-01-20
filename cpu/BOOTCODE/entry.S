@@ -1,9 +1,7 @@
 #include "machine/constants.h"
-
-.globl boot
 ivec:
 ivec_boot:
-    j _start
+    j asm_entry
     nop 
     nop
     nop
@@ -22,6 +20,14 @@ ivec_uart_rx:
     li x1,INTR_ID_UART0_RX
     j asm_handle_interrupt
     nop
+
+
+asm_entry:
+    lui sp, 0x1
+    jal ra, start
+done:
+    j done
+
 
 #stack pointer points to next free for use 
 asm_handle_interrupt:
@@ -68,5 +74,4 @@ asm_handle_interrupt:
     csrrwi x0,CSR_REG_SWITCH,0
 
 #******* not reached ***********
-
 
