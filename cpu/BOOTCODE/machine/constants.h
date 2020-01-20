@@ -20,4 +20,8 @@
 #define CSR_REG_UART0_RX                0x888
 #define CSR_REG_UART0_TX                0x889
 
+#define INTR_ID_TIMER                   0x1
+#define INTR_ID_UART0_TX                0x2
+#define INTR_ID_UART0_RX                0x3
+
 #endif
