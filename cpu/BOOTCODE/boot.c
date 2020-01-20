@@ -4,7 +4,6 @@ void
 start(void)
 {
     unsigned int i = 0;
-    asm("lui sp, 1");
     gpio_set_dir(1);
     gpio_set_out(1);
     timer_set(0x004F);
