@@ -11,14 +11,16 @@ port(
     intr_out:                   out intr_channel_out_t;
     intr_reset:                 in std_logic;
     timer_intr_trigger:         in std_logic;
-    uart_tx_intr_trigger:       in std_logic;
-    uart_rx_intr_trigger:       in std_logic
+    uart0_tx_intr_toggle:       in std_logic;
+    uart0_rx_intr_toggle:       in std_logic
     );
 end entity;
 
 architecture synth of intr_controller is
     signal intr_frozen:                 std_logic := '0';
     signal intr_trigger_r:              std_logic := '0';
+    signal uart0_tx_intr_toggle_ack:    std_logic := '0';
+    signal uart0_rx_intr_toggle_ack:    std_logic := '0';
 begin
 
 intr_out.intr_trigger <= intr_trigger_r;
@@ -35,14 +37,16 @@ begin
                 intr_frozen <= '1';
                 intr_trigger_r <= not intr_trigger_r;
                 intr_out.intr_vec <= IVEC_TIMER;
-            elsif (uart_tx_intr_trigger = '1') then
+            elsif (uart0_tx_intr_toggle_ack /= uart0_tx_intr_toggle) then
+                uart0_tx_intr_toggle_ack <= uart0_tx_intr_toggle;
                 intr_frozen <= '1';
                 intr_trigger_r <= not intr_trigger_r;
-                intr_out.intr_vec <= IVEC_UART_TX;
-            elsif (uart_rx_intr_trigger = '1') then
+                intr_out.intr_vec <= IVEC_UART0_TX;
+            elsif (uart0_rx_intr_toggle_ack /= uart0_rx_intr_toggle) then
+                uart0_rx_intr_toggle_ack <= uart0_rx_intr_toggle;
                 intr_frozen <= '1';
                 intr_trigger_r <= not intr_trigger_r;
-                intr_out.intr_vec <= IVEC_UART_RX;
+                intr_out.intr_vec <= IVEC_UART0_RX;
             end if;
         end if;
     end if;

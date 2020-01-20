@@ -33,7 +33,6 @@ end entity;
 architecture synth of cpu is
     signal clk:                 std_logic;
     signal clk_n:               std_logic;
-    signal clk_1m842105:        std_logic;
     signal pll_locked:          std_logic;
     signal reset_n:             std_logic;
     signal reset:               std_logic;
@@ -84,8 +83,11 @@ architecture synth of cpu is
     signal intr_out:            intr_channel_out_t;
     signal intr_reset:          std_logic;
     signal timer_intr_trigger:  std_logic;
-    signal uart_tx_intr_trigger: std_logic;
-    signal uart_rx_intr_trigger: std_logic;
+    signal uart0_tx_intr_toggle: std_logic;
+    signal uart0_rx_intr_toggle: std_logic;
+
+    signal pdma_in:             periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
+    signal pdma_out:            periph_dma_channel_out_t := ('0', (others => '0'), '0');
 
 begin
 spi0_sck <= '0';
@@ -97,7 +99,6 @@ pll: entity work.pll
         inclk0 => clk_50m,
         c0 => clk,
         c1 => clk_n,
-        c2 => clk_1m842105,
         locked => pll_locked
         );
 
@@ -238,31 +239,40 @@ csr_counters: entity work.csr_counters
         ctx_pc_switch => ctx_pc_switch
         );
 
-csr_uart_rs232: entity work.csr_uart_rs232
-    port map(
-        clk => clk,
-        clk_uartx16 => clk_1m842105,
-        mc_in => mc2_in,
-        mc_out => mc2_out,
-        sdc_data_out => sdc_data_out,
-        csr_in => csr_in,
-        csr_sel_result => csr_sel_result,
-        tx_intr_trigger => uart_tx_intr_trigger,
-        rx_intr_trigger => uart_rx_intr_trigger,
-        uart_tx => uart0_tx,
-        uart_rx => uart0_rx
-        );
-
-
 intr_controller: entity work.intr_controller
     port map(
         clk => clk,
         intr_out => intr_out,
         intr_reset => intr_reset,
         timer_intr_trigger => timer_intr_trigger,
-        uart_tx_intr_trigger => uart_tx_intr_trigger,
-        uart_rx_intr_trigger => uart_rx_intr_trigger
+        uart0_tx_intr_toggle => uart0_tx_intr_toggle,
+        uart0_rx_intr_toggle => uart0_rx_intr_toggle
         );
+
+uart0_pdma: entity work.periph_dma
+    port map(
+        clk => clk,
+        mc_in => mc2_in,
+        mc_out => mc2_out,
+        sdc_data_out => sdc_data_out,
+        pdma_in => pdma_in,
+        pdma_out => pdma_out
+        );
+
+uart0: entity work.csr_uart_rs232
+    port map(
+        clk => clk,
+        reset => reset,
+        csr_in => csr_in,
+        csr_sel_result => csr_sel_result,
+        pdma_in => pdma_in,
+        pdma_out => pdma_out,
+        tx_intr_toggle => uart0_tx_intr_toggle,
+        rx_intr_toggle => uart0_rx_intr_toggle,
+        uart_tx => uart0_tx,
+        uart_rx => uart0_rx
+        );
+
 
 led <= gpio(0);
 

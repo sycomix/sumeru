@@ -23,6 +23,7 @@ SRCS = sumeru_constants.vhd \
         cpu_muldiv.vhd \
         readwritecache_256x4x32.vhd \
         cpu_stage_iexec.vhd \
+        periph_dma.vhd \
         csr_gpio.vhd \
         csr_timer.vhd \
         csr_counters.vhd \
@@ -46,7 +47,7 @@ compile: $(TOPLEVEL)_tb
 
 #****************************************************************
 
-${TOPLEVEL}_tb.o: ${TOPLEVEL}.o sim_sdram_mt48lc16m16a2.o
+${TOPLEVEL}_tb.o: ${TOPLEVEL}.o sim_sdram_mt48lc16m16a2.o ${TOPLEVEL}.o
 
 ${TOPLEVEL}.o: cpu_types.o \
         sumeru_constants.o \
@@ -60,11 +61,12 @@ ${TOPLEVEL}.o: cpu_types.o \
         cpu_stage_ifetch.o \
         cpu_stage_idecode.o \
         cpu_stage_iexec.o \
+        periph_dma.o \
         csr_gpio.o \
         csr_timer.o \
         csr_counters.o \
         csr_uart_rs232.o \
-        intr_controller.o 
+        intr_controller.o
 
 sdram_controller_simlowdelay.o: memory_channel_types.o
 memory_arbitrator.o: memory_channel_types.o 
@@ -77,12 +79,13 @@ cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
 csr_counters.o: cpu_types.o sumeru_constants.o
-csr_uart_rs232.o: cpu_types.o sumeru_constants.o memory_channel_types.o
+csr_uart_rs232.o: cpu_types.o sumeru_constants.o periph_dma.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o
 cpu_div.o: cpu_types.o
 cpu_alu.o: cpu_types.o
 intr_controller.o: sumeru_constants.o cpu_types.o
+periph_dma.o: cpu_types.o memory_channel_types.o
 
 
 #****************************************************************

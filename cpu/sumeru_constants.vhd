@@ -5,8 +5,8 @@ use ieee.std_logic_1164.all;
 package sumeru_constants is
 
 constant IVEC_TIMER:            std_logic_vector(3 downto 0) := "0001";
-constant IVEC_UART_TX:          std_logic_vector(3 downto 0) := "0010";
-constant IVEC_UART_RX:          std_logic_vector(3 downto 0) := "0011";
+constant IVEC_UART0_TX:         std_logic_vector(3 downto 0) := "0010";
+constant IVEC_UART0_RX:         std_logic_vector(3 downto 0) := "0011";
 
 constant CSR_REG_GPIO_DIR:      std_logic_vector(11 downto 0) := x"881";
 constant CSR_REG_GPIO_OUTPUT:   std_logic_vector(11 downto 0) := x"882";
@@ -24,7 +24,7 @@ constant CSR_REG_CTX_PCSAVE:    std_logic_vector(11 downto 0) := x"CC0";
 constant CSR_REG_CTX_PCSWITCH:  std_logic_vector(11 downto 0) := x"880";
 constant CSR_REG_SWITCH:        std_logic_vector(11 downto 0) := x"9C0";
 
-constant CSR_REG_UART0_RX:      std_logic_vector(11 downto 0) := x"885";
-constant CSR_REG_UART0_TX:      std_logic_vector(11 downto 0) := x"886";
+constant CSR_REG_UART0_RX:      std_logic_vector(11 downto 0) := x"888";
+constant CSR_REG_UART0_TX:      std_logic_vector(11 downto 0) := x"889";
 
 end package;

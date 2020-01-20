@@ -58,6 +58,7 @@ set_global_assignment -name VHDL_FILE csr_timer.vhd
 set_global_assignment -name VHDL_FILE csr_counters.vhd
 set_global_assignment -name VHDL_FILE csr_uart_rs232.vhd
 set_global_assignment -name VHDL_FILE intr_controller.vhd
+set_global_assignment -name VHDL_FILE periph_dma.vhd
 set_global_assignment -name VHDL_FILE cpu.vhd
 set_global_assignment -name VHDL_FILE sdram_controller.vhd
 set_global_assignment -name VHDL_FILE sumeru_constants.vhd

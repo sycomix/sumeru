@@ -76,6 +76,9 @@ architecture synth of cpu_stage_iexec is
     signal intr_nextpc:         std_logic_vector(31 downto 0);
     signal div_ctr:             std_logic_vector(3 downto 0);
 
+    signal csr_sel_valid_r:     std_logic := '0';
+    signal csr_op_valid_r:      std_logic := '0';
+
     signal clk_instret_r:       std_logic := '0';
 
     signal intr_trigger_save:   std_logic := '0';
@@ -226,6 +229,8 @@ begin
             "0000" when "1100",         -- Hitherto DCACHE LINE FLUSH operation 
             "1111" when others;
 
+    csr_in.csr_sel_valid <= csr_sel_valid_r;
+
     process(clk)
         variable br: std_logic;
     begin
@@ -234,7 +239,8 @@ begin
             br_inst <= '0';
             trigger_cxfer <= '0';
             busy_r <= '0';
-            csr_in.csr_sel_valid <= '0';
+            csr_sel_valid_r <= '0';
+            csr_in.csr_sel_reg <= (others => '0');
             intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>
@@ -344,7 +350,7 @@ begin
                             cxfer_pc <= iexec_in.imm;
                         when CMD_CSR =>
                             regfile_wren <= '1';
-                            csr_in.csr_sel_valid <= '1';
+                            csr_sel_valid_r <= '1';
                             csr_in.csr_sel_reg <= iexec_in.csr_reg;
                             csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
                         when others =>
@@ -354,21 +360,28 @@ begin
         end if;
     end process;
 
+
+    csr_in.csr_op_valid <= csr_op_valid_r;
+
     process(clk)
     begin
         if (rising_edge(clk)) then
-            csr_in.csr_op_valid <= csr_in.csr_sel_valid; 
-            csr_in.csr_op_reg <= csr_in.csr_sel_reg;
-            case csr_in.csr_sel_op is
-                when "10" =>
-                    csr_in.csr_op_data <= 
-                        op_b or csr_sel_result;
-                when "11" =>
-                    csr_in.csr_op_data <= 
-                        not op_b and csr_sel_result;
-                when others =>
-                    csr_in.csr_op_data <= op_b;
-            end case;
+            if (csr_sel_valid_r = '1') then
+                csr_op_valid_r <= '1';
+                csr_in.csr_op_reg <= csr_in.csr_sel_reg;
+                case csr_in.csr_sel_op is
+                    when "10" =>
+                        csr_in.csr_op_data <= 
+                            op_b or csr_sel_result;
+                    when "11" =>
+                        csr_in.csr_op_data <= 
+                            not op_b and csr_sel_result;
+                    when others =>
+                        csr_in.csr_op_data <= op_b;
+                end case;
+            else
+                csr_op_valid_r <= '0';
+            end if;
         end if;
     end process;
 
