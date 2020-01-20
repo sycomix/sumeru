@@ -2,7 +2,7 @@
 #define __SUMERU_CONSTANTS_H
 
 #define CSR_REG_GPIO_DIR                0x881
-#define CSR_REG_GPIO_OUTPUT             0x882
+#define CSR_REG_GPIO_OUT                0x882
 #define CSR_REG_GPIO_INPUT              0xCC1
 
 #define CSR_REG_TIMER_CTRL              0x884
