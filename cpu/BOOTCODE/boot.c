@@ -8,6 +8,8 @@ volatile unsigned int g_timer_intr_pending;
 volatile unsigned int g_uart0_tx_intr_pending;
 volatile unsigned int g_uart0_rx_intr_pending;
 
+unsigned int *mem_ptr = 0;
+
 int
 uart0_read(unsigned char *buf, unsigned int len)
 {
@@ -78,10 +80,11 @@ machine_init()
 
 
 static inline
-void memcpy(unsigned char *src, unsigned char *dst, unsigned int len)
+void 
+memcpy(unsigned char *dst, unsigned char *src, unsigned int len)
 {
-    while (len)
-        *dst++ = *src;
+    while (len--)
+        *dst++ = *src++;
 }
 
 
@@ -96,11 +99,12 @@ conv_5b_to_int(unsigned char *buf, unsigned int *p)
         cksum ^= buf[i];
     }
 
-    //if (((unsigned char)cksum) == buf[4]) {
+    if (((unsigned char)cksum) == buf[4]) {
         *p = num;
         return 0;
-    //} 
-    //return 1;
+    }
+    
+    return 1;
 } 
 
 
@@ -117,11 +121,31 @@ main(void)
     while (1) {
         uart0_read(buf, 1);
         switch (buf[0]) {
-            case 'R':
+            case 'A':
                 uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
                 if (conv_5b_to_int(buf, &num) == 0) {
-                    uart0_write((unsigned char*)&num, 4);
+                    mem_ptr = (unsigned char *)(num & 0xfffffffc);
+                    buf[0] = 1;
+                } else {
+                    buf[0] = 0;
                 }
+                uart0_write(buf, 1);
+                break;
+            case 'W':
+                uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
+                if (conv_5b_to_int(buf, &num) == 0) {
+                    *mem_ptr++ = num;
+                    buf[0] = 1;
+                } else {
+                    buf[0] = 0;
+                }
+                uart0_write(buf, 1);
+                break;
+            case 'R':
+                memcpy(buf, (unsigned char *)mem_ptr, 4);
+                buf[4] = buf[0] ^ buf[1] ^ buf[2] ^ buf[3];
+                uart0_write(buf, 5);
+                ++mem_ptr;
                 break;
         }
     }
