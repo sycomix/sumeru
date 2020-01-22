@@ -86,11 +86,22 @@ void memcpy(unsigned char *src, unsigned char *dst, unsigned int len)
 
 
 int
-conv_5b_to_int(unsigned char *buf, unsigned int *i)
+conv_5b_to_int(unsigned char *buf, unsigned int *p)
 {
-    *i = 0xdeadc0de;
-    return 0;
-}
+    unsigned int num, cksum;
+
+    num = cksum = 0;
+    for (int i = 0; i < 4; ++i) {
+        num |= buf[i] << (i << 3);
+        cksum ^= buf[i];
+    }
+
+    //if (((unsigned char)cksum) == buf[4]) {
+        *p = num;
+        return 0;
+    //} 
+    //return 1;
+} 
 
 
 void
@@ -98,7 +109,7 @@ main(void)
 {
     unsigned char buf[16];
     unsigned char *tx_buf = (unsigned char *)g_uart0_tx_buffer_loc;
-    int i, err;
+    int num, err;
 
     gpio_set_dir(1);
     gpio_set_out(1);
@@ -108,9 +119,9 @@ main(void)
         switch (buf[0]) {
             case 'R':
                 uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
-                uart0_write(buf, 5);
-                //if (conv_5b_to_int(buf, &i) == 0) {
-                //}
+                if (conv_5b_to_int(buf, &num) == 0) {
+                    uart0_write((unsigned char*)&num, 4);
+                }
                 break;
         }
     }
