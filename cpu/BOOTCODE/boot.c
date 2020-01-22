@@ -1,40 +1,32 @@
 #include <machine/csr.h>
+#include <machine/memctl.h>
+
+const unsigned int g_uart0_rx_buffer_loc = 0x10000;
+const unsigned int g_uart0_tx_buffer_loc = 0x10100;
+
+volatile unsigned int g_timer_intr_pending;
+volatile unsigned int g_uart0_tx_intr_pending;
+volatile unsigned int g_uart0_rx_intr_pending;
 
 void
-start(void)
+main(void)
 {
     unsigned int i = 0;
+
+    g_timer_intr_pending = 0;
+    g_uart0_tx_intr_pending = 0;
+    g_uart0_rx_intr_pending = 0;
+
     gpio_set_dir(1);
     gpio_set_out(1);
-    timer_set(0x004F);
-    uart0_set_rx(0xa0001);
+    g_uart0_rx_intr_pending = 1;
+    uart0_set_rx(g_uart0_rx_buffer_loc | 0x1);
 
+    while (g_uart0_rx_intr_pending == 1) 
+        ;
+
+    /* Nothing here -- we are interupt driven */
     while(1) {
-        ++i;
-        gpio_set_out((i >> 23) & 1);
-    }
-}
-
-
-__attribute__ ((always_inline))
-inline void
-flush_word(unsigned int x)
-{
-    asm volatile("sw %0, 0(zero);" : : "r"(x));
-    asm volatile(" \
-        li x1,0x10000; \
-        .word 0x0000B023; " : : : "x1");
-
-}
-
-void
-handle_interrupt(int id)
-{
-    if (id == 1) {
-        timer_set(0x04F);
-    } else if (id == 2) {
-        uart0_set_rx(0xa0001);
-    } else if (id == 3) {
-        uart0_set_tx(0xa0001);
+        gpio_set_out((++i >> 23) & 1);
     }
 }
