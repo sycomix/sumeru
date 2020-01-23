@@ -36,12 +36,42 @@ process_cmdline_args(int argc, char **argv)
     }
 }
 
+void
+set_address(int dev, unsigned char *address)
+{
+    char buf[16];
+
+    buf[0] = 'A';
+    memcpy(buf + 1, &address, 4);
+    buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
+    write(dev, buf, 6);
+    read(dev, buf, 1);
+    if (buf[0] != 'O')
+        errx(1, "Error setting address: %x", (int)buf[0]);
+}
+
+
+void
+write_data(int dev, char *data)
+{
+    char buf[16];
+
+    buf[0] = 'W';
+    memcpy(buf + 1, data, 4);
+    buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
+    write(dev, buf, 6);
+    read(dev, buf, 1);
+    if (buf[0] != 'O')
+        errx(1, "Error writing data: %x", (int)buf[0]);
+
+}
+
 
 int
 main(int argc, char **argv)
 {
-    char buf[32];
-    int fd, dev, rcount;
+    char buf[4];
+    int fd, dev, rcount, pos;
 
     process_cmdline_args(argc, argv);
 
@@ -52,12 +82,22 @@ main(int argc, char **argv)
         errx(1, "Error opening: %s", dev_fname);
     }
 
-    buf[0] = 'A';
-    memcpy(buf + 1, &load_address, 4);
-    buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
-    write(dev, buf, 6);
-    read(dev, buf, 1);
-    printf("Received: %c\n", (int)buf[0]);
+    pos = 0;
+    set_address(dev, load_address);
+    while (1) {
+        buf[0] = buf[1] = buf[2] = buf[3];
+        rcount = read(fd, buf, 4);
+        if (rcount >= 0) { 
+            write_data(dev, buf);
+            if (rcount < 4)
+                break;          /* EOF DONE */
+        } else {
+           errx(1, "Error reading from %s\n", code_fname); 
+        }
+        warnx("%d ", pos);
+        pos += 4;
+        usleep(1000);
+    }
 
     return 0;
 }
