@@ -84,7 +84,7 @@ int
 main(int argc, char **argv)
 {
     char buf[4];
-    int fd, dev, rcount;
+    int fd, dev, rcount, wcount;
 
     process_cmdline_args(argc, argv);
 
@@ -99,18 +99,27 @@ main(int argc, char **argv)
     warnx("Loading code file: %s", code_fname);
     warnx("Load Address: 0x%x: Jump Address: 0x%x", load_address, jmp_address);
     set_address(dev, load_address);
+    wcount = 0;
     while (1) {
         memset(buf, 0, 4);
         rcount = read(fd, buf, 4);
         if (rcount >= 0) { 
-            if (rcount > 0)
+            if (rcount > 0) {
                 write_data(dev, buf);
-            if (rcount < 4)
+                wcount += 4;
+            } if (rcount < 4)
                 break;          /* EOF DONE */
         } else {
            errx(1, "Error reading from %s\n", code_fname); 
         }
     }
+
+    memset(buf, 0, 4);
+    while ((wcount % 32) != 0) {
+        write_data(dev, buf);
+        wcount += 4;
+    }
+
     warnx("LOAD DONE");
     set_address(dev, jmp_address);
     warnx("JMP ADDRESS SET");
