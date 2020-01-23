@@ -8,7 +8,7 @@ volatile unsigned int g_timer_intr_pending;
 volatile unsigned int g_uart0_tx_intr_pending;
 volatile unsigned int g_uart0_rx_intr_pending;
 
-unsigned int *mem_ptr = 0;
+unsigned int *mem_ptr = 0x10000;
 
 int
 uart0_read(unsigned char *buf, unsigned int len)
@@ -120,6 +120,7 @@ main(void)
 
     while (1) {
         uart0_read(buf, 1);
+        gpio_set_out(gpio_get_out() ^ 1);
         switch (buf[0]) {
             case 'A':
                 uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
