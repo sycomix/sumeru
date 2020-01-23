@@ -71,7 +71,7 @@ int
 main(int argc, char **argv)
 {
     char buf[4];
-    int fd, dev, rcount, pos;
+    int fd, dev, rcount;
 
     process_cmdline_args(argc, argv);
 
@@ -82,7 +82,9 @@ main(int argc, char **argv)
         errx(1, "Error opening: %s", dev_fname);
     }
 
-    pos = 0;
+    warnx("Device: %s", dev_fname);
+    warnx("Loading code file: %s", code_fname);
+    warnx("Load Address: 0x%x: Jump Address: 0x%x", load_address, jmp_address);
     set_address(dev, load_address);
     while (1) {
         buf[0] = buf[1] = buf[2] = buf[3];
@@ -94,10 +96,8 @@ main(int argc, char **argv)
         } else {
            errx(1, "Error reading from %s\n", code_fname); 
         }
-        warnx("%d ", pos);
-        pos += 4;
-        usleep(1000);
     }
+    warnx("LOAD DONE");
 
     return 0;
 }
