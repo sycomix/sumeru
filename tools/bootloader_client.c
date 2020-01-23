@@ -40,15 +40,25 @@ process_cmdline_args(int argc, char **argv)
 int
 main(int argc, char **argv)
 {
+    char buf[32];
+    int fd, dev, rcount;
+
     process_cmdline_args(argc, argv);
-    int fd, dev;
 
     if ( (fd = open(code_fname, O_RDONLY, 0)) < 0) {
         errx(1, "Error opening: %s", code_fname);
     }
-    if ( (dev = open(dev_fname, O_RDWR, 0) < 0)) {
+    if ( (dev = open(dev_fname, O_RDWR, 0)) < 0) {
         errx(1, "Error opening: %s", dev_fname);
     }
+
+    buf[0] = 'A';
+    memcpy(buf + 1, &load_address, 4);
+    buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
+    write(dev, buf, 6);
+    read(dev, buf, 1);
+    printf("Received: %c\n", (int)buf[0]);
+
     return 0;
 }
     
