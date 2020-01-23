@@ -13,7 +13,7 @@ port(
     clk:                        in std_logic;
     reset:                      in std_logic;
     csr_in:                     in csr_channel_in_t;
-    csr_sel_result:             out std_logic_vector(31 downto 0);
+    csr_sel_result:             inout std_logic_vector(31 downto 0);
     pdma_in:                    out periph_dma_channel_in_t;
     pdma_out:                   in periph_dma_channel_out_t;
     tx_intr_toggle:             out std_logic;
