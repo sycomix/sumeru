@@ -1,5 +1,5 @@
 #include "machine/constants.h"
-.globl _start, main
+.globl _start
 _start:
     csrrwi zero,CSR_REG_GPIO_DIR,1
     csrrwi zero,CSR_REG_GPIO_OUT,1

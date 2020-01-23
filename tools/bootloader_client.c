@@ -3,6 +3,7 @@
 #include <err.h>
 #include <string.h>
 #include <fcntl.h>
+#include <stdlib.h>
 
 char *code_fname = "a.out";
 char *dev_fname = "/dev/ttyUSB0";
@@ -14,18 +15,18 @@ void
 process_cmdline_args(int argc, char **argv)
 {
     while (1) {
-        switch (getopt(argc, argv, "f:d:a:j:")) {
+        switch (getopt(argc, argv, "f:d:l:j:")) {
             case 'f':
-                strcpy(code_fname, optarg);
+                code_fname = strdup(optarg);
                 break;
             case 'd':
-                strcpy(dev_fname, optarg);
+                dev_fname = strdup(optarg);
                 break;
-            case 'a':
-                strcpy(load_address, optarg);
+            case 'l':
+                load_address = (unsigned char*)strtoul(optarg, 0, 0);
                 break;
             case 'j':
-                strcpy(jmp_address, optarg);
+                jmp_address = (unsigned char*)strtoul(optarg, 0, 0);
                 break;
             case -1:
                 return;
@@ -41,7 +42,7 @@ set_address(int dev, unsigned char *address)
 {
     char buf[16];
 
-    buf[0] = 'A';
+    buf[0] = 'a';
     memcpy(buf + 1, &address, 4);
     buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
     write(dev, buf, 6);
@@ -55,7 +56,7 @@ initiate_jmp(int dev, unsigned char *address)
 {
     char buf[16];
 
-    buf[0] = 'J';
+    buf[0] = 'j';
     write(dev, buf, 1);
     read(dev, buf, 1);
     if (buf[0] != 'O')
@@ -68,7 +69,7 @@ write_data(int dev, char *data)
 {
     char buf[16];
 
-    buf[0] = 'W';
+    buf[0] = 'w';
     memcpy(buf + 1, data, 4);
     buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
     write(dev, buf, 6);
@@ -99,10 +100,11 @@ main(int argc, char **argv)
     warnx("Load Address: 0x%x: Jump Address: 0x%x", load_address, jmp_address);
     set_address(dev, load_address);
     while (1) {
-        buf[0] = buf[1] = buf[2] = buf[3];
+        memset(buf, 0, 4);
         rcount = read(fd, buf, 4);
         if (rcount >= 0) { 
-            write_data(dev, buf);
+            if (rcount > 0)
+                write_data(dev, buf);
             if (rcount < 4)
                 break;          /* EOF DONE */
         } else {

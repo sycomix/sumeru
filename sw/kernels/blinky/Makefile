@@ -7,8 +7,11 @@ ASFILES = entry.s
 
 WITHOUT_FLOAT = true
 
-include ${POST_MK}
+all: KERNEL.bin
 
 clean:
 	rm -rf obj
 	rm -f KERNEL.srec KERNEL KERNEL.bin KERNEL.hex
+
+include ${POST_MK}
+
