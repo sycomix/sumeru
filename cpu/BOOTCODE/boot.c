@@ -1,8 +1,8 @@
 #include <machine/csr.h>
 #include <machine/memctl.h>
 
-const unsigned int g_uart0_rx_buffer_loc = 0x10000;
-const unsigned int g_uart0_tx_buffer_loc = 0x10100;
+const unsigned int g_uart0_rx_buffer_loc = 0x2000;
+const unsigned int g_uart0_tx_buffer_loc = 0x2100;
 
 volatile unsigned int g_timer_intr_pending;
 volatile unsigned int g_uart0_tx_intr_pending;
