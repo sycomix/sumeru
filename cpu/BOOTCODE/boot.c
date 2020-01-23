@@ -113,7 +113,7 @@ main(void)
 {
     unsigned char buf[16];
     unsigned char *tx_buf = (unsigned char *)g_uart0_tx_buffer_loc;
-    int num, err;
+    unsigned int num;
 
     gpio_set_dir(1);
     gpio_set_out(1);
@@ -124,20 +124,24 @@ main(void)
             case 'A':
                 uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
                 if (conv_5b_to_int(buf, &num) == 0) {
-                    mem_ptr = (unsigned char *)(num & 0xfffffffc);
-                    buf[0] = 1;
+                    mem_ptr = (unsigned int *)num;
+                    buf[0] = 'O';
                 } else {
-                    buf[0] = 0;
+                    buf[0] = 'E';
                 }
                 uart0_write(buf, 1);
                 break;
             case 'W':
                 uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
                 if (conv_5b_to_int(buf, &num) == 0) {
-                    *mem_ptr++ = num;
-                    buf[0] = 1;
+                    *mem_ptr = num;
+                    if ((((unsigned int)mem_ptr) & 0xf) == 0xf) {
+                        flush_line(((unsigned int)mem_ptr) & 0xfffffff0);
+                    }
+                    mem_ptr++;
+                    buf[0] = 'O';
                 } else {
-                    buf[0] = 0;
+                    buf[0] = 'E';
                 }
                 uart0_write(buf, 1);
                 break;
@@ -146,6 +150,21 @@ main(void)
                 buf[4] = buf[0] ^ buf[1] ^ buf[2] ^ buf[3];
                 uart0_write(buf, 5);
                 ++mem_ptr;
+                break;
+            case 'V':
+                buf[0] = '1';
+                uart0_write(buf, 1);
+                break;
+            case 'J':
+                buf[0] = 'O';
+                uart0_write(buf, 1);
+                asm("fence.i");
+                asm volatile("jalr ra, %0;" : : "r"(mem_ptr));
+                /* XXX - presently not reached, but we may allow returns in the future */
+                break;
+            default:
+                buf[0] = 'E';
+                uart0_write(buf, 1);
                 break;
         }
     }
