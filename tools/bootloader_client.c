@@ -50,6 +50,18 @@ set_address(int dev, unsigned char *address)
         errx(1, "Error setting address: %x", (int)buf[0]);
 }
 
+void
+initiate_jmp(int dev, unsigned char *address)
+{
+    char buf[16];
+
+    buf[0] = 'J';
+    write(dev, buf, 1);
+    read(dev, buf, 1);
+    if (buf[0] != 'O')
+        errx(1, "Error initiating jmp");
+}
+
 
 void
 write_data(int dev, char *data)
@@ -98,6 +110,11 @@ main(int argc, char **argv)
         }
     }
     warnx("LOAD DONE");
+    set_address(dev, jmp_address);
+    warnx("JMP ADDRESS SET");
+    initiate_jmp(dev, jmp_address);
+    warnx("JMP INITIATED");
+
 
     return 0;
 }
