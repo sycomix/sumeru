@@ -119,7 +119,10 @@ sdram_controller_simlowdelay.vhd: sdram_controller.vhd
 	sed -e 's/(STARTUP_CYCLE_BITNR)/(4)/g' sdram_controller.vhd > sdram_controller_simlowdelay.vhd
 
 synth: BOOTCODE.hex
-	quartus_sh --flow compile $(TOPLEVEL)
+	env QCMD=quartus_sh ../scripts/my_quartus_cmd --flow compile $(TOPLEVEL)
+
+prog:
+	env QCMD=quarts_pgm ../scripts/my_quartus_cmd -c 1 jtag_chain.cdf
 
 test:
 	./$(TOPLEVEL)_tb --stop-time=$(SIM_PERIOD) --wave=$(TOPLEVEL)_tb.ghw
@@ -137,9 +140,6 @@ clean:
                 greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
                 sdram_controller_simlowdelay.vhd \
                 PLLJ_*.txt obj *.ppf *.cmp *.qdf \ *.vhd.bak
-
-prog:
-	quartus_pgm -c 1 jtag_chain.cdf
 
 BC_FILE=BOOTCODE/BOOTCODE
 #BC_FILE=../sw/riscv-tests/isa/rv32um-p-mulhsu

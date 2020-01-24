@@ -25,8 +25,12 @@ export PATH=${PATH}:${HOME}/local/ghdl-0.36-rc1/bin
 export _JAVA_OPTIONS=-Dawt.useSystemAAFontSettings=on
 
 alias odump="riscv32-unknown-linux-gnu-objdump -d -M no-aliases"
-alias start-pgmw="env LD_PRELOAD=${LIBPNG_PRELOAD} quartus_pgmw"
+alias start-pgmw="sudo -u root -- unshare -n sudo -u r0h17 env LD_PRELOAD=/home/r0h17/local/lib/libpng12.so /home/r0h17/local/altera/19.1/quartus/bin/quartus_pgmw"
 alias start-quartus="sudo -u root -- unshare -n sudo -u r0h17 env LD_PRELOAD=${LIBPNG_PRELOAD} ${QDIR}/bin/quartus"
+
+alias quartus_sh_cust="sudo -u root -- unshare -n sudo -u r0h17 ${QDIR}/bin/quartus_sh"
+alias quartus_pgmw_cust="sudo -u root -- unshare -n sudo -u r0h17 ${QDIR}/bin/quartus_pgm"
+alias quartus_cpf_cust="sudo -u root -- unshare -n sudo -u r0h17 ${QDIR}/bin/quartus_cpf"
 
 export SUMERU_MAKEFILES=${SUMERU_DIR}/sw/conf/sumeru.mk
 
