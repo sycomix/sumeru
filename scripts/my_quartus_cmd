@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo -u root -- unshare -n sudo -u r0h17 ${QDIR}/bin/${QCMD} $*
