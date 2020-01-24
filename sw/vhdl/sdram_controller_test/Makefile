@@ -22,8 +22,11 @@ compile: sdram_controller_simulation
 sdram_controller_simulation:
 	@sed -e 's/(STARTUP_CYCLE_BITNR)/(4)/g' sdram_controller.vhd > sdram_controller_simlowdelay.vhd
 
-synth: 
-	quartus_sh --flow compile $(TOPLEVEL)
+synth:
+	env QCMD=quartus_sh ${SUMERU_DIR}/scripts/my_quartus_cmd --flow compile $(TOPLEVEL)
+
+prog:
+	env QCMD=quarts_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
 
 test:
 	./$(TOPLEVEL)_tb --stop-time=$(SIM_PERIOD) --wave=$(TOPLEVEL)_tb.ghw
@@ -41,5 +44,3 @@ clean:
                 sdram_controller_simlowdelay.vhd \
                 PLLJ_*.txt obj *.ppf *.cmp *.qip *.qdf
 
-prog:
-	quartus_pgm -c 1 jtag_chain.cdf

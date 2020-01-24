@@ -16,8 +16,11 @@ compile:
 	ghdl -e --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) \
                 $(TOPLEVEL)_tb
 
-synth: 
-	quartus_sh --flow compile $(TOPLEVEL)
+synth:
+	env QCMD=quartus_sh ${SUMERU_DIR}/scripts/my_quartus_cmd --flow compile $(TOPLEVEL)
+
+prog:
+	env QCMD=quarts_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
 
 test:
 	./$(TOPLEVEL)_tb --stop-time=$(SIM_PERIOD) --wave=$(TOPLEVEL)_tb.ghw
@@ -34,5 +37,3 @@ clean:
                 greybox_tmp work-obj93.cf *.qws *.o $(TOPLEVEL)_tb \
                 PLLJ_*.txt obj *.ppf *.cmp *.qip *.qdf
 
-prog:
-	quartus_pgm -c 1 jtag_chain.cdf
