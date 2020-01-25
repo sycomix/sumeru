@@ -5,6 +5,14 @@
 
 __attribute__ ((always_inline))
 inline void
+ivector_set_addr(unsigned int x)
+{
+    asm volatile("csrrw x0, %1, %0;" : : "r"(x), "i"(CSR_REG_IVECTOR_ADDR));
+}
+
+
+__attribute__ ((always_inline))
+inline void
 uart0_set_tx(unsigned int x)
 {
     asm volatile("csrrw x0, %1, %0;" : : "r"(x), "i"(CSR_REG_UART0_TX));

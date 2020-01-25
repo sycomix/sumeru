@@ -16,6 +16,7 @@
 #define CSR_REG_CTX_PCSAVE              0xCC0
 #define CSR_REG_CTX_PCSWITCH            0x880
 #define CSR_REG_SWITCH                  0x9C0
+#define CSR_REG_IVECTOR_ADDR            0x9C1
 
 #define CSR_REG_UART0_RX                0x888
 #define CSR_REG_UART0_TX                0x889
