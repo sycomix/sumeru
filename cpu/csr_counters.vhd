@@ -45,7 +45,6 @@ cycle_counter: lpm_counter
 
 csr_sel_result <=
     ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
-    ctx_pc_switch when csr_in.csr_sel_reg = CSR_REG_CTX_PCSWITCH else
     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
 
 process(clk)

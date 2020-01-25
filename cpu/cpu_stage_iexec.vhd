@@ -20,6 +20,7 @@ port(
     clk_instret:                out std_logic;
     intr_out:                   in intr_channel_out_t;
     intr_reset:                 out std_logic;
+    ivector_addr:               in std_logic_vector(23 downto 0);
     ctx_pc_save:                out std_logic_vector(31 downto 0);
     ctx_pc_switch:              in std_logic_vector(31 downto 0)
     );
@@ -309,7 +310,7 @@ begin
                     elsif (intr_out.intr_trigger /= intr_trigger_save) then
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';
-                        cxfer_pc <= x"000000" & intr_out.intr_vec & "0000";
+                        cxfer_pc <= ivector_addr & intr_out.intr_vec & "0000";
                         ctx_pc_save_r <= iexec_in.intr_nextpc;
                     else
                         trigger_cxfer <= '0';
