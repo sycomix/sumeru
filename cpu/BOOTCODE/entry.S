@@ -24,7 +24,7 @@ ivec_uart_rx:
     nop
 
 asm_entry:
-    lui a1,0x1
+    lui sp,0x1
     jal ra,main
 asm_entry_done:
     j asm_entry_done
