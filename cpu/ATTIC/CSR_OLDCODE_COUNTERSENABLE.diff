@@ -1,0 +1,146 @@
+diff --git a/cpu/cpu.vhd b/cpu/cpu.vhd
+index a9e8e70..fe44681 100644
+--- a/cpu/cpu.vhd
++++ b/cpu/cpu.vhd
+@@ -237,16 +237,16 @@ csr_counters: entity work.csr_counters
+         csr_in => csr_in,
+         csr_sel_result => csr_sel_result,
+         clk_cycle => clk_cycle,
+-        clk_instret => clk_instret,
+-        ctx_pc_save => ctx_pc_save,
+-        ctx_pc_switch => ctx_pc_switch
++        clk_instret => clk_instret
+         );
+ 
+ csr_misc: entity work.csr_misc
+     port map(
+         clk => clk,
+         csr_in => csr_in,
+-        ivector_addr => ivector_addr
++        ivector_addr => ivector_addr,
++        ctx_pc_save => ctx_pc_save,
++        ctx_pc_switch => ctx_pc_switch
+         );
+ 
+ intr_controller: entity work.intr_controller
+diff --git a/cpu/csr_counters.vhd b/cpu/csr_counters.vhd
+index 54de58d..ea766f4 100644
+--- a/cpu/csr_counters.vhd
++++ b/cpu/csr_counters.vhd
+@@ -13,19 +13,32 @@ port(
+     csr_in:                     in csr_channel_in_t;
+     csr_sel_result:             inout std_logic_vector(31 downto 0);
+     clk_cycle:                  in std_logic;
+-    clk_instret:                in std_logic;
+-    ctx_pc_save:                in std_logic_vector(31 downto 0);
+-    ctx_pc_switch:              out std_logic_vector(31 downto 0)
++    clk_instret:                in std_logic
+     );
+ end entity;
+ 
+ architecture synth of csr_counters is
+-    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+     signal ctr_instret:         std_logic_vector(63 downto 0);
+     signal ctr_cycle:           std_logic_vector(63 downto 0);
++    signal ctr_time:            std_logic_vector(63 downto 0);
+ begin
+ 
+-ctx_pc_switch <= ctx_pc_switch_r;
++with csr_in.csr_sel_reg select csr_sel_result <=
++    ctr_cycle(31 downto 0)  when x"C00",
++    ctr_cycle(63 downto 32) when x"C80",
++    ctr_time(31 downto 0)   when x"C01",
++    ctr_time(63 downto 32)  when x"C81",
++    ctr_instret(31 downto 0)   when x"C02",
++    ctr_instret(63 downto 32)  when x"C82",
++    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" when others;
++
++time_counter: lpm_counter
++    generic map(
++        LPM_WIDTH => 64)
++    port map(
++        clock => clk_instret,
++        aclr => reset,
++        q => ctr_time);
+ 
+ instret_counter: lpm_counter
+     generic map(
+@@ -43,19 +56,4 @@ cycle_counter: lpm_counter
+         aclr => reset,
+         q => ctr_cycle);
+ 
+-csr_sel_result <=
+-    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+-
+-process(clk)
+-begin
+-    if (rising_edge(clk)) then
+-        if (csr_in.csr_op_valid = '1' and 
+-            csr_in.csr_op_reg = CSR_REG_CTX_PCSWITCH) 
+-        then
+-            ctx_pc_switch_r <= csr_in.csr_op_data;
+-        end if;
+-    end if;
+-end process;
+-
+ end architecture;
+diff --git a/cpu/csr_misc.vhd b/cpu/csr_misc.vhd
+index bd4182b..d2d8a8d 100644
+--- a/cpu/csr_misc.vhd
++++ b/cpu/csr_misc.vhd
+@@ -9,23 +9,36 @@ entity csr_misc is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    ivector_addr:               out std_logic_vector(23 downto 0)
++    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    ivector_addr:               out std_logic_vector(23 downto 0);
++    ctx_pc_save:                in std_logic_vector(31 downto 0);
++    ctx_pc_switch:              out std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+ architecture synth of csr_misc is
++    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+     signal ivector_addr_r:      std_logic_vector(31 downto 0) := (others => '0');
+ begin
+ 
++csr_sel_result <=
++    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
++    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++
++ctx_pc_switch <= ctx_pc_switch_r;
+ ivector_addr <= ivector_addr_r(31 downto 8);
+ 
+ process(clk)
+ begin
+     if (rising_edge(clk)) then
+-        if (csr_in.csr_op_valid = '1' and 
+-            csr_in.csr_op_reg = CSR_REG_IVECTOR_ADDR) 
+-        then
+-            ivector_addr_r <= csr_in.csr_op_data;
++        if (csr_in.csr_op_valid = '1') then
++            case csr_in.csr_op_reg is
++                when CSR_REG_IVECTOR_ADDR =>
++                    ivector_addr_r <= csr_in.csr_op_data;
++                when CSR_REG_CTX_PCSWITCH =>
++                    ctx_pc_switch_r <= csr_in.csr_op_data;
++                when others =>
++            end case;
+         end if;
+     end if;
+ end process;
+diff --git a/sw/kernels/blinky/boot.c b/sw/kernels/blinky/boot.c
+index 3e4187f..7913459 100644
+--- a/sw/kernels/blinky/boot.c
++++ b/sw/kernels/blinky/boot.c
+@@ -66,7 +66,7 @@ main(void)
+ 
+     counter = 0;
+     while (1) {
+-        gpio_set_out(counter++ >> 10);
++        gpio_set_out((counter++ >> 10) & 1);
+         buf[0] = counter & 0xff;
+         uart0_write(buf, 1);
+     }
