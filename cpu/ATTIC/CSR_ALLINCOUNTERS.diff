@@ -1,0 +1,281 @@
+diff --git a/cpu/cpu.vhd b/cpu/cpu.vhd
+index a9e8e70..a2e10ec 100644
+--- a/cpu/cpu.vhd
++++ b/cpu/cpu.vhd
+@@ -91,6 +91,13 @@ architecture synth of cpu is
+     signal pdma_in:             periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
+     signal pdma_out:            periph_dma_channel_out_t := ('0', (others => '0'), '0');
+ 
++    signal uart0_rx_reg:        std_logic_vector(31 downto 0);
++    signal uart0_tx_reg:        std_logic_vector(31 downto 0);
++    signal timer_ctrl_reg:      std_logic_vector(31 downto 0);
++    signal timer_value_reg:     std_logic_vector(31 downto 0);
++    signal gpio_dir_reg:        std_logic_vector(31 downto 0);
++    signal gpio_input_reg:      std_logic_vector(31 downto 0);
++
+ begin
+ spi0_sck <= '0';
+ spi0_ss <= '0';
+@@ -218,16 +225,18 @@ csr_gpio: entity work.csr_gpio
+     port map(
+         clk => clk,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
+-        gpio => gpio
++        gpio => gpio,
++        gpio_dir_reg => gpio_dir_reg,
++        gpio_input_reg => gpio_input_reg
+         );
+ 
+ csr_timer: entity work.csr_timer
+     port map(
+         clk => clk,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
+-        intr_trigger => timer_intr_trigger
++        intr_trigger => timer_intr_trigger,
++        timer_ctrl_reg => timer_ctrl_reg,
++        timer_value_reg => timer_value_reg
+         );
+ 
+ csr_counters: entity work.csr_counters
+@@ -235,18 +244,17 @@ csr_counters: entity work.csr_counters
+         clk => clk,
+         reset => reset,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
+         clk_cycle => clk_cycle,
+         clk_instret => clk_instret,
+         ctx_pc_save => ctx_pc_save,
+-        ctx_pc_switch => ctx_pc_switch
+-        );
+-
+-csr_misc: entity work.csr_misc
+-    port map(
+-        clk => clk,
+-        csr_in => csr_in,
+-        ivector_addr => ivector_addr
++        ctx_pc_switch => ctx_pc_switch,
++        ivector_addr => ivector_addr,
++        uart0_rx_reg => uart0_rx_reg,
++        uart0_tx_reg => uart0_tx_reg,
++        timer_ctrl_reg => timer_ctrl_reg,
++        timer_value_reg => timer_value_reg,
++        gpio_dir_reg => gpio_dir_reg,
++        gpio_input_reg => gpio_input_reg
+         );
+ 
+ intr_controller: entity work.intr_controller
+@@ -274,13 +282,14 @@ uart0: entity work.csr_uart_rs232
+         clk => clk,
+         reset => reset,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
+         pdma_in => pdma_in,
+         pdma_out => pdma_out,
+         tx_intr_toggle => uart0_tx_intr_toggle,
+         rx_intr_toggle => uart0_rx_intr_toggle,
+         uart_tx => uart0_tx,
+-        uart_rx => uart0_rx
++        uart_rx => uart0_rx,
++        uart0_rx_reg => uart0_rx_reg,
++        uart0_tx_reg => uart0_tx_reg
+         );
+ 
+ 
+diff --git a/cpu/cpu_stage_iexec.vhd b/cpu/cpu_stage_iexec.vhd
+index 74ef983..8cd5ca2 100644
+--- a/cpu/cpu_stage_iexec.vhd
++++ b/cpu/cpu_stage_iexec.vhd
+@@ -16,7 +16,7 @@ port(
+     dcache_mc_out:              in mem_channel_out_t;
+     sdc_data_out:               in std_logic_vector(15 downto 0);
+     csr_in:                     out csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             in std_logic_vector(31 downto 0);
+     clk_instret:                out std_logic;
+     intr_out:                   in intr_channel_out_t;
+     intr_reset:                 out std_logic;
+diff --git a/cpu/csr_counters.vhd b/cpu/csr_counters.vhd
+index 54de58d..143022e 100644
+--- a/cpu/csr_counters.vhd
++++ b/cpu/csr_counters.vhd
+@@ -15,17 +15,26 @@ port(
+     clk_cycle:                  in std_logic;
+     clk_instret:                in std_logic;
+     ctx_pc_save:                in std_logic_vector(31 downto 0);
+-    ctx_pc_switch:              out std_logic_vector(31 downto 0)
++    ctx_pc_switch:              out std_logic_vector(31 downto 0);
++    ivector_addr:               out std_logic_vector(23 downto 0);
++    uart0_rx_reg:               in std_logic_vector(31 downto 0);
++    uart0_tx_reg:               in std_logic_vector(31 downto 0);
++    timer_ctrl_reg:             in std_logic_vector(31 downto 0);
++    timer_value_reg:            in std_logic_vector(31 downto 0);
++    gpio_dir_reg:               in std_logic_vector(31 downto 0);
++    gpio_input_reg:             in std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+ architecture synth of csr_counters is
+     signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
++    signal ivector_addr_r:      std_logic_vector(31 downto 0) := (others => '0');
+     signal ctr_instret:         std_logic_vector(63 downto 0);
+     signal ctr_cycle:           std_logic_vector(63 downto 0);
+ begin
+ 
+ ctx_pc_switch <= ctx_pc_switch_r;
++ivector_addr <= ivector_addr_r(31 downto 8);
+ 
+ instret_counter: lpm_counter
+     generic map(
+@@ -43,17 +52,30 @@ cycle_counter: lpm_counter
+         aclr => reset,
+         q => ctr_cycle);
+ 
+-csr_sel_result <=
+-    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++with csr_in.csr_sel_reg select csr_sel_result <=
++    ctx_pc_save when CSR_REG_CTX_PCSAVE,
++    uart0_rx_reg when CSR_REG_UART0_RX,
++    uart0_tx_reg when CSR_REG_UART0_TX,
++    gpio_dir_reg when CSR_REG_GPIO_DIR,
++    gpio_input_reg when CSR_REG_GPIO_INPUT,
++    timer_ctrl_reg when CSR_REG_TIMER_CTRL,
++    timer_value_reg when CSR_REG_TIMER_VALUE,
++    ctr_instret(31 downto 0) when CSR_REG_CTR_INSTRET,
++    ctr_instret(63 downto 32) when CSR_REG_CTR_INSTRET_H,
++    ctr_cycle(63 downto 32) when CSR_REG_CTR_CYCLE_H,
++    ctr_cycle(31 downto 0) when others;
+ 
+ process(clk)
+ begin
+     if (rising_edge(clk)) then
+-        if (csr_in.csr_op_valid = '1' and 
+-            csr_in.csr_op_reg = CSR_REG_CTX_PCSWITCH) 
+-        then
+-            ctx_pc_switch_r <= csr_in.csr_op_data;
++        if (csr_in.csr_op_valid = '1') then
++            case csr_in.csr_op_reg is
++                when CSR_REG_CTX_PCSWITCH =>
++                    ctx_pc_switch_r <= csr_in.csr_op_data;
++                when CSR_REG_IVECTOR_ADDR =>
++                    ivector_addr_r <= csr_in.csr_op_data;
++                when others =>
++            end case;
+         end if;
+     end if;
+ end process;
+diff --git a/cpu/csr_gpio.vhd b/cpu/csr_gpio.vhd
+index 8ac076c..7501587 100644
+--- a/cpu/csr_gpio.vhd
++++ b/cpu/csr_gpio.vhd
+@@ -9,8 +9,9 @@ entity csr_gpio is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
+-    gpio:                       inout std_logic_vector(31 downto 0)
++    gpio:                       inout std_logic_vector(31 downto 0);
++    gpio_dir_reg:               out std_logic_vector(31 downto 0);
++    gpio_input_reg:             out std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+@@ -19,17 +20,13 @@ architecture synth of csr_gpio is
+     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
+ begin
+ 
++gpio_dir_reg <= reg_dir;
++gpio_input_reg <= gpio;
++
+ OUTPUTS: for I in 0 to 31 generate
+     gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
+ end generate OUTPUTS;
+ 
+-
+-csr_sel_result <=
+-    reg_dir when csr_in.csr_sel_reg = CSR_REG_GPIO_DIR else
+-    reg_output when csr_in.csr_sel_reg = CSR_REG_GPIO_OUTPUT else
+-    gpio when csr_in.csr_sel_reg = CSR_REG_GPIO_INPUT else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+-
+ process(clk)
+ begin
+     if (rising_edge(clk)) then
+diff --git a/cpu/csr_timer.vhd b/cpu/csr_timer.vhd
+index 8d30d5f..b2d8bec 100644
+--- a/cpu/csr_timer.vhd
++++ b/cpu/csr_timer.vhd
+@@ -9,8 +9,9 @@ entity csr_timer is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
+-    intr_trigger:               out std_logic
++    intr_trigger:               out std_logic;
++    timer_ctrl_reg:             out std_logic_vector(31 downto 0);
++    timer_value_reg:            out std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+@@ -22,10 +23,8 @@ architecture synth of csr_timer is
+     alias timer_max_count:      std_logic_vector(31 downto 4) is timer_ctrl(31 downto 4);
+ begin
+ 
+-csr_sel_result <=
+-    timer_ctrl when csr_in.csr_sel_reg = CSR_REG_TIMER_CTRL else
+-    timer_value when csr_in.csr_sel_reg = CSR_REG_TIMER_VALUE else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++timer_ctrl_reg <= timer_ctrl;
++timer_value_reg <= timer_value_reg;
+ 
+ intr_trigger <= intr_trigger_r;
+ 
+diff --git a/cpu/csr_uart_rs232.vhd b/cpu/csr_uart_rs232.vhd
+index 324873e..0724ead 100644
+--- a/cpu/csr_uart_rs232.vhd
++++ b/cpu/csr_uart_rs232.vhd
+@@ -13,13 +13,14 @@ port(
+     clk:                        in std_logic;
+     reset:                      in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
+     pdma_in:                    out periph_dma_channel_in_t;
+     pdma_out:                   in periph_dma_channel_out_t;
+     tx_intr_toggle:             out std_logic;
+     rx_intr_toggle:             out std_logic;
+     uart_tx:                    out std_logic;
+-    uart_rx:                    in std_logic
++    uart_rx:                    in std_logic;
++    uart0_rx_reg:               out std_logic_vector(31 downto 0);
++    uart0_tx_reg:               out std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+@@ -81,10 +82,8 @@ begin
+ pdma_in.read <= read_r;
+ pdma_in.write <= write_r;
+ 
+-csr_sel_result <=
+-    (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
+-    (tx_ctrl & tx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_TX else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++uart0_rx_reg <= rx_ctrl & rx_buf_curpos;
++uart0_tx_reg <= tx_ctrl & tx_buf_curpos;
+ 
+ tx_intr_toggle <= tx_intr_toggle_r;
+ rx_intr_toggle <= rx_intr_toggle_r;
+diff --git a/sw/kernels/blinky/boot.c b/sw/kernels/blinky/boot.c
+index 3e4187f..7913459 100644
+--- a/sw/kernels/blinky/boot.c
++++ b/sw/kernels/blinky/boot.c
+@@ -66,7 +66,7 @@ main(void)
+ 
+     counter = 0;
+     while (1) {
+-        gpio_set_out(counter++ >> 10);
++        gpio_set_out((counter++ >> 10) & 1);
+         buf[0] = counter & 0xff;
+         uart0_write(buf, 1);
+     }
