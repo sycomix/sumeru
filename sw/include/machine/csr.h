@@ -63,10 +63,30 @@ gpio_set_out(unsigned int x)
 
 __attribute__ ((always_inline))
 inline unsigned int
-gpio_get_out()
+rdtime()
 {
     unsigned int x;
-    asm volatile("csrrsi %0, 0x882, 0;" : "=r"(x));
+    asm volatile("rdtime %0;" : "=r"(x));
+    return x;
+}
+
+
+__attribute__ ((always_inline))
+inline unsigned int
+rdcycle()
+{
+    unsigned int x;
+    asm volatile("rdcycle %0;" : "=r"(x));
+    return x;
+}
+
+
+__attribute__ ((always_inline))
+inline unsigned int
+rdinstret()
+{
+    unsigned int x;
+    asm volatile("rdinstret %0;" : "=r"(x));
     return x;
 }
 
