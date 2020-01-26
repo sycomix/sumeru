@@ -1,6 +1,9 @@
 #include <machine/csr.h>
 #include <machine/memctl.h>
 
+#define likely(x)       __builtin_expect(!!(x), 1)
+#define unlikely(x)     __builtin_expect(!!(x), 0)
+
 const unsigned int g_uart0_rx_buffer_loc = 0x2000;
 const unsigned int g_uart0_tx_buffer_loc = 0x2100;
 
