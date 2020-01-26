@@ -1,0 +1,336 @@
+diff --git a/cpu/cpu.vhd b/cpu/cpu.vhd
+index a9e8e70..495f794 100644
+--- a/cpu/cpu.vhd
++++ b/cpu/cpu.vhd
+@@ -70,7 +70,11 @@ architecture synth of cpu is
+     signal iexec_out:           iexec_channel_out_t;
+ 
+     signal csr_in:              csr_channel_in_t;
+-    signal csr_sel_result:      std_logic_vector(31 downto 0);
++    signal csr_sel_counters:    std_logic_vector(31 downto 0);
++    signal csr_sel_gpio:        std_logic_vector(31 downto 0);
++    signal csr_sel_timer:       std_logic_vector(31 downto 0);
++    signal csr_sel_uart0:       std_logic_vector(31 downto 0);
++    signal csr_sel_misc:        std_logic_vector(31 downto 0);
+ 
+     signal gpio:                std_logic_vector(31 downto 0);
+ 
+@@ -204,21 +208,25 @@ iexec: entity work.cpu_stage_iexec
+         dcache_mc_in => mc1_in,
+         dcache_mc_out => mc1_out,
+         sdc_data_out => sdc_data_out,
+-        csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
+         clk_instret => clk_instret,
+         intr_out => intr_out,
+         intr_reset => intr_reset,
+         ivector_addr => ivector_addr,
+         ctx_pc_save => ctx_pc_save,
+-        ctx_pc_switch => ctx_pc_switch
++        ctx_pc_switch => ctx_pc_switch,
++        csr_in => csr_in,
++        csr_sel_counters => csr_sel_counters,
++        csr_sel_gpio => csr_sel_gpio,
++        csr_sel_timer => csr_sel_timer,
++        csr_sel_uart0 => csr_sel_uart0,
++        csr_sel_misc => csr_sel_misc
+         );
+ 
+ csr_gpio: entity work.csr_gpio
+     port map(
+         clk => clk,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
++        csr_sel_result => csr_sel_gpio,
+         gpio => gpio
+         );
+ 
+@@ -226,7 +234,7 @@ csr_timer: entity work.csr_timer
+     port map(
+         clk => clk,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
++        csr_sel_result => csr_sel_timer,
+         intr_trigger => timer_intr_trigger
+         );
+ 
+@@ -235,7 +243,7 @@ csr_counters: entity work.csr_counters
+         clk => clk,
+         reset => reset,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
++        csr_sel_result => csr_sel_counters,
+         clk_cycle => clk_cycle,
+         clk_instret => clk_instret,
+         ctx_pc_save => ctx_pc_save,
+@@ -274,7 +282,7 @@ uart0: entity work.csr_uart_rs232
+         clk => clk,
+         reset => reset,
+         csr_in => csr_in,
+-        csr_sel_result => csr_sel_result,
++        csr_sel_result => csr_sel_uart0,
+         pdma_in => pdma_in,
+         pdma_out => pdma_out,
+         tx_intr_toggle => uart0_tx_intr_toggle,
+diff --git a/cpu/cpu_stage_iexec.vhd b/cpu/cpu_stage_iexec.vhd
+index e42fb06..176d6c6 100644
+--- a/cpu/cpu_stage_iexec.vhd
++++ b/cpu/cpu_stage_iexec.vhd
+@@ -15,14 +15,18 @@ port(
+     dcache_mc_in:               out mem_channel_in_t;
+     dcache_mc_out:              in mem_channel_out_t;
+     sdc_data_out:               in std_logic_vector(15 downto 0);
+-    csr_in:                     out csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
+     clk_instret:                out std_logic;
+     intr_out:                   in intr_channel_out_t;
+     intr_reset:                 out std_logic;
+     ivector_addr:               in std_logic_vector(23 downto 0);
+     ctx_pc_save:                out std_logic_vector(31 downto 0);
+-    ctx_pc_switch:              in std_logic_vector(31 downto 0)
++    ctx_pc_switch:              in std_logic_vector(31 downto 0);
++    csr_in:                     out csr_channel_in_t;
++    csr_sel_counters:           in std_logic_vector(31 downto 0);
++    csr_sel_gpio:               in std_logic_vector(31 downto 0);
++    csr_sel_timer:              in std_logic_vector(31 downto 0);
++    csr_sel_uart0:              in std_logic_vector(31 downto 0);
++    csr_sel_misc:               in std_logic_vector(31 downto 0)
+     );
+ end entity;
+ 
+@@ -77,6 +81,7 @@ architecture synth of cpu_stage_iexec is
+     signal intr_nextpc:         std_logic_vector(31 downto 0);
+     signal div_ctr:             std_logic_vector(3 downto 0);
+ 
++    signal csr_sel_result:      std_logic_vector(31 downto 0);
+     signal csr_sel_valid_r:     std_logic := '0';
+     signal csr_op_valid_r:      std_logic := '0';
+ 
+@@ -182,6 +187,13 @@ begin
+             sdc_data_out => sdc_data_out
+         );
+ 
++    with csr_in.csr_sel_reg(11 downto 8) select csr_sel_result <=
++        csr_sel_counters when "1100",
++        csr_sel_gpio when "1000",
++        csr_sel_uart0 when "1001",
++        csr_sel_timer when "1010",
++        csr_sel_misc when others;
++
+     with cmd_result_mux select rd_write_data <=
+         alu_result when CMD_ALU,
+         shift_result when CMD_SHIFT,
+diff --git a/cpu/csr_counters.vhd b/cpu/csr_counters.vhd
+index c915494..c773ed9 100644
+--- a/cpu/csr_counters.vhd
++++ b/cpu/csr_counters.vhd
+@@ -11,7 +11,7 @@ port(
+     clk:                        in std_logic;
+     reset:                      in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             out std_logic_vector(31 downto 0);
+     clk_cycle:                  in std_logic;
+     clk_instret:                in std_logic;
+     ctx_pc_save:                in std_logic_vector(31 downto 0);
+@@ -24,9 +24,7 @@ architecture synth of csr_counters is
+     signal ctr_cycle:           std_logic_vector(63 downto 0);
+     signal ctr_time:            std_logic_vector(63 downto 0);
+     signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+-    signal module_sel:          std_logic;
+     signal reg_sel:             std_logic_vector(2 downto 0);
+-    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+ ctx_pc_switch <= ctx_pc_switch_r;
+@@ -55,7 +53,6 @@ time_counter: lpm_counter
+         aclr => reset,
+         q => ctr_time);
+ 
+-module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"C" else '0';
+ reg_sel <= csr_in.csr_sel_reg(7) & csr_in.csr_sel_reg(1 downto 0);
+ 
+ csr_sel_mux: entity work.mux_8x32
+@@ -69,15 +66,7 @@ csr_sel_mux: entity work.mux_8x32
+         data6x => ctr_cycle(63 downto 32),
+         data7x => ctx_pc_switch_r,
+         sel => reg_sel,
+-        result => sel_result);
+-
+-csr_bustri: lpm_bustri
+-    generic map(
+-        LPM_WIDTH => 32)
+-    port map(
+-        data => sel_result,
+-        enabledt => module_sel,
+-        tridata => csr_sel_result);
++        result => csr_sel_result);
+ 
+ process(clk)
+ begin
+diff --git a/cpu/csr_gpio.vhd b/cpu/csr_gpio.vhd
+index 4b369ad..2690642 100644
+--- a/cpu/csr_gpio.vhd
++++ b/cpu/csr_gpio.vhd
+@@ -10,7 +10,7 @@ entity csr_gpio is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             out std_logic_vector(31 downto 0);
+     gpio:                       inout std_logic_vector(31 downto 0)
+     );
+ end entity;
+@@ -18,32 +18,18 @@ end entity;
+ architecture synth of csr_gpio is
+     signal reg_output:          std_logic_vector(31 downto 0) := (others => '0');
+     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
+-    signal module_sel:          std_logic;
+-    signal reg_sel:             std_logic;
+-    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+ OUTPUTS: for I in 0 to 31 generate
+     gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
+ end generate OUTPUTS;
+ 
+-module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"8" else '0';
+-reg_sel <= csr_in.csr_sel_reg(0);
+-
+ csr_sel_mux: entity work.mux_2x32
+     port map(
+         data0x => reg_dir,
+         data1x => gpio,
+-        sel => reg_sel,
+-        result => sel_result);
+-
+-csr_bustri: lpm_bustri
+-    generic map(
+-        LPM_WIDTH => 32)
+-    port map(
+-        data => sel_result,
+-        enabledt => module_sel,
+-        tridata => csr_sel_result);
++        sel => csr_in.csr_sel_reg(0),
++        result => csr_sel_result);
+ 
+ process(clk)
+ begin
+diff --git a/cpu/csr_misc.vhd b/cpu/csr_misc.vhd
+index e91ccfe..1155005 100644
+--- a/cpu/csr_misc.vhd
++++ b/cpu/csr_misc.vhd
+@@ -10,13 +10,12 @@ entity csr_misc is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             out std_logic_vector(31 downto 0);
+     ivector_addr:               out std_logic_vector(23 downto 0)
+     );
+ end entity;
+ 
+ architecture synth of csr_misc is
+-    signal module_sel:          std_logic;
+     signal ivector_addr_r:      std_logic_vector(23 downto 0);
+ begin
+ 
+diff --git a/cpu/csr_timer.vhd b/cpu/csr_timer.vhd
+index ccbd3d0..6355b23 100644
+--- a/cpu/csr_timer.vhd
++++ b/cpu/csr_timer.vhd
+@@ -10,7 +10,7 @@ entity csr_timer is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             out std_logic_vector(31 downto 0);
+     intr_trigger:               out std_logic
+     );
+ end entity;
+@@ -21,29 +21,14 @@ architecture synth of csr_timer is
+     signal intr_trigger_r:      std_logic := '0';
+     alias timer_enabled:        std_logic is timer_ctrl(0);
+     alias timer_max_count:      std_logic_vector(31 downto 4) is timer_ctrl(31 downto 4);
+-
+-    signal module_sel:          std_logic;
+-    signal reg_sel:             std_logic;
+-    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+-module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"A" else '0';
+-reg_sel <= csr_in.csr_sel_reg(0);
+-
+ csr_sel_mux: entity work.mux_2x32
+     port map(
+         data0x => timer_ctrl,
+         data1x => timer_value,
+-        sel => reg_sel,
+-        result => sel_result);
+-
+-csr_bustri: lpm_bustri
+-    generic map(
+-        LPM_WIDTH => 32)
+-    port map(
+-        data => (others => '0'),
+-        enabledt => module_sel,
+-        tridata => csr_sel_result);
++        sel => csr_in.csr_sel_reg(0),
++        result => csr_sel_result);
+ 
+ intr_trigger <= intr_trigger_r;
+ 
+diff --git a/cpu/csr_uart_rs232.vhd b/cpu/csr_uart_rs232.vhd
+index 67cee3e..d1405c3 100644
+--- a/cpu/csr_uart_rs232.vhd
++++ b/cpu/csr_uart_rs232.vhd
+@@ -12,7 +12,7 @@ port(
+     clk:                        in std_logic;
+     reset:                      in std_logic;
+     csr_in:                     in csr_channel_in_t;
+-    csr_sel_result:             inout std_logic_vector(31 downto 0);
++    csr_sel_result:             out std_logic_vector(31 downto 0);
+     pdma_in:                    out periph_dma_channel_in_t;
+     pdma_out:                   in periph_dma_channel_out_t;
+     tx_intr_toggle:             out std_logic;
+@@ -23,11 +23,6 @@ port(
+ end entity;
+ 
+ architecture synth of csr_uart_rs232 is
+-signal module_sel:              std_logic;
+-signal reg_sel:                 std_logic;
+-signal sel_result:              std_logic_vector(31 downto 0);
+-
+-
+ signal rx_reg:                  std_logic_vector(31 downto 0);
+ signal tx_reg:                  std_logic_vector(31 downto 0);
+ 
+@@ -88,9 +83,6 @@ begin
+ pdma_in.read <= read_r;
+ pdma_in.write <= write_r;
+ 
+-module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"9" else '0';
+-reg_sel <= csr_in.csr_sel_reg(0);
+-
+ rx_reg <= (rx_ctrl & rx_buf_curpos);
+ tx_reg <= (tx_ctrl & tx_buf_curpos);
+ 
+@@ -98,16 +90,8 @@ csr_sel_mux: entity work.mux_2x32
+     port map(
+         data0x => rx_reg,
+         data1x => tx_reg,
+-        sel => reg_sel,
+-        result => sel_result);
+-
+-csr_bustri: lpm_bustri
+-    generic map(
+-        LPM_WIDTH => 32)
+-    port map(
+-        data => sel_result,
+-        enabledt => module_sel,
+-        tridata => csr_sel_result);
++        sel => csr_in.csr_sel_reg(0),
++        result => csr_sel_result);
+ 
+ tx_intr_toggle <= tx_intr_toggle_r;
+ rx_intr_toggle <= rx_intr_toggle_r;

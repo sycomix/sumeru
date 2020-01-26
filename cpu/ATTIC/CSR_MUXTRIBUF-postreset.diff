@@ -1,0 +1,438 @@
+diff --git a/cpu/Makefile b/cpu/Makefile
+index 0d61411..29f243e 100644
+--- a/cpu/Makefile
++++ b/cpu/Makefile
+@@ -11,6 +11,8 @@ SRCS = sumeru_constants.vhd \
+         ram1p_256x16.vhd \
+         ram1p_256x36_byteena.vhd \
+         ram2p_simp_32x32.vhd \
++        mux_2x32.vhd \
++        mux_8x32.vhd \
+         memory_arbitrator.vhd \
+         memory_loader.vhd \
+         readcache_256x4x32.vhd \
+diff --git a/cpu/cpu.qsf b/cpu/cpu.qsf
+index e2e878a..5357020 100644
+--- a/cpu/cpu.qsf
++++ b/cpu/cpu.qsf
+@@ -39,6 +39,8 @@ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x32.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x36_byteena.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x16.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram2p_simp_32x32.vhd
++set_global_assignment -name VHDL_FILE mux_2x32.vhd
++set_global_assignment -name VHDL_FILE mux_8x32.vhd
+ set_global_assignment -name VHDL_FILE cpu_types.vhd
+ set_global_assignment -name VHDL_FILE memory_channel_types.vhd
+ set_global_assignment -name VHDL_FILE memory_arbitrator.vhd
+diff --git a/cpu/csr_counters.vhd b/cpu/csr_counters.vhd
+index 54de58d..c915494 100644
+--- a/cpu/csr_counters.vhd
++++ b/cpu/csr_counters.vhd
+@@ -1,7 +1,7 @@
+ library ieee, lpm;
+ use ieee.std_logic_1164.ALL;
+ use ieee.numeric_std.ALL;
+-use lpm.lpm_components.lpm_counter;
++use lpm.lpm_components.ALL;
+ 
+ use work.sumeru_constants.ALL;
+ use work.cpu_types.ALL;
+@@ -20,9 +20,13 @@ port(
+ end entity;
+ 
+ architecture synth of csr_counters is
+-    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+     signal ctr_instret:         std_logic_vector(63 downto 0);
+     signal ctr_cycle:           std_logic_vector(63 downto 0);
++    signal ctr_time:            std_logic_vector(63 downto 0);
++    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
++    signal module_sel:          std_logic;
++    signal reg_sel:             std_logic_vector(2 downto 0);
++    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+ ctx_pc_switch <= ctx_pc_switch_r;
+@@ -43,9 +47,37 @@ cycle_counter: lpm_counter
+         aclr => reset,
+         q => ctr_cycle);
+ 
+-csr_sel_result <=
+-    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++time_counter: lpm_counter
++    generic map(
++        LPM_WIDTH => 64)
++    port map(
++        clock => clk,
++        aclr => reset,
++        q => ctr_time);
++
++module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"C" else '0';
++reg_sel <= csr_in.csr_sel_reg(7) & csr_in.csr_sel_reg(1 downto 0);
++
++csr_sel_mux: entity work.mux_8x32
++    port map(
++        data0x => ctr_instret(31 downto 0),
++        data1x => ctr_instret(63 downto 32),
++        data2x => ctr_time(31 downto 0),
++        data3x => ctx_pc_save,
++        data4x => ctr_time(63 downto 32),
++        data5x => ctr_cycle(31 downto 0),
++        data6x => ctr_cycle(63 downto 32),
++        data7x => ctx_pc_switch_r,
++        sel => reg_sel,
++        result => sel_result);
++
++csr_bustri: lpm_bustri
++    generic map(
++        LPM_WIDTH => 32)
++    port map(
++        data => sel_result,
++        enabledt => module_sel,
++        tridata => csr_sel_result);
+ 
+ process(clk)
+ begin
+diff --git a/cpu/csr_gpio.vhd b/cpu/csr_gpio.vhd
+index 8ac076c..4b369ad 100644
+--- a/cpu/csr_gpio.vhd
++++ b/cpu/csr_gpio.vhd
+@@ -1,6 +1,7 @@
+-library ieee;
++library ieee, lpm;
+ use ieee.std_logic_1164.ALL;
+ use ieee.numeric_std.ALL;
++use lpm.lpm_components.ALL;
+ 
+ use work.sumeru_constants.ALL;
+ use work.cpu_types.ALL;
+@@ -17,18 +18,32 @@ end entity;
+ architecture synth of csr_gpio is
+     signal reg_output:          std_logic_vector(31 downto 0) := (others => '0');
+     signal reg_dir:             std_logic_vector(31 downto 0) := (others => '0');
++    signal module_sel:          std_logic;
++    signal reg_sel:             std_logic;
++    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+ OUTPUTS: for I in 0 to 31 generate
+     gpio(I) <= reg_output(I) when reg_dir(I) = '1' else 'Z';
+ end generate OUTPUTS;
+ 
+-
+-csr_sel_result <=
+-    reg_dir when csr_in.csr_sel_reg = CSR_REG_GPIO_DIR else
+-    reg_output when csr_in.csr_sel_reg = CSR_REG_GPIO_OUTPUT else
+-    gpio when csr_in.csr_sel_reg = CSR_REG_GPIO_INPUT else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"8" else '0';
++reg_sel <= csr_in.csr_sel_reg(0);
++
++csr_sel_mux: entity work.mux_2x32
++    port map(
++        data0x => reg_dir,
++        data1x => gpio,
++        sel => reg_sel,
++        result => sel_result);
++
++csr_bustri: lpm_bustri
++    generic map(
++        LPM_WIDTH => 32)
++    port map(
++        data => sel_result,
++        enabledt => module_sel,
++        tridata => csr_sel_result);
+ 
+ process(clk)
+ begin
+diff --git a/cpu/csr_misc.vhd b/cpu/csr_misc.vhd
+index bd4182b..e91ccfe 100644
+--- a/cpu/csr_misc.vhd
++++ b/cpu/csr_misc.vhd
+@@ -1,6 +1,7 @@
+-library ieee;
++library ieee, lpm;
+ use ieee.std_logic_1164.ALL;
+ use ieee.numeric_std.ALL;
++use lpm.lpm_components.ALL;
+ 
+ use work.sumeru_constants.ALL;
+ use work.cpu_types.ALL;
+@@ -9,23 +10,25 @@ entity csr_misc is
+ port(
+     clk:                        in std_logic;
+     csr_in:                     in csr_channel_in_t;
++    csr_sel_result:             inout std_logic_vector(31 downto 0);
+     ivector_addr:               out std_logic_vector(23 downto 0)
+     );
+ end entity;
+ 
+ architecture synth of csr_misc is
+-    signal ivector_addr_r:      std_logic_vector(31 downto 0) := (others => '0');
++    signal module_sel:          std_logic;
++    signal ivector_addr_r:      std_logic_vector(23 downto 0);
+ begin
+ 
+-ivector_addr <= ivector_addr_r(31 downto 8);
++ivector_addr <= ivector_addr_r;
+ 
+ process(clk)
+ begin
+     if (rising_edge(clk)) then
+-        if (csr_in.csr_op_valid = '1' and 
++        if (csr_in.csr_op_valid = '1' and
+             csr_in.csr_op_reg = CSR_REG_IVECTOR_ADDR) 
+         then
+-            ivector_addr_r <= csr_in.csr_op_data;
++            ivector_addr_r <= csr_in.csr_op_data(31 downto 8);
+         end if;
+     end if;
+ end process;
+diff --git a/cpu/csr_timer.vhd b/cpu/csr_timer.vhd
+index 8d30d5f..ccbd3d0 100644
+--- a/cpu/csr_timer.vhd
++++ b/cpu/csr_timer.vhd
+@@ -1,6 +1,7 @@
+-library work, ieee;
++library ieee, lpm;
+ use ieee.std_logic_1164.all;
+ use ieee.numeric_std.all;
++use lpm.lpm_components.ALL;
+ 
+ use work.sumeru_constants.ALL;
+ use work.cpu_types.all;
+@@ -20,12 +21,29 @@ architecture synth of csr_timer is
+     signal intr_trigger_r:      std_logic := '0';
+     alias timer_enabled:        std_logic is timer_ctrl(0);
+     alias timer_max_count:      std_logic_vector(31 downto 4) is timer_ctrl(31 downto 4);
++
++    signal module_sel:          std_logic;
++    signal reg_sel:             std_logic;
++    signal sel_result:          std_logic_vector(31 downto 0);
+ begin
+ 
+-csr_sel_result <=
+-    timer_ctrl when csr_in.csr_sel_reg = CSR_REG_TIMER_CTRL else
+-    timer_value when csr_in.csr_sel_reg = CSR_REG_TIMER_VALUE else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"A" else '0';
++reg_sel <= csr_in.csr_sel_reg(0);
++
++csr_sel_mux: entity work.mux_2x32
++    port map(
++        data0x => timer_ctrl,
++        data1x => timer_value,
++        sel => reg_sel,
++        result => sel_result);
++
++csr_bustri: lpm_bustri
++    generic map(
++        LPM_WIDTH => 32)
++    port map(
++        data => (others => '0'),
++        enabledt => module_sel,
++        tridata => csr_sel_result);
+ 
+ intr_trigger <= intr_trigger_r;
+ 
+diff --git a/cpu/csr_uart_rs232.vhd b/cpu/csr_uart_rs232.vhd
+index 324873e..67cee3e 100644
+--- a/cpu/csr_uart_rs232.vhd
++++ b/cpu/csr_uart_rs232.vhd
+@@ -1,8 +1,7 @@
+ library ieee, lpm;
+ use ieee.std_logic_1164.ALL;
+ use ieee.numeric_std.ALL;
+-use lpm.lpm_components.lpm_counter;
+-use lpm.lpm_components.lpm_shiftreg;
++use lpm.lpm_components.ALL;
+ 
+ use work.sumeru_constants.ALL;
+ use work.cpu_types.ALL;
+@@ -24,6 +23,14 @@ port(
+ end entity;
+ 
+ architecture synth of csr_uart_rs232 is
++signal module_sel:              std_logic;
++signal reg_sel:                 std_logic;
++signal sel_result:              std_logic_vector(31 downto 0);
++
++
++signal rx_reg:                  std_logic_vector(31 downto 0);
++signal tx_reg:                  std_logic_vector(31 downto 0);
++
+ signal tx_ctrl:                 std_logic_vector(23 downto 0) := (others => '0');
+ signal tx_buf_len:              std_logic_vector(7 downto 0) := (others => '0');
+ signal tx_buf_curpos:           std_logic_vector(7 downto 0) := (others => '0');
+@@ -81,10 +88,26 @@ begin
+ pdma_in.read <= read_r;
+ pdma_in.write <= write_r;
+ 
+-csr_sel_result <=
+-    (rx_ctrl & rx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_RX else
+-    (tx_ctrl & tx_buf_curpos) when csr_in.csr_sel_reg = CSR_REG_UART0_TX else
+-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
++module_sel <= '1' when csr_in.csr_sel_reg(11 downto 8) = x"9" else '0';
++reg_sel <= csr_in.csr_sel_reg(0);
++
++rx_reg <= (rx_ctrl & rx_buf_curpos);
++tx_reg <= (tx_ctrl & tx_buf_curpos);
++
++csr_sel_mux: entity work.mux_2x32
++    port map(
++        data0x => rx_reg,
++        data1x => tx_reg,
++        sel => reg_sel,
++        result => sel_result);
++
++csr_bustri: lpm_bustri
++    generic map(
++        LPM_WIDTH => 32)
++    port map(
++        data => sel_result,
++        enabledt => module_sel,
++        tridata => csr_sel_result);
+ 
+ tx_intr_toggle <= tx_intr_toggle_r;
+ rx_intr_toggle <= rx_intr_toggle_r;
+diff --git a/cpu/sumeru_constants.vhd b/cpu/sumeru_constants.vhd
+index 4bf16b3..be84570 100644
+--- a/cpu/sumeru_constants.vhd
++++ b/cpu/sumeru_constants.vhd
+@@ -8,24 +8,27 @@ constant IVEC_TIMER:            std_logic_vector(3 downto 0) := "0001";
+ constant IVEC_UART0_TX:         std_logic_vector(3 downto 0) := "0010";
+ constant IVEC_UART0_RX:         std_logic_vector(3 downto 0) := "0011";
+ 
+-constant CSR_REG_GPIO_DIR:      std_logic_vector(11 downto 0) := x"881";
+-constant CSR_REG_GPIO_OUTPUT:   std_logic_vector(11 downto 0) := x"882";
+-constant CSR_REG_GPIO_INPUT:    std_logic_vector(11 downto 0) := x"CC1";
+- 
+-constant CSR_REG_TIMER_CTRL:    std_logic_vector(11 downto 0) := x"884";
+-constant CSR_REG_TIMER_VALUE:   std_logic_vector(11 downto 0) := x"CC2";
+-
+ constant CSR_REG_CTR_CYCLE:     std_logic_vector(11 downto 0) := x"C00";
+ constant CSR_REG_CTR_CYCLE_H:   std_logic_vector(11 downto 0) := x"C80";
++constant CSR_REG_CTR_TIME:      std_logic_vector(11 downto 0) := x"C01";
++constant CSR_REG_CTR_TIME_H:    std_logic_vector(11 downto 0) := x"C81";
+ constant CSR_REG_CTR_INSTRET:   std_logic_vector(11 downto 0) := x"C02";
+-constant CSR_REG_CTR_INSTRET_H: std_logic_vector(11 downto 0):= x"C82";
++constant CSR_REG_CTR_INSTRET_H: std_logic_vector(11 downto 0) := x"C82";
++
++constant CSR_REG_CTX_PCSAVE:    std_logic_vector(11 downto 0) := x"C03";
++constant CSR_REG_CTX_PCSWITCH:  std_logic_vector(11 downto 0) := x"C83";
+ 
+-constant CSR_REG_CTX_PCSAVE:    std_logic_vector(11 downto 0) := x"CC0";
+-constant CSR_REG_CTX_PCSWITCH:  std_logic_vector(11 downto 0) := x"880";
+-constant CSR_REG_SWITCH:        std_logic_vector(11 downto 0) := x"9C0";
+-constant CSR_REG_IVECTOR_ADDR:  std_logic_vector(11 downto 0) := x"9C1";
++constant CSR_REG_GPIO_DIR:      std_logic_vector(11 downto 0) := x"800";
++constant CSR_REG_GPIO_INPUT:    std_logic_vector(11 downto 0) := x"801";
++constant CSR_REG_GPIO_OUTPUT:   std_logic_vector(11 downto 0) := x"802";
++
++constant CSR_REG_UART0_RX:      std_logic_vector(11 downto 0) := x"900";
++constant CSR_REG_UART0_TX:      std_logic_vector(11 downto 0) := x"901";
++ 
++constant CSR_REG_TIMER_CTRL:    std_logic_vector(11 downto 0) := x"A00";
++constant CSR_REG_TIMER_VALUE:   std_logic_vector(11 downto 0) := x"A01";
+ 
+-constant CSR_REG_UART0_RX:      std_logic_vector(11 downto 0) := x"888";
+-constant CSR_REG_UART0_TX:      std_logic_vector(11 downto 0) := x"889";
++constant CSR_REG_SWITCH:        std_logic_vector(11 downto 0) := x"B00";
++constant CSR_REG_IVECTOR_ADDR:  std_logic_vector(11 downto 0) := x"B01";
+ 
+ end package;
+diff --git a/sw/bluetooth/bluetooth_le_terminal/bluetooth_le_terminal.c b/sw/bluetooth/bluetooth_le_terminal/bluetooth_le_terminal.c
+index 924924e..120a1a9 100644
+--- a/sw/bluetooth/bluetooth_le_terminal/bluetooth_le_terminal.c
++++ b/sw/bluetooth/bluetooth_le_terminal/bluetooth_le_terminal.c
+@@ -72,31 +72,6 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
+     } else {
+         GAttrib *attrib = user_data;
+         write_cmd(attrib, 0x25, buf, rlen, NULL, NULL);
+-#if XXX_NOTYET
+-        int offset = 0;
+-        int i;
+-        for (i = 0; i < rlen; ++i) {
+-            if (buf[i] == LINEFEED) {
+-                gchar save = buf[i + 1];
+-                buf[i] = CARRIAGE_RETURN;
+-                buf[i + 1] = LINEFEED;
+-                write_cmd(
+-                    attrib, 0x25, 
+-                    buf + offset, i - offset + 2, 
+-                    NULL, NULL);        
+-
+-                pending_len = rlen - (i + 1);
+-                memcpy(pending_buf, buf + (i + 1), pending_len); 
+-                return true;
+-            }
+-        }
+-
+-        if (offset != i)
+-            write_cmd(
+-                    attrib, 0x25,
+-                    buf + offset, i - offset,
+-                    NULL, NULL);
+-#endif
+     }
+     return true;
+ }
+diff --git a/sw/include/machine/constants.h b/sw/include/machine/constants.h
+index 65e52ab..134403b 100644
+--- a/sw/include/machine/constants.h
++++ b/sw/include/machine/constants.h
+@@ -1,25 +1,28 @@
+ #ifndef __SUMERU_CONSTANTS_H
+ #define __SUMERU_CONSTANTS_H
+ 
+-#define CSR_REG_GPIO_DIR                0x881
+-#define CSR_REG_GPIO_OUT                0x882
+-#define CSR_REG_GPIO_INPUT              0xCC1
+-
+-#define CSR_REG_TIMER_CTRL              0x884
+-#define CSR_REG_TIMER_VALUE             0xCC2
+-
+ #define CSR_REG_CTR_CYCLE               0xC00
+ #define CSR_REG_CTR_CYCLE_H             0xC80
++#define CSR_REG_CTR_TIME                0xC01
++#define CSR_REG_CTR_TIME_H              0xC81
+ #define CSR_REG_CTR_INSTRET             0xC02
+ #define CSR_REG_CTR_INSTRET_H           0xC82
+ 
+-#define CSR_REG_CTX_PCSAVE              0xCC0
+-#define CSR_REG_CTX_PCSWITCH            0x880
+-#define CSR_REG_SWITCH                  0x9C0
+-#define CSR_REG_IVECTOR_ADDR            0x9C1
++#define CSR_REG_CTX_PCSAVE              0xC03
++#define CSR_REG_CTX_PCSWITCH            0xC83
++
++#define CSR_REG_GPIO_DIR                0x800
++#define CSR_REG_GPIO_INPUT              0x801
++#define CSR_REG_GPIO_OUT                0x802
++
++#define CSR_REG_UART0_RX                0x900
++#define CSR_REG_UART0_TX                0x901
++
++#define CSR_REG_TIMER_CTRL              0xA00
++#define CSR_REG_TIMER_VALUE             0xA01
+ 
+-#define CSR_REG_UART0_RX                0x888
+-#define CSR_REG_UART0_TX                0x889
++#define CSR_REG_SWITCH                  0xB00
++#define CSR_REG_IVECTOR_ADDR            0xB01
+ 
+ #define INTR_ID_TIMER                   0x1
+ #define INTR_ID_UART0_TX                0x2
+diff --git a/sw/vhdl/mark1_spi_passthrough/Makefile b/sw/vhdl/mark1_spi_passthrough/Makefile
+index f7fcd5d..45fe9f2 100644
+--- a/sw/vhdl/mark1_spi_passthrough/Makefile
++++ b/sw/vhdl/mark1_spi_passthrough/Makefile
+@@ -28,7 +28,7 @@ synth:
+ 	env QCMD=quartus_sh ${SUMERU_DIR}/scripts/my_quartus_cmd --flow compile $(TOPLEVEL)
+ 
+ prog:
+-	env QCMD=quarts_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
++	env QCMD=quartus_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
+ 
+ test:
+ 	./$(TOPLEVEL)_tb --stop-time=$(SIM_PERIOD) --wave=$(TOPLEVEL)_tb.ghw
