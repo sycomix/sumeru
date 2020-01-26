@@ -241,7 +241,6 @@ begin
             trigger_cxfer <= '0';
             busy_r <= '0';
             csr_sel_valid_r <= '0';
-            csr_in.csr_sel_reg <= (others => '0');
             intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>
@@ -270,6 +269,8 @@ begin
                     busy_r <= '1';
                 end if;
             when RUNNING =>
+                csr_in.csr_sel_reg <= iexec_in.csr_reg;
+                csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
                 -- iexec_out.cxfer=0 skips the cycle after a cxfer to
                 -- allow any outstanding iexec_in data to become invalid
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
@@ -352,8 +353,6 @@ begin
                         when CMD_CSR =>
                             regfile_wren <= '1';
                             csr_sel_valid_r <= '1';
-                            csr_in.csr_sel_reg <= iexec_in.csr_reg;
-                            csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
                         when others =>
                     end case;
                 end if;
