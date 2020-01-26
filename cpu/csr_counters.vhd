@@ -13,19 +13,32 @@ port(
     csr_in:                     in csr_channel_in_t;
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_cycle:                  in std_logic;
-    clk_instret:                in std_logic;
-    ctx_pc_save:                in std_logic_vector(31 downto 0);
-    ctx_pc_switch:              out std_logic_vector(31 downto 0)
+    clk_instret:                in std_logic
     );
 end entity;
 
 architecture synth of csr_counters is
-    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
     signal ctr_instret:         std_logic_vector(63 downto 0);
     signal ctr_cycle:           std_logic_vector(63 downto 0);
+    signal ctr_time:            std_logic_vector(63 downto 0);
 begin
 
-ctx_pc_switch <= ctx_pc_switch_r;
+with csr_in.csr_sel_reg select csr_sel_result <=
+    ctr_cycle(31 downto 0) when CSR_REG_CTR_CYCLE,
+    ctr_cycle(63 downto 32) when CSR_REG_CTR_CYCLE_H,
+    ctr_time(31 downto 0) when CSR_REG_CTR_TIME,
+    ctr_time(63 downto 32) when CSR_REG_CTR_TIME_H,
+    ctr_instret(31 downto 0) when CSR_REG_CTR_INSTRET,
+    ctr_instret(63 downto 32) when CSR_REG_CTR_INSTRET_H,
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" when others;
+
+time_counter: lpm_counter
+    generic map(
+        LPM_WIDTH => 64)
+    port map(
+        clock => clk,
+        aclr => reset,
+        q => ctr_time);
 
 instret_counter: lpm_counter
     generic map(
@@ -42,20 +55,5 @@ cycle_counter: lpm_counter
         clock => clk_cycle,
         aclr => reset,
         q => ctr_cycle);
-
-csr_sel_result <=
-    ctx_pc_save   when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
-    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
-
-process(clk)
-begin
-    if (rising_edge(clk)) then
-        if (csr_in.csr_op_valid = '1' and 
-            csr_in.csr_op_reg = CSR_REG_CTX_PCSWITCH) 
-        then
-            ctx_pc_switch_r <= csr_in.csr_op_data;
-        end if;
-    end if;
-end process;
 
 end architecture;

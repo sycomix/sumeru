@@ -66,7 +66,7 @@ main(void)
 
     counter = 0;
     while (1) {
-        gpio_set_out(counter++ >> 10);
+        gpio_set_out((counter++ >> 10) & 1);
         buf[0] = counter & 0xff;
         uart0_write(buf, 1);
     }

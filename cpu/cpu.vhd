@@ -237,16 +237,17 @@ csr_counters: entity work.csr_counters
         csr_in => csr_in,
         csr_sel_result => csr_sel_result,
         clk_cycle => clk_cycle,
-        clk_instret => clk_instret,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
+        clk_instret => clk_instret
         );
 
 csr_misc: entity work.csr_misc
     port map(
         clk => clk,
         csr_in => csr_in,
-        ivector_addr => ivector_addr
+        csr_sel_result => csr_sel_result,
+        ivector_addr => ivector_addr,
+        ctx_pc_save => ctx_pc_save,
+        ctx_pc_switch => ctx_pc_switch
         );
 
 intr_controller: entity work.intr_controller

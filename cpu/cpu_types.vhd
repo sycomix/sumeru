@@ -78,7 +78,6 @@ package cpu_types is
     end record;
 
     type csr_channel_in_t is record
-        csr_sel_valid:          std_logic;
         csr_sel_reg:            std_logic_vector(11 downto 0);
         csr_sel_op:             std_logic_vector(1 downto 0);
 

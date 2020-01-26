@@ -77,7 +77,8 @@ architecture synth of cpu_stage_iexec is
     signal intr_nextpc:         std_logic_vector(31 downto 0);
     signal div_ctr:             std_logic_vector(3 downto 0);
 
-    signal csr_sel_valid_r:     std_logic := '0';
+    signal csr_do_write:        std_logic := '0';
+    signal csr_wait_ctr:        std_logic := '0';
     signal csr_op_valid_r:      std_logic := '0';
 
     signal clk_instret_r:       std_logic := '0';
@@ -89,7 +90,8 @@ architecture synth of cpu_stage_iexec is
         RUNNING,
         LS_1,
         LS_WAIT,
-        DIV_WAIT
+        DIV_WAIT,
+        CSR_READ_WAIT
         );
 
     signal state:               state_t := RUNNING;
@@ -230,8 +232,6 @@ begin
             "0000" when "1100",         -- Hitherto DCACHE LINE FLUSH operation 
             "1111" when others;
 
-    csr_in.csr_sel_valid <= csr_sel_valid_r;
-
     process(clk)
         variable br: std_logic;
     begin
@@ -240,7 +240,7 @@ begin
             br_inst <= '0';
             trigger_cxfer <= '0';
             busy_r <= '0';
-            csr_sel_valid_r <= '0';
+            csr_do_write <= '0';
             intr_reset_r <= '0';
             case state is
             when DIV_WAIT =>
@@ -269,8 +269,6 @@ begin
                     busy_r <= '1';
                 end if;
             when RUNNING =>
-                csr_in.csr_sel_reg <= iexec_in.csr_reg;
-                csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
                 -- iexec_out.cxfer=0 skips the cycle after a cxfer to
                 -- allow any outstanding iexec_in data to become invalid
                 if (iexec_in.valid = '1' and iexec_out.cxfer = '0')  then
@@ -301,13 +299,16 @@ begin
                     cxfer_mux <= not iexec_in.trigger_cxfer;
                     if (iexec_in.trigger_cxfer = '1') then
                         trigger_cxfer <= '1';
+                    elsif (iexec_in.cmd = CMD_CSR) then
+                        if (iexec_in.csr_reg = CSR_REG_SWITCH) then
+                            trigger_cxfer <= '1';
+                            cxfer_pc <= ctx_pc_switch;
+                            intr_reset_r <= '1';
+                        else
+                            trigger_cxfer <= '0';
+                        end if;
                     elsif (iexec_in.cmd = CMD_BRANCH) then
                         trigger_cxfer <= '0';
-                    elsif(iexec_in.cmd = CMD_CSR and 
-                          iexec_in.csr_reg = CSR_REG_SWITCH) then
-                        trigger_cxfer <= '1';
-                        cxfer_pc <= ctx_pc_switch;
-                        intr_reset_r <= '1';
                     elsif (intr_out.intr_trigger /= intr_trigger_save) then
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';
@@ -351,11 +352,25 @@ begin
                             br_inst <= '1';
                             cxfer_pc <= iexec_in.imm;
                         when CMD_CSR =>
-                            regfile_wren <= '1';
-                            csr_sel_valid_r <= '1';
+                            if (iexec_in.csr_reg /= CSR_REG_SWITCH) then
+                                busy_r <= '1';
+                                csr_wait_ctr <= '1';
+                                csr_in.csr_sel_reg <= iexec_in.csr_reg;
+                                csr_in.csr_sel_op <= iexec_in.cmd_op(1 downto 0);
+                                state <= CSR_READ_WAIT;
+                            end if;
                         when others =>
                     end case;
                 end if;
+                when CSR_READ_WAIT =>
+                    if (csr_wait_ctr = '1') then
+                        busy_r <= '1';
+                        csr_wait_ctr <= '0';
+                    else
+                        regfile_wren <= '1';
+                        csr_do_write <= '1';
+                        state <= RUNNING;
+                    end if;
             end case;
         end if;
     end process;
@@ -366,7 +381,8 @@ begin
     process(clk)
     begin
         if (rising_edge(clk)) then
-            if (csr_sel_valid_r = '1') then
+            if (csr_do_write = '1') 
+            then
                 csr_op_valid_r <= '1';
                 csr_in.csr_op_reg <= csr_in.csr_sel_reg;
                 case csr_in.csr_sel_op is
