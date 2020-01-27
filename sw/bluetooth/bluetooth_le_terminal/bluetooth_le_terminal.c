@@ -28,8 +28,11 @@
 static GMainLoop *event_loop;
 static volatile gboolean write_complete = 1;
 static volatile gboolean response_received = 1;
+static volatile gboolean jmp_addr_done = 0;
+static volatile gboolean jmp_initiated = 0;
 static gchar write_buf[TX_MTU];
 static unsigned int write_addr = (0x10000 - 4);
+static unsigned int jmp_addr = (0x10000 - 4);
 static gchar *write_filename = "./unknown";
 static GIOChannel *wchan;
 static GAttrib *wattrib;
@@ -55,6 +58,15 @@ static unsigned int w_addr_set = 0;
 static enum RESPONSE_STATE resp_state;
 
 static void
+write_bootloader_initiate_jmp(GAttrib *attrib)
+{
+    write_buf[0] = 'j';
+    resp_state = R_EXPECT_OK;
+    write_cmd(attrib, 0x25, write_buf, 1, NULL, NULL);
+    write_complete = 1;
+}
+
+static void
 write_bootloader_data(GAttrib *attrib)
 {
     write_buf[0] = 'w';
@@ -65,8 +77,9 @@ write_bootloader_data(GAttrib *attrib)
 }
 
 static void
-write_bootloader_addr(GAttrib *attrib)
+write_bootloader_addr(GAttrib *attrib, unsigned int addr)
 {
+    memcpy(write_buf + 1, &addr, 4);
     write_buf[0] = 'a';
     write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
     resp_state = R_EXPECT_OK;
@@ -95,15 +108,15 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
 
     if (w_addr_set != 1) {
         w_addr_set = 1;
-        memcpy(write_buf + 1, &write_addr, 4);
-        write_bootloader_addr(attrib);
+        write_bootloader_addr(attrib, write_addr);
     } else {
         memset(write_buf, '0', 5);
         status = g_io_channel_read_chars(source, write_buf + 1, 4, &rlen, &err);
 
         if (status != G_IO_STATUS_NORMAL) {
             if (status == G_IO_STATUS_EOF) {
-                g_main_loop_quit(event_loop);
+                write_bootloader_addr(attrib, jmp_addr);
+                jmp_addr_done = 1;
             } else {
                 g_printerr("Error reading source file\n");
                 exit(1);
@@ -123,9 +136,20 @@ process_response(const uint8_t *data, uint16_t len)
         if (resp_state == R_EXPECT_OK) {
             if (data[0] == 'O') {
                 response_received = 1;
-                g_io_add_watch(wchan, G_IO_IN, write_cb, wattrib);
+                if (jmp_addr_done != 1) {
+                    g_io_add_watch(wchan, G_IO_IN, write_cb, wattrib);
+                } else if (jmp_initiated == 0) {
+                    write_complete = 0;
+                    response_received = 0;
+                    write_bootloader_initiate_jmp(wattrib);
+                    jmp_initiated = 1;
+                } else {
+                    g_printerr("Programming completed!\n");
+                    g_main_loop_quit(event_loop);
+                }
             } else {
                 g_printerr("Invalid response: expecting O got %c\n", data[0]);
+                exit(1);
             }
         } else
             g_printerr("Unhandled respose state %d\n", (int)resp_state);
