@@ -118,6 +118,8 @@ ${HEX}: ${BIN} Makefile
 ${BIN}: ${PROG} Makefile
 	${ISA_CHECK} ${ARCH} ${PROG}
 	${OBJCOPY} ${OBJFLAGS} -O binary ${PROG} ${BIN}
+# Add a 16 bytes padding to file to help with flush in bootloader firmware
+	dd if=/dev/zero of=${BIN} oflag=append bs=1 conv=notrunc count=16
 
 ${PROG}: ${OBJS} Makefile
 	${LD} -o ${PROG} ${OBJS} ${MK_LIBS}
