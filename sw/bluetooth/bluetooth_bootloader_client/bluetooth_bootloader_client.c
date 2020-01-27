@@ -104,7 +104,9 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
     response_received = 0;
 
     write_addr += 4;
-    g_printerr("0x%x\n", write_addr);
+
+    if ((write_addr & 0xff) == 0) 
+        g_printerr("Status: writing to location 0x%x\n", write_addr);
 
     if (w_addr_set != 1) {
         w_addr_set = 1;
@@ -144,7 +146,7 @@ process_response(const uint8_t *data, uint16_t len)
                     write_bootloader_initiate_jmp(wattrib);
                     jmp_initiated = 1;
                 } else {
-                    g_printerr("Programming completed!\n");
+                    g_printerr("Status: Programming completed!\n");
                     g_main_loop_quit(event_loop);
                 }
             } else {
@@ -229,7 +231,7 @@ connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
     if (cid == ATT_CID) 
         mtu = ATT_DEFAULT_LE_MTU;
 
-    g_printerr("Connected: MTU=%d\n", (int)mtu);    
+    g_printerr("Status: Connected: MTU=%d\n", (int)mtu);    
 
     wattrib = g_attrib_new(chan, mtu, false);
     g_idle_add(listen_start, wattrib); 
@@ -243,6 +245,7 @@ connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
     }
     //g_io_channel_set_flags(wchan, G_IO_FLAG_NONBLOCK, &err);
     g_io_add_watch(wchan, G_IO_IN, write_cb, wattrib);
+    g_printerr("Status: Programming started.\n");
 }
 
 
@@ -258,6 +261,7 @@ main(int argc, char **argv)
     }
     write_filename = strdup(argv[1]);
 
+    g_printerr("Status: Connecting.\n");
     chan = gatt_connect(
                 "hci0", "00:25:83:00:52:20",
                 //"hci0", "50:F1:4A:6F:82:F7",
