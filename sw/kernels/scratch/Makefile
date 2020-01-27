@@ -20,7 +20,9 @@ CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
 CFLAGS += -DTIME
 
-LDFLAGS += -EL -gc-sections -nostdlib
+# XXX gc-sections breaks things ... how? investigate :)
+#LDFLAGS += -gc-sections
+LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
 CFILES = $(PROG).c
