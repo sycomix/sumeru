@@ -7,4 +7,13 @@ cpu/*.gtkw
 hw/pcb/mark3/mark3.kicad_pcb-bak
 riscv-gnu-toolchain
 compile/*.log
+sw/conf/entry.o
+sw/kernels/*/*.bin
+sw/kernels/*/*.o
+sw/sys-libs/libc/*.o
+sw/sys-libs/libc/*.o
+sw/sys-libs/libc/*.a
+sw/kernels/blinky/KERNEL
+sw/kernels/blinky/obj
+sw/kernels/scratch/scratch
 
