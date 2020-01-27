@@ -28,7 +28,7 @@ synth:
 	env QCMD=quartus_sh ${SUMERU_DIR}/scripts/my_quartus_cmd --flow compile $(TOPLEVEL)
 
 prog:
-	env QCMD=quarts_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
+	env QCMD=quartus_pgm ${SUMERU_DIR}/scripts/my_quartus_cmd -c 1 jtag_chain.cdf
 
 test:
 	./$(TOPLEVEL)_tb --stop-time=$(SIM_PERIOD) --wave=$(TOPLEVEL)_tb.ghw
