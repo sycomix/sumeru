@@ -16,4 +16,4 @@ sw/sys-libs/libc/*.a
 sw/kernels/blinky/KERNEL
 sw/kernels/blinky/obj
 sw/kernels/scratch/scratch
-
+tools/bluetooth/contrib/pygattlib/src/*.o
