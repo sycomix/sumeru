@@ -32,7 +32,7 @@ static volatile gboolean jmp_addr_done = 0;
 static volatile gboolean jmp_initiated = 0;
 static gchar write_buf[TX_MTU];
 static unsigned int write_addr = (0x10000 - 4);
-static unsigned int jmp_addr = (0x10000 - 4);
+static unsigned int jmp_addr = 0x10000;
 static gchar *write_filename = "./unknown";
 static GIOChannel *wchan;
 static GAttrib *wattrib;
