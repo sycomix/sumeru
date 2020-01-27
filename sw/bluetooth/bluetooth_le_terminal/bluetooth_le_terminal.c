@@ -27,7 +27,12 @@
 
 static GMainLoop *event_loop;
 static volatile gboolean write_complete = 1;
-
+static volatile gboolean response_received = 1;
+static gchar write_buf[TX_MTU];
+static unsigned int write_addr = (0x10000 - 4);
+static gchar *write_filename = "./unknown";
+static GIOChannel *wchan;
+static GAttrib *wattrib;
 
 static void
 write_complete_cb(gpointer data)
@@ -40,65 +45,91 @@ static guint
 write_cmd(GAttrib *attrib, uint16_t handle, const uint8_t *value,
           int vlen, GDestroyNotify notify, gpointer user_data)
 {
-    write_complete = 0;
     gatt_write_cmd(attrib, handle, value, vlen, write_complete_cb, NULL);        
 }
 
-static gchar pending_buf[TX_MTU + 4];
-static int pending_len = 0;
+
+enum RESPONSE_STATE { R_EXPECT_OK };
+
+static unsigned int w_addr_set = 0;
+static enum RESPONSE_STATE resp_state;
+
+static void
+write_bootloader_data(GAttrib *attrib)
+{
+    write_buf[0] = 'w';
+    write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
+    resp_state = R_EXPECT_OK;
+    write_cmd(attrib, 0x25, write_buf, 6, NULL, NULL);
+    write_complete = 1;
+}
+
+static void
+write_bootloader_addr(GAttrib *attrib)
+{
+    write_buf[0] = 'a';
+    write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
+    resp_state = R_EXPECT_OK;
+    write_cmd(attrib, 0x25, write_buf, 6, NULL, NULL);
+    write_complete = 1;
+}
 
 static gboolean 
 write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
 {
-    gchar buf[TX_MTU + 4];
     gsize rlen;
     GError *err = 0;
+    GAttrib *attrib = user_data;
+    GIOStatus status;
 
-    if (write_complete != 1)
-        return true;
-
-    if (pending_len == 0) {
-        g_io_channel_read_chars(source, buf, TX_MTU, &rlen, &err);
-    } else {
-        memcpy(buf, pending_buf, pending_len);
-        rlen = pending_len;
-        pending_len = 0;
+    if (write_complete != 1 || response_received != 1) {
+        g_printerr("Invalid state for write_cb, programmer error\n");
+        exit(1);
     }
 
-    if (rlen == 0) {
-        /*g_main_loop_quit(event_loop);*/
-        return false; 
-        /*return true;*/
-    } else {
-        GAttrib *attrib = user_data;
-        write_cmd(attrib, 0x25, buf, rlen, NULL, NULL);
-#if XXX_NOTYET
-        int offset = 0;
-        int i;
-        for (i = 0; i < rlen; ++i) {
-            if (buf[i] == LINEFEED) {
-                gchar save = buf[i + 1];
-                buf[i] = CARRIAGE_RETURN;
-                buf[i + 1] = LINEFEED;
-                write_cmd(
-                    attrib, 0x25, 
-                    buf + offset, i - offset + 2, 
-                    NULL, NULL);        
+    write_complete = 0;
+    response_received = 0;
 
-                pending_len = rlen - (i + 1);
-                memcpy(pending_buf, buf + (i + 1), pending_len); 
-                return true;
+    write_addr += 4;
+    g_printerr("0x%x\n", write_addr);
+
+    if (w_addr_set != 1) {
+        w_addr_set = 1;
+        memcpy(write_buf + 1, &write_addr, 4);
+        write_bootloader_addr(attrib);
+    } else {
+        memset(write_buf, '0', 5);
+        status = g_io_channel_read_chars(source, write_buf + 1, 4, &rlen, &err);
+
+        if (status != G_IO_STATUS_NORMAL) {
+            if (status == G_IO_STATUS_EOF) {
+                g_main_loop_quit(event_loop);
+            } else {
+                g_printerr("Error reading source file\n");
+                exit(1);
             }
+        } else {
+            write_bootloader_data(attrib);
         }
-
-        if (offset != i)
-            write_cmd(
-                    attrib, 0x25,
-                    buf + offset, i - offset,
-                    NULL, NULL);
-#endif
     }
-    return true;
+
+    return false;
+}
+
+static void
+process_response(const uint8_t *data, uint16_t len)
+{
+    if (write_complete == 1 && response_received == 0) {
+        if (resp_state == R_EXPECT_OK) {
+            if (data[0] == 'O') {
+                response_received = 1;
+                g_io_add_watch(wchan, G_IO_IN, write_cb, wattrib);
+            } else {
+                g_printerr("Invalid response: expecting O got %c\n", data[0]);
+            }
+        } else
+            g_printerr("Unhandled respose state %d\n", (int)resp_state);
+    }
 }
 
 
@@ -113,7 +144,7 @@ events_handler(const uint8_t *pdu, uint16_t len, gpointer user_data)
     handle = get_le16(&pdu[1]);
     switch (pdu[0]) {
     case ATT_OP_HANDLE_NOTIFY:
-        write(STDOUT_FILENO, pdu + 3, len - 3);
+        process_response(pdu + 3, len - 3);
         return;
     case ATT_OP_HANDLE_IND:
         g_printerr("\nIndication   handle = 0x%04x value: ", handle);
@@ -151,35 +182,6 @@ listen_start(gpointer user_data)
     return FALSE;
 }
 
-
-static void
-char_read_cb(
-        guint8 status, const guint8 *pdu, guint16 plen,
-        gpointer user_data)
-{
-        uint8_t value[plen];
-        ssize_t vlen;
-
-        if (status != 0) {
-                g_printerr("Characteristic value/descriptor read failed: %s\n",
-                        att_ecode2str(status));
-                goto done;
-        }
-
-        vlen = dec_read_resp(pdu, plen, value, sizeof(value));
-        if (vlen < 0) {
-                g_printerr("Protocol error\n");
-                goto done;
-        }
-        g_print("Characteristic value/descriptor: ");
-        for (int i = 0; i < vlen; i++)
-            g_print("%02x ", value[i]);
-        g_print("\n");
-done:
-    return;
-}
-
-
 static void
 connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
 {
@@ -205,13 +207,18 @@ connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
 
     g_printerr("Connected: MTU=%d\n", (int)mtu);    
 
-    GAttrib *attrib = g_attrib_new(chan, mtu, false);
-    g_idle_add(listen_start, attrib); 
+    wattrib = g_attrib_new(chan, mtu, false);
+    g_idle_add(listen_start, wattrib); 
 
-    GIOChannel *wchan = g_io_channel_unix_new(STDIN_FILENO);
     err = NULL;
-    g_io_channel_set_flags(wchan, G_IO_FLAG_NONBLOCK, &err);
-    g_io_add_watch(wchan, G_IO_IN, write_cb, attrib);
+    wchan = g_io_channel_new_file(write_filename, "r", &err);
+    g_io_channel_set_encoding(wchan, NULL, &err);
+    if (wchan == NULL) {
+        g_printerr("Error opening file: %s\n", write_filename);
+        exit(1);
+    }
+    //g_io_channel_set_flags(wchan, G_IO_FLAG_NONBLOCK, &err);
+    g_io_add_watch(wchan, G_IO_IN, write_cb, wattrib);
 }
 
 
@@ -220,6 +227,12 @@ main(int argc, char **argv)
 {
     GIOChannel *chan = NULL;
     GError *err = NULL;
+
+    if (argc != 2) {
+        g_printerr("Usage: %s <filename>\n", argv[0]);
+        exit(1);
+    }
+    write_filename = strdup(argv[1]);
 
     chan = gatt_connect(
                 "hci0", "00:25:83:00:52:20",
