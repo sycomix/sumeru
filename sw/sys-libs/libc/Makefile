@@ -12,7 +12,7 @@ RANLIB = riscv32-unknown-linux-gnu-ranlib
 
 CFLAGS += -fno-common -Os
 CFLAGS += -ffunction-sections -fdata-sections
-CFLAGS += -I. -Iinclude -Iinclude/sake_rv32 -Iinclude/gcc
+CFLAGS += -I. -Iinclude -Iinclude/sumeru_rv32 -Iinclude/gcc
 
 LDFLAGS += -N -EL -gc-sections -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
