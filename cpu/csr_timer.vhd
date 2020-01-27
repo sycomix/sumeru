@@ -19,7 +19,6 @@ architecture synth of csr_timer is
     signal timer_value:         std_logic_vector(31 downto 0) := (others => '0');
     signal intr_trigger_r:      std_logic := '0';
     alias timer_enabled:        std_logic is timer_ctrl(0);
-    alias timer_intr_enabled:   std_logic is timer_ctrl(1);
     alias timer_max_count:      std_logic_vector(31 downto 4) is timer_ctrl(31 downto 4);
 begin
 
@@ -44,7 +43,7 @@ begin
             if (timer_enabled = '1' and 
                 timer_value(31 downto 0) = (timer_max_count & "0000")) 
             then
-                intr_trigger_r <= timer_intr_enabled;
+                intr_trigger_r <= '1';
             end if;
         end if;
     end if;
