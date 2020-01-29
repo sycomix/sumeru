@@ -28,7 +28,7 @@ uart0_blocking_read(char *buf, unsigned int len)
 
     for (unsigned int i = 0; i < len; ++i, buf++, rx_buf++) {
         if ((i & 0xf) == 0) {
-            flush_line((unsigned int)rx_buf);
+            flush_line((unsigned int)rx_buf + i);
         }
         *buf = *rx_buf;
     }
@@ -105,7 +105,7 @@ main(int argc, char **argv, char **envp)
 
     while (1) {
         gpio_set_out((rdtime() >> 25) & 1);
-        printf("HKHKKKHHHRHRRRHH");
+        uart0_blocking_write("HKHKKKHHHRHRRRHH", 16);
     }
 
     return 0;
