@@ -129,14 +129,14 @@ begin
             when RXD_IDLE =>
                 if (rx_shreg_data = x"0000") then
                     -- RX Start Bit
-                    rx_counter <= "10000000100"; -- 348 * 3 - 16 =  1028 (0x404)
+                    rx_counter <= "01111000010"; -- 326 * 3 - 16 =  962 (0x3c2)
                     rxd_state <= RXD_RUNNING;
                     rx_bitnr <= "0000";
                 end if;
             when RXD_RUNNING =>
                 if (rx_counter = "00000000000") then
                     rx_datareg_clk <= '1';
-                    rx_counter <= "01010111000"; -- 348 * 2 = 696 (0x2b8)
+                    rx_counter <= "01010001100"; -- 326 * 2 = 652 (0x28c)
                     rx_bitnr <= std_logic_vector(unsigned(rx_bitnr) + 1);
                     if (rx_bitnr = "0111") then
                         rxd_state <= RXD_CHECK_STOPBIT;
@@ -196,7 +196,7 @@ end process;
 tx_clk_gen: process(clk)
 begin
     if (rising_edge(clk)) then
-        if (unsigned(tx_clk_ctr) = 348) then
+        if (unsigned(tx_clk_ctr) = 326) then
             tx_clk <= not tx_clk;
             tx_clk_ctr <= (others => '0');
         else

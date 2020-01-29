@@ -13,7 +13,7 @@ entity sdram_controller is
         -- One refresh command every 7.813us (or 7813 ns)
         -- (7812.5 / SYS_CLK_PERIOD_NS) - 7.0;
         -- 133 Mhz timing
-        REFRESH_CYCLES:         natural := 624;
+        REFRESH_CYCLES:         natural := 578;
         TRFC_CYCLES:            std_logic_vector(3 downto 0) := "0110";
         TRP_CYCLES:             std_logic_vector(3 downto 0) := "0001";
         TRCD_CYCLES:            std_logic_vector(3 downto 0) := "0001";
