@@ -20,11 +20,11 @@ uart0_read(unsigned char *buf, unsigned int len)
     uart0_set_rx(g_uart0_rx_buffer_loc | len);
 
     while (g_uart0_rx_intr_pending == 1)
-        ;
+        gpio_set_out((rdtime() >> 25) & 1);
 
     for (unsigned int i = 0; i < len; ++i, buf++, rx_buf++) {
         if ((i & 0xf) == 0) {
-            flush_line((unsigned int)rx_buf);
+            flush_line((unsigned int)(rx_buf + i));
         }
         *buf = *rx_buf;
     }
@@ -52,7 +52,7 @@ uart0_write(unsigned char *buf, unsigned int len)
 
     uart0_set_tx(g_uart0_tx_buffer_loc | len);
     while (g_uart0_tx_intr_pending == 1)
-        ;
+        gpio_set_out((rdtime() >> 23) & 1);
         
     return 0;
 }
