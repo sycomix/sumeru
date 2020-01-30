@@ -54,7 +54,7 @@ uart0_blocking_write(const char *buf, unsigned int len)
 
     uart0_set_tx(g_uart0_tx_buffer_loc | len);
     while (g_uart0_tx_intr_pending == 1)
-        gpio_set_out((rdtime() >> 21) & 1);
+        gpio_set_out((rdtime() >> 23) & 1);
 }
 
 
@@ -104,8 +104,8 @@ main(int argc, char **argv, char **envp)
     gpio_set_out(1);
 
     while (1) {
-        gpio_set_out((rdtime() >> 25) & 1);
-        uart0_blocking_write("HKHKKKHHHRHRRRHH", 16);
+        gpio_set_out((rdtime() >> 30) & 1);
+        printf("Hello World\n");
     }
 
     return 0;
