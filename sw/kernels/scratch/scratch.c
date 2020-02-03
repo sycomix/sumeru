@@ -100,12 +100,13 @@ FILE* const stderr = &uart_fm;
 int
 main(int argc, char **argv, char **envp)
 {
+    int i = 0, b = 0;
     gpio_set_dir(1);
     gpio_set_out(1);
 
     while (1) {
         gpio_set_out((rdtime() >> 30) & 1);
-        printf("Hello World\n");
+        printf("Hello World %d %d\n", i++, b--);
     }
 
     return 0;
