@@ -22,13 +22,13 @@ uart0_read(unsigned char *buf, unsigned int len)
     while (g_uart0_rx_intr_pending == 1)
         gpio_set_out((rdtime() >> 25) & 1);
 
-    for (unsigned int i = 0; i < len; ++i, buf++, rx_buf++) {
+    for (unsigned int i = 0; i < len; i++, buf++, rx_buf++) {
         if ((i & 0xf) == 0) {
-            flush_line((unsigned int)(rx_buf + i));
+            flush_line(g_uart0_rx_buffer_loc + i);
         }
         *buf = *rx_buf;
     }
-        
+
     return 0;
 }
 
@@ -41,14 +41,15 @@ uart0_write(unsigned char *buf, unsigned int len)
     g_uart0_tx_intr_pending = 1;
     len &= 0xff;
 
-    for (unsigned int i = 0; i < len; ++i, buf++, tx_buf++) {
+    for (unsigned int i = 0; i < len; i++, buf++, tx_buf++) {
         *tx_buf = *buf;
         if ((i & 0xf) == 0xf) {
-            flush_line(((unsigned int)tx_buf) & 0xfffffff0);
+            flush_line(g_uart0_tx_buffer_loc + i);
         }
     }
 
-    flush_line(((unsigned int)tx_buf) & 0xfffffff0);
+    if ((len & 0xf) != 0)
+        flush_line(((unsigned int)tx_buf) & 0xfffffff0);
 
     uart0_set_tx(g_uart0_tx_buffer_loc | len);
     while (g_uart0_tx_intr_pending == 1)
@@ -66,6 +67,15 @@ memcpy(unsigned char *dst, unsigned char *src, unsigned int len)
         *dst++ = *src++;
 }
 
+
+int
+compute_16b_cksum(unsigned char *buf)
+{
+    int c = 0;
+    for (int i = 0; i < 16; ++i)
+        c ^= buf[i];
+    return c;
+}
 
 int
 conv_5b_to_int(unsigned char *buf, unsigned int *p)
@@ -110,13 +120,11 @@ main(void)
                 uart0_write(buf, 1);
                 break;
             case 'w':
-                uart0_read(buf, 5);     /* 4 bytes + 1 checksum */
-                if (conv_5b_to_int(buf, &num) == 0) {
-                    *mem_ptr = num;
-                    if ((((unsigned int)mem_ptr) & 0xf) == 0xc) {
-                        flush_line(((unsigned int)mem_ptr) & 0xfffffff0);
-                    }
-                    ++mem_ptr;
+                uart0_read(buf, 17);     /* 16 bytes + 1 checksum */
+                if (compute_16b_cksum(buf) == buf[16]) {
+                    memcpy((unsigned char *)mem_ptr, buf, 16);
+                    flush_line(((unsigned int)mem_ptr) & 0xfffffff0);
+                    mem_ptr += 4;       /* XXX Note increment by 4 as mem_ptr is an integer pointer */
                     buf[0] = 'O';
                 } else {
                     buf[0] = 'E';
@@ -124,10 +132,10 @@ main(void)
                 uart0_write(buf, 1);
                 break;
             case 'r':
-                memcpy(buf, (unsigned char *)mem_ptr, 4);
-                buf[4] = buf[0] ^ buf[1] ^ buf[2] ^ buf[3];
-                ++mem_ptr;
-                uart0_write(buf, 5);
+                memcpy(buf, (unsigned char *)mem_ptr, 16);
+                buf[16] = compute_16b_cksum(buf);
+                mem_ptr += 4;           /* XXX Note increment by 4 as mem_ptr is an integer pointer */
+                uart0_write(buf, 17);
                 break;
             case 'v':
                 buf[0] = '1';
