@@ -37,6 +37,7 @@ LDADD = ../../sys-libs/libc/libc.a
 all: $(PROG)
 	
 
+
 $(PROG): $(OBJFILES)
 	$(LD) -T../../conf/static-kernel-link.lds $(LDFLAGS) -o $@ $^ $(LDADD)
 	tclsh ${SUMERU_DIR}/tools/isa_check.tcl riscv $@
