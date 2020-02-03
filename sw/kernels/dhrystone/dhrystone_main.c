@@ -12,9 +12,8 @@
 #include <machine/constants.h>
 #include <machine/csr.h>
 #include <machine/memctl.h>
-#include "dhrystone.h"
 
-#include "util.h"
+#include "dhrystone.h"
 
 #ifdef  __GNUC__
 #define alloca(size)   __builtin_alloca (size)
@@ -32,23 +31,11 @@ int             Arr_1_Glob [50];
 int             Arr_2_Glob [50] [50];
 
 Enumeration     Func_1 ();
-  /* forward declaration necessary since Enumeration may not simply be int */
-
-#ifndef REG
-        Boolean Reg = false;
-#define REG
-        /* REG becomes defined as empty */
-        /* i.e. no register variables   */
-#else
-        Boolean Reg = true;
-#undef REG
-#define REG register
-#endif
-
-Boolean		Done;
+/* forward declaration necessary since Enumeration may not simply be int */
 
 long            Begin_Time,
                 End_Time;
+
 long            Ticks;
 
 /* end of variables for time measurement */
@@ -152,14 +139,14 @@ int main (int argc, char** argv)
   /* Main and Proc_0 in the Ada version             */
 {
         One_Fifty       Int_1_Loc;
-  REG   One_Fifty       Int_2_Loc;
+        One_Fifty       Int_2_Loc;
         One_Fifty       Int_3_Loc;
-  REG   char            Ch_Index;
+        char            Ch_Index;
         Enumeration     Enum_Loc;
         Str_30          Str_1_Loc;
         Str_30          Str_2_Loc;
-  REG   int             Run_Index;
-  REG   int             Number_Of_Runs;
+        int             Run_Index;
+        int             Number_Of_Runs;
 
   /* Arguments */
   Number_Of_Runs = NUMBER_OF_RUNS;
@@ -183,57 +170,40 @@ int main (int argc, char** argv)
         /* Warning: With 16-Bit processors and Number_Of_Runs > 32000,  */
         /* overflow may occur for this array element.                   */
 
-  debug_printf("\n");
-  debug_printf("Dhrystone Benchmark, Version %s\n", Version);
-  if (Reg)
+  /***************/
+  /* Start timer */
+  /***************/
+
+  Start_Timer();
+  
+  for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
   {
-    debug_printf("Program compiled with 'register' attribute\n");
-  }
-  else
-  {
-    debug_printf("Program compiled without 'register' attribute\n");
-  }
-  debug_printf("Using %s, HZ=%d\n", CLOCK_TYPE, HZ);
-  debug_printf("\n");
 
-  Done = false;
-
-    debug_printf("Trying %d runs through Dhrystone:\n", Number_Of_Runs);
-
-    /***************/
-    /* Start timer */
-    /***************/
-
-    Start_Timer();
-    
-    for (Run_Index = 1; Run_Index <= Number_Of_Runs; ++Run_Index)
+    Proc_5();
+    Proc_4();
+    /* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
+    Int_1_Loc = 2;
+    Int_2_Loc = 3;
+    strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
+    Enum_Loc = Ident_2;
+    Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
+    /* Bool_Glob == 1 */
+    while (Int_1_Loc < Int_2_Loc)  /* loop body executed once */
     {
-
-      Proc_5();
-      Proc_4();
-	/* Ch_1_Glob == 'A', Ch_2_Glob == 'B', Bool_Glob == true */
-      Int_1_Loc = 2;
-      Int_2_Loc = 3;
-      strcpy (Str_2_Loc, "DHRYSTONE PROGRAM, 2'ND STRING");
-      Enum_Loc = Ident_2;
-      Bool_Glob = ! Func_2 (Str_1_Loc, Str_2_Loc);
-	/* Bool_Glob == 1 */
-      while (Int_1_Loc < Int_2_Loc)  /* loop body executed once */
-      {
 	Int_3_Loc = 5 * Int_1_Loc - Int_2_Loc;
 	  /* Int_3_Loc == 7 */
 	Proc_7 (Int_1_Loc, Int_2_Loc, &Int_3_Loc);
 	  /* Int_3_Loc == 7 */
 	Int_1_Loc += 1;
       } /* while */
-	/* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-      Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
-	/* Int_Glob == 5 */
-      Proc_1 (Ptr_Glob);
-      for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
-			       /* loop body executed twice */
-      {
-	if (Enum_Loc == Func_1 (Ch_Index, 'C'))
+    /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
+    Proc_8 (Arr_1_Glob, Arr_2_Glob, Int_1_Loc, Int_3_Loc);
+    /* Int_Glob == 5 */
+    Proc_1 (Ptr_Glob);
+    for (Ch_Index = 'A'; Ch_Index <= Ch_2_Glob; ++Ch_Index)
+    /* loop body executed twice */
+    {
+        if (Enum_Loc == Func_1 (Ch_Index, 'C'))
 	    /* then, not executed */
 	  {
 	  Proc_6 (Ident_1, &Enum_Loc);
@@ -241,26 +211,26 @@ int main (int argc, char** argv)
 	  Int_2_Loc = Run_Index;
 	  Int_Glob = Run_Index;
 	  }
-      }
-	/* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
-      Int_2_Loc = Int_2_Loc * Int_1_Loc;
-      Int_1_Loc = Int_2_Loc / Int_3_Loc;
-      Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
-	/* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
-      Proc_2 (&Int_1_Loc);
-	/* Int_1_Loc == 5 */
+    }
+    /* Int_1_Loc == 3, Int_2_Loc == 3, Int_3_Loc == 7 */
+    Int_2_Loc = Int_2_Loc * Int_1_Loc;
+    Int_1_Loc = Int_2_Loc / Int_3_Loc;
+    Int_2_Loc = 7 * (Int_2_Loc - Int_3_Loc) - Int_1_Loc;
+    /* Int_1_Loc == 1, Int_2_Loc == 13, Int_3_Loc == 7 */
+    Proc_2 (&Int_1_Loc);
+    /* Int_1_Loc == 5 */
 
-    } /* loop "for Run_Index" */
+  } /* loop "for Run_Index" */
 
-    /**************/
-    /* Stop timer */
-    /**************/
+  /**************/
+  /* Stop timer */
+  /**************/
 
-    Stop_Timer();
+  Stop_Timer();
 
-    Ticks = End_Time - Begin_Time;
+  Ticks = End_Time - Begin_Time;
 
-
+#if 0
   debug_printf("Final values of the variables used in the benchmark:\n");
   debug_printf("\n");
   debug_printf("Int_Glob:            %d\n", Int_Glob);
@@ -311,7 +281,10 @@ int main (int argc, char** argv)
   debug_printf("Str_2_Loc:           %s\n", Str_2_Loc);
   debug_printf("        should be:   DHRYSTONE PROGRAM, 2'ND STRING\n");
   debug_printf("\n");
+#endif
 
+  printf("\nDhrystone Benchmark, Version %s\n", Version);
+  printf("Using %s, HZ=%d\n", CLOCK_TYPE, HZ);
 
   printf("Total runs:                          %d\n", Number_Of_Runs);
   printf("Total ticks for all runs:            %d\n", Ticks);
@@ -323,10 +296,10 @@ int main (int argc, char** argv)
 Proc_1 (Ptr_Val_Par)
 /******************/
 
-REG Rec_Pointer Ptr_Val_Par;
+Rec_Pointer Ptr_Val_Par;
     /* executed once */
 {
-  REG Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
+  Rec_Pointer Next_Record = Ptr_Val_Par->Ptr_Comp;  
                                         /* == Ptr_Glob_Next */
   /* Local variable, initialized with Ptr_Val_Par->Ptr_Comp,    */
   /* corresponds to "rename" in Ada, "with" in Pascal           */
@@ -412,22 +385,3 @@ Proc_5 () /* without parameters */
   Bool_Glob = false;
 } /* Proc_5 */
 
-#define NUM_COUNTERS 2
-static uintptr_t counters[NUM_COUNTERS];
-static char* counter_names[NUM_COUNTERS];
-
-void setStats(int enable)
-{
-  int i = 0;
-#define READ_CTR(name) do { \
-    while (i >= NUM_COUNTERS) ; \
-    uintptr_t csr = read_csr(name); \
-    if (!enable) { csr -= counters[i]; counter_names[i] = #name; } \
-    counters[i++] = csr; \
-  } while (0)
-
-  READ_CTR(mcycle);
-  READ_CTR(minstret);
-
-#undef READ_CTR
-}

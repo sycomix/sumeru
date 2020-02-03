@@ -358,7 +358,7 @@
 #include <machine/constants.h>
 #include <machine/csr.h>
 
-#if 0
+#if DEBUG_PRINTF
 #define debug_printf    printf
 #else
 __attribute__ ((always_inline))
@@ -369,7 +369,7 @@ debug_printf(const char *str, ...)
 
 #define HZ 85000000
 #define Too_Small_Time 1
-#define CLOCK_TYPE "rdcycle()"
+#define CLOCK_TYPE "rdtime()"
 #define Start_Timer() Begin_Time = rdtime();
 #define Stop_Timer() End_Time = rdtime();
 

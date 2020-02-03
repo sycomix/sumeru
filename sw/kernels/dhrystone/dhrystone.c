@@ -4,15 +4,6 @@
 
 #include "dhrystone.h"
 
-#ifndef REG
-#define REG
-        /* REG becomes defined as empty */
-        /* i.e. no register variables   */
-#else
-#undef REG
-#define REG register
-#endif
-
 extern  int     Int_Glob;
 extern  char    Ch_1_Glob;
 
@@ -81,8 +72,8 @@ Arr_2_Dim       Arr_2_Par_Ref;
 int             Int_1_Par_Val;
 int             Int_2_Par_Val;
 {
-  REG One_Fifty Int_Index;
-  REG One_Fifty Int_Loc;
+  One_Fifty Int_Index;
+  One_Fifty Int_Loc;
 
   Int_Loc = Int_1_Par_Val + 5;
   Arr_1_Par_Ref [Int_Loc] = Int_2_Par_Val;
@@ -131,8 +122,8 @@ Boolean Func_2 (Str_1_Par_Ref, Str_2_Par_Ref)
 Str_30  Str_1_Par_Ref;
 Str_30  Str_2_Par_Ref;
 {
-  REG One_Thirty        Int_Loc;
-      Capital_Letter    Ch_Loc;
+  One_Thirty        Int_Loc;
+  Capital_Letter    Ch_Loc;
 
   Int_Loc = 2;
   while (Int_Loc <= 2) /* loop body executed once */
