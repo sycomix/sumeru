@@ -24,7 +24,9 @@ CFLAGS += -g -Wall -Werror -I include
 
 # Just include all the source files in the build.
 CSRC = $(wildcard *.c)
+ASRC = $(wildcard *.S)
 OBJS = $(CSRC:.c=.o)
+OBJS += $(ASRC:.S=.o)
 
 # Some of the files uses "templates", i.e. common pieces
 # of code included from multiple files.
@@ -39,6 +41,3 @@ libc.a: $(OBJS)
 	$(RM) $@
 	$(AR) ru $@ $^
 	$(RANLIB) $@
-
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
