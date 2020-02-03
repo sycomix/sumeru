@@ -51,7 +51,10 @@ clean:
 disa:
 	${OBJDUMP} -d ${PROG} | less
 
-load: all
+uload: all
+	${SUMERU_DIR}/tools/bootloader_uart_client -f ${PROG}.bin
+
+bload: all
 	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin)
 
 terminal:

@@ -156,6 +156,8 @@ int main (int argc, char** argv)
   Next_Ptr_Glob = (Rec_Pointer) alloca (sizeof (Rec_Type));
   Ptr_Glob = (Rec_Pointer) alloca (sizeof (Rec_Type));
 
+while (1) {
+
   Ptr_Glob->Ptr_Comp                    = Next_Ptr_Glob;
   Ptr_Glob->Discr                       = Ident_1;
   Ptr_Glob->variant.var_1.Enum_Comp     = Ident_3;
@@ -230,7 +232,7 @@ int main (int argc, char** argv)
 
   Ticks = End_Time - Begin_Time;
 
-#if 0
+#if 1
   debug_printf("Final values of the variables used in the benchmark:\n");
   debug_printf("\n");
   debug_printf("Int_Glob:            %d\n", Int_Glob);
@@ -288,7 +290,7 @@ int main (int argc, char** argv)
 
   printf("Total runs:                          %d\n", Number_Of_Runs);
   printf("Total ticks for all runs:            %d\n", Ticks);
-
+}
   return 0;
 }
 
