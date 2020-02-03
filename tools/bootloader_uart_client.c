@@ -63,16 +63,24 @@ initiate_jmp(int dev, unsigned char *address)
         errx(1, "Error initiating jmp");
 }
 
+int
+compute_16b_cksum(unsigned char *buf)
+{
+    unsigned int c = 0;
+    for (int i = 0; i < 16; ++i)
+        c ^= buf[i];
+    return c;
+}
 
 void
 write_data(int dev, char *data)
 {
-    char buf[16];
+    char buf[24];
 
     buf[0] = 'w';
-    memcpy(buf + 1, data, 4);
-    buf[5] = buf[1] ^ buf[2] ^ buf[3] ^ buf[4];
-    write(dev, buf, 6);
+    memcpy(buf + 1, data, 16);
+    buf[17] = compute_16b_cksum(buf+1);
+    write(dev, buf, 18);
     read(dev, buf, 1);
     if (buf[0] != 'O')
         errx(1, "Error writing data: %x", (int)buf[0]);
@@ -83,7 +91,7 @@ write_data(int dev, char *data)
 int
 main(int argc, char **argv)
 {
-    char buf[4];
+    char buf[16];
     int fd, dev, rcount, wcount;
 
     process_cmdline_args(argc, argv);
@@ -101,23 +109,17 @@ main(int argc, char **argv)
     set_address(dev, load_address);
     wcount = 0;
     while (1) {
-        memset(buf, 0, 4);
-        rcount = read(fd, buf, 4);
+        memset(buf, 0, 16);
+        rcount = read(fd, buf, 16);
         if (rcount >= 0) { 
             if (rcount > 0) {
                 write_data(dev, buf);
-                wcount += 4;
-            } if (rcount < 4)
+                wcount += 16;
+            } if (rcount < 16)
                 break;          /* EOF DONE */
         } else {
            errx(1, "Error reading from %s\n", code_fname); 
         }
-    }
-
-    memset(buf, 0, 4);
-    while ((wcount % 32) != 0) {
-        write_data(dev, buf);
-        wcount += 4;
     }
 
     warnx("LOAD DONE");
