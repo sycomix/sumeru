@@ -117,6 +117,22 @@ set_location_assignment PIN_25 -to c1_unused_05
 ## VCC 3.3v
 ## VEE Gnd
 ## ... TODO
+set_location_assignment PIN_143 -to gpio_pins[0]
+set_location_assignment PIN_141 -to gpio_pins[1]
+set_location_assignment PIN_137 -to gpio_pins[2]
+set_location_assignment PIN_135 -to gpio_pins[3]
+set_location_assignment PIN_132 -to gpio_pins[4]
+set_location_assignment PIN_128 -to gpio_pins[5]
+set_location_assignment PIN_126 -to gpio_pins[6]
+set_location_assignment PIN_124 -to gpio_pins[7]
+set_location_assignment PIN_144 -to gpio_pins[8]
+set_location_assignment PIN_142 -to gpio_pins[9]
+set_location_assignment PIN_138 -to gpio_pins[10]
+set_location_assignment PIN_136 -to gpio_pins[11]
+set_location_assignment PIN_133 -to gpio_pins[12]
+set_location_assignment PIN_129 -to gpio_pins[13]
+set_location_assignment PIN_127 -to gpio_pins[14]
+set_location_assignment PIN_125 -to gpio_pins[15]
 
 
 ## SDRAM Wiring

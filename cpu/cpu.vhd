@@ -26,7 +26,8 @@ port(
     sdram_we:                   out std_logic;
     sdram_cs:                   out std_logic;
     uart0_tx:                   out std_logic;
-    uart0_rx:                   in std_logic
+    uart0_rx:                   in std_logic;
+    gpio_pins:                  inout std_logic_vector(15 downto 0)
     );
 end entity;
 
@@ -286,5 +287,6 @@ uart0: entity work.csr_uart_rs232
 
 
 led <= gpio(0);
+gpio_pins(15 downto 0) <= gpio(16 downto 1);
 
 end architecture;
