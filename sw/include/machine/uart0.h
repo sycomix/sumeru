@@ -6,6 +6,6 @@ extern volatile unsigned int g_uart0_tx_intr_pending;
 extern volatile unsigned int g_uart0_rx_intr_pending;
 
 int     uart0_blocking_read(unsigned char *buf, unsigned int len);
-int     uart0_blocking_write(unsigned char *buf, unsigned int len);
+int     uart0_blocking_write(const unsigned char *buf, unsigned int len);
 
 #endif

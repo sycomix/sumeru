@@ -32,7 +32,7 @@ ASFILES = ../../conf/entry.s
 OBJFILES = $(CFILES:.c=.o)
 OBJFILES += $(ASFILES:.s=.o)
 
-LDADD = ../../sys-libs/libc/libc.a
+LDADD = ../../sys-libs/libc/libc.a ../../sys-libs/drivers/libsumeru_drivers.a
 
 all: $(PROG)
 	

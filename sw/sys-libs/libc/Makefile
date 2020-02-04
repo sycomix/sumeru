@@ -1,5 +1,5 @@
 CFLAGS += -nostdinc -ffreestanding
-CFLAGS += -g -Wall -Werror -I include
+CFLAGS += -g -Wall -Werror -I include -I ../../include
 CFLAGS += -march=rv32im -mabi=ilp32
 
 ASFLAGS += -march=rv32im -mabi=ilp32

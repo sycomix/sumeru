@@ -33,7 +33,7 @@ uart0_blocking_read(unsigned char *buf, unsigned int len)
 
 
 int
-uart0_blocking_write(unsigned char *buf, unsigned int len)
+uart0_blocking_write(const unsigned char *buf, unsigned int len)
 {
     unsigned char *tx_buf = (unsigned char *)g_uart0_tx_buffer_loc;
 
