@@ -1,5 +1,7 @@
 #include <machine/csr.h>
 #include <machine/memctl.h>
+#include <machine/uart0.h>
+
 
 #define likely(x)       __builtin_expect(!!(x), 1)
 #define unlikely(x)     __builtin_expect(!!(x), 0)
