@@ -21,7 +21,7 @@
 
 #include "gatt.h"
 
-#define TX_MTU          16
+#define TX_MTU          24
 #define LINEFEED        0x0a
 #define CARRIAGE_RETURN 0x0d
 
@@ -31,7 +31,7 @@ static volatile gboolean response_received = 1;
 static volatile gboolean jmp_addr_done = 0;
 static volatile gboolean jmp_initiated = 0;
 static gchar write_buf[TX_MTU];
-static unsigned int write_addr = (0x10000 - 4);
+static unsigned int write_addr = (0x10000 - 16);
 static unsigned int jmp_addr = 0x10000;
 static gchar *write_filename = "./unknown";
 static GIOChannel *wchan;
@@ -66,13 +66,22 @@ write_bootloader_initiate_jmp(GAttrib *attrib)
     write_complete = 1;
 }
 
+static int
+compute_16b_cksum(unsigned char *buf)
+{
+    unsigned int c = 0;
+    for (int i = 0; i < 16; ++i)
+        c ^= buf[i];
+    return c;
+}
+
 static void
 write_bootloader_data(GAttrib *attrib)
 {
     write_buf[0] = 'w';
-    write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
+    write_buf[17] = compute_16b_cksum(write_buf+1);
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x25, write_buf, 6, NULL, NULL);
+    write_cmd(attrib, 0x25, write_buf, 18, NULL, NULL);
     write_complete = 1;
 }
 
@@ -103,7 +112,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
     write_complete = 0;
     response_received = 0;
 
-    write_addr += 4;
+    write_addr += 16;
 
     if ((write_addr & 0xff) == 0) 
         g_printerr("Status: writing to location 0x%x\n", write_addr);
@@ -112,8 +121,8 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
         w_addr_set = 1;
         write_bootloader_addr(attrib, write_addr);
     } else {
-        memset(write_buf, '0', 5);
-        status = g_io_channel_read_chars(source, write_buf + 1, 4, &rlen, &err);
+        memset(write_buf, '0', 16);
+        status = g_io_channel_read_chars(source, write_buf + 1, 16, &rlen, &err);
 
         if (status != G_IO_STATUS_NORMAL) {
             if (status == G_IO_STATUS_EOF) {
