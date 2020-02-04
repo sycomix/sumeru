@@ -10,7 +10,7 @@ volatile unsigned int g_uart0_tx_intr_pending;
 volatile unsigned int g_uart0_rx_intr_pending;
 
 int
-uart0_read(unsigned char *buf, unsigned int len)
+uart0_blocking_read(unsigned char *buf, unsigned int len)
 {
     unsigned char *rx_buf = (unsigned char *)g_uart0_rx_buffer_loc;
 
@@ -33,7 +33,7 @@ uart0_read(unsigned char *buf, unsigned int len)
 
 
 int
-uart0_write(unsigned char *buf, unsigned int len)
+uart0_blocking_write(unsigned char *buf, unsigned int len)
 {
     unsigned char *tx_buf = (unsigned char *)g_uart0_tx_buffer_loc;
 

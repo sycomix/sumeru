@@ -3,7 +3,7 @@ PROG = BOOTCODE
 CFLAGS = -O -nostdinc -ffreestanding -I. -I../../sw/include
 LDFLAGS = -nostdlib --section-start=.text=0x0000
 
-CFILES = boot.c ../../sw/sys-libs/drivers/uart0.c
+CFILES = boot.c uart0.c
 ASFILES = entry.s
 
 WITHOUT_FLOAT = true
