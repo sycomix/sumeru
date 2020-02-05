@@ -124,6 +124,10 @@ typedef size_t ee_size_t;
 #define MEM_METHOD MEM_STATIC
 #endif
 
+#if MEM_METHOD == MEM_MALLOC
+#include <stdlib.h>
+#endif
+
 /* Configuration : MULTITHREAD
 	Define for parallel execution 
 	
