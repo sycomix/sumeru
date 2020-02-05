@@ -65,7 +65,7 @@ _entry:
     la sp,ivec
     csrrw zero,CSR_REG_IVECTOR_ADDR,sp
     # Setup the stack
-    lui sp,0xe
+    li sp,DEFAULT_STACK_START_LOC
 
   # Initialize global pointer
 .option push
