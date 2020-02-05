@@ -4,8 +4,8 @@ CFLAGS += -O2 -nostdinc -ffreestanding
 CFLAGS += -Wall 
 CFLAGS += -march=rv32im -mabi=ilp32
 
-#CFLAGS += -DCORE_DEBUG
-CFLAGS += -DITERATIONS=4000
+#CFLAGS += -DCORE_DEBUG -DMEM_METHOD=MEM_STATIC
+CFLAGS += -DITERATIONS=4000 -DMEM_METHOD=MEM_MALLOC
 CFLAGS += -DCLOCKS_PER_SEC=75000000
 
 ASFLAGS += -march=rv32im -mabi=ilp32 -I../../include
