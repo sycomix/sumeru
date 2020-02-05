@@ -5,7 +5,7 @@ CFLAGS += -Wall
 CFLAGS += -march=rv32im -mabi=ilp32
 
 #CFLAGS += -DCORE_DEBUG
-CFLAGS += -DITERATIONS=5000
+CFLAGS += -DITERATIONS=4000
 CFLAGS += -DCLOCKS_PER_SEC=75000000
 
 ASFLAGS += -march=rv32im -mabi=ilp32 -I../../include
