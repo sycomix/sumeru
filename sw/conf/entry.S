@@ -85,6 +85,11 @@ _entry:
   call    atexit                  #  to be called upon exit
   call    __libc_init_array       # Run global initialization functions
 
+  # Populate malloc pool with 26M memory starting at 4M
+  li      a0, 0x400000
+  li      a1, 0x1a00000
+  call    add_malloc_block
+
   li      a0, 0                  # a0 = argc = 0
   li      a1, 0                  # a1 = argv = NULL
   li      a2, 0                  # a2 = envp = NULL
