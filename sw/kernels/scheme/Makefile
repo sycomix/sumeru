@@ -31,7 +31,7 @@ ASFILES = ../../conf/entry.s
 OBJFILES = $(CFILES:.c=.o)
 OBJFILES += $(ASFILES:.s=.o)
 
-LDADD = ../../sys-libs/libc/libc.a
+LDADD = ../../sys-libs/libc/libc.a ../../sys-libs/drivers/libsumeru_drivers.a
 
 all: $(PROG)
 	
@@ -50,7 +50,10 @@ clean:
 disa:
 	${OBJDUMP} -d ${PROG} | less
 
-load: all
+uload: all
+	${SUMERU_DIR}/tools/bootloader_uart_client -f ${PROG}.bin
+
+bload: all
 	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin)
 
 terminal:
