@@ -24,6 +24,7 @@ port(
 end entity;
 
 architecture synth of csr_uart_rs232 is
+signal tx_baud:                 std_logic_vector(11 downto 0) := DEFAULT_UART0_TX_BAUD;
 signal tx_ctrl:                 std_logic_vector(23 downto 0) := (others => '0');
 signal tx_buf_len:              std_logic_vector(7 downto 0) := (others => '0');
 signal tx_buf_curpos:           std_logic_vector(7 downto 0) := (others => '0');
@@ -35,7 +36,7 @@ signal tx_intr_toggle_r:        std_logic := '0';
 signal rx_intr_toggle_r:        std_logic := '0';
 
 signal tx_clk:                  std_logic := '0';
-signal tx_clk_ctr:              std_logic_vector(8 downto 0) := (others => '0');
+signal tx_clk_ctr:              std_logic_vector(11 downto 0) := (others => '0');
 
 signal txd_start:               std_logic := '0';
 
@@ -65,6 +66,9 @@ type rxd_state_t is (
 
 signal rxd_state: rxd_state_t := RXD_IDLE;
 
+signal rx_baud_a:       std_logic_vector(15 downto 0) := DEFAULT_UART0_RX_BAUD_A;
+signal rx_baud_b:       std_logic_vector(15 downto 0) := DEFAULT_UART0_RX_BAUD_B;
+
 signal rx_shreg_data:   std_logic_vector(15 downto 0);
 signal rx_datareg_clk:  std_logic := '0';
 signal rx_datareg_data: std_logic_vector(7 downto 0);
@@ -72,7 +76,7 @@ signal rx_datareg_data: std_logic_vector(7 downto 0);
 signal rx_reset_curpos: std_logic := '0';
 signal rx_buf_len:      std_logic_vector(7 downto 0) := (others => '0');
 
-signal rx_counter:      std_logic_vector(10 downto 0);
+signal rx_counter:      std_logic_vector(15 downto 0);
 signal rx_bitnr:        std_logic_vector(3 downto 0);
 signal rx_reset_curpos_ack: std_logic := '0';
 
@@ -111,12 +115,17 @@ rx_datreg: lpm_shiftreg
 rx_reg_update: process(clk)
 begin
     if (rising_edge(clk)) then
-        if (csr_in.csr_op_valid = '1' and
-            csr_in.csr_op_reg = CSR_REG_UART0_RX)
-        then
-            rx_ctrl <= csr_in.csr_op_data(31 downto 8);
-            rx_buf_len <= csr_in.csr_op_data(7 downto 0);
-            rx_reset_curpos <= not rx_reset_curpos;
+        if (csr_in.csr_op_valid = '1') then
+            case csr_in.csr_op_reg is
+                when CSR_REG_UART0_RX =>
+                    rx_ctrl <= csr_in.csr_op_data(31 downto 8);
+                    rx_buf_len <= csr_in.csr_op_data(7 downto 0);
+                    rx_reset_curpos <= not rx_reset_curpos;
+                when CSR_REG_UART0_RX_BAUD =>
+                    rx_baud_a <= csr_in.csr_op_data(15 downto 0);
+                    rx_baud_b <= csr_in.csr_op_data(31 downto 16);
+                when others =>
+            end case;
         end if;
     end if;
 end process;
@@ -129,14 +138,14 @@ begin
             when RXD_IDLE =>
                 if (rx_shreg_data = x"0000") then
                     -- RX Start Bit
-                    rx_counter <= "01111000010"; -- 326 * 3 - 16 =  962 (0x3c2)
+                    rx_counter <= rx_baud_a;
                     rxd_state <= RXD_RUNNING;
                     rx_bitnr <= "0000";
                 end if;
             when RXD_RUNNING =>
-                if (rx_counter = "00000000000") then
+                if (rx_counter = "0000000000000000") then
                     rx_datareg_clk <= '1';
-                    rx_counter <= "01010001100"; -- 326 * 2 = 652 (0x28c)
+                    rx_counter <= rx_baud_b;
                     rx_bitnr <= std_logic_vector(unsigned(rx_bitnr) + 1);
                     if (rx_bitnr = "0111") then
                         rxd_state <= RXD_CHECK_STOPBIT;
@@ -145,7 +154,7 @@ begin
                     rx_counter <= std_logic_vector(unsigned(rx_counter) - 1);
                 end if;
             when RXD_CHECK_STOPBIT =>
-                if (rx_counter = "00000000000") then
+                if (rx_counter = "0000000000000000") then
                     if (rx_shreg_data = x"FFFF") then
                         -- DMA BYTE TO MEM
                         pdma_in.write_data <= rx_datareg_data;
@@ -162,8 +171,7 @@ begin
                             end if;
                         else
                             pdma_in.write_addr <= rx_ctrl(16 downto 0) & rx_buf_curpos;
-                            if (rx_buf_len /= "00000000" and
-                                rx_buf_curpos /= rx_buf_len)
+                            if (rx_buf_curpos /= rx_buf_len)
                             then
                                 rx_buf_curpos <= std_logic_vector(unsigned(rx_buf_curpos) + 1);
                                 write_r <= not write_r;
@@ -196,7 +204,7 @@ end process;
 tx_clk_gen: process(clk)
 begin
     if (rising_edge(clk)) then
-        if (unsigned(tx_clk_ctr) = 326) then
+        if (tx_clk_ctr = tx_baud) then
             tx_clk <= not tx_clk;
             tx_clk_ctr <= (others => '0');
         else
@@ -239,13 +247,17 @@ begin
     if (rising_edge(clk)) then
         case tx_state is 
             when TX_IDLE =>
-                if (csr_in.csr_op_valid = '1' and 
-                    csr_in.csr_op_reg = CSR_REG_UART0_TX)
-                then
-                    tx_ctrl <= csr_in.csr_op_data(31 downto 8);
-                    tx_buf_len <= csr_in.csr_op_data(7 downto 0);
-                    tx_buf_curpos <= (others => '0');
-                    tx_state <= TX_RUNNING;
+                if (csr_in.csr_op_valid = '1') then
+                    case csr_in.csr_op_reg is
+                        when CSR_REG_UART0_TX =>
+                            tx_ctrl <= csr_in.csr_op_data(31 downto 8);
+                            tx_buf_len <= csr_in.csr_op_data(7 downto 0);
+                            tx_buf_curpos <= (others => '0');
+                            tx_state <= TX_RUNNING;
+                        when CSR_REG_UART0_TX_BAUD =>
+                            tx_baud <= csr_in.csr_op_data(11 downto 0);
+                        when others =>
+                    end case;
                 end if;
             when TX_RUNNING =>
                 if (tx_buf_curpos /= tx_buf_len) then
