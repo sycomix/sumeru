@@ -28,7 +28,7 @@ main(int argc, char **argv, char **envp)
 
     while (1) {
         i = read_string(buf, LINE_MAX);
-        printf("%d %s\n", i, buf);
+        printf("%s\n", buf);
     }
     return 0;
 }
