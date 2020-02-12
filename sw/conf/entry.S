@@ -27,29 +27,41 @@ ivec_uart_rx:
 .text
 
 asm_handle_interrupt:
-    sw a1,4(zero)
-    li a1,1
-    beq a0,a1,1f 
-    li a1,2
-    beq a0,a1,2f 
-    li a1,3
-    beq a0,a1,3f 
-    j intr_return
-
-1:
-    la a0,g_timer_intr_pending
-    sw zero,0(a0)
-    j intr_return
-2:
-    la a0,g_uart0_tx_intr_pending
-    sw zero,0(a0)
-    j intr_return
-3:
-    la a0,g_uart0_rx_intr_pending
-    sw zero,0(a0)
-
+    sw sp,4(zero)
+    # -- We use the user stack to service interrupts
+    sw x5,-4(sp)
+    sw x6,-8(sp)
+    sw x7,-12(sp)
+    sw x11,-16(sp)
+    sw x12,-20(sp)
+    sw x13,-24(sp)
+    sw x14,-28(sp)
+    sw x15,-32(sp)
+    sw x16,-36(sp)
+    sw x17,-40(sp)
+    sw x28,-44(sp)
+    sw x29,-48(sp)
+    sw x30,-52(sp)
+    sw x31,-56(sp)
+    addi sp,sp,-56
+    jal ra,handle_interrupt
+    addi sp,sp,56
+    lw x5,-4(sp)
+    lw x6,-8(sp)
+    lw x7,-12(sp)
+    lw x11,-16(sp)
+    lw x12,-20(sp)
+    lw x13,-24(sp)
+    lw x14,-28(sp)
+    lw x15,-32(sp)
+    lw x16,-36(sp)
+    lw x17,-40(sp)
+    lw x28,-44(sp)
+    lw x29,-48(sp)
+    lw x30,-52(sp)
+    lw x31,-56(sp)
 intr_return:
-    lw a1,4(zero)
+    lw sp,4(zero)
     csrrsi a0,CSR_REG_CTX_PCSAVE,0
     csrrw  zero,CSR_REG_CTX_PCSWITCH,a0
     lw a0,0(zero)
@@ -65,7 +77,7 @@ _entry:
     la sp,ivec
     csrrw zero,CSR_REG_IVECTOR_ADDR,sp
     # Setup the stack
-    li sp,DEFAULT_STACK_START_LOC
+    li sp,STACK_START_LOC
 
   # Initialize global pointer
 .option push
@@ -86,8 +98,8 @@ _entry:
   call    __libc_init_array       # Run global initialization functions
 
   # Populate malloc pool with 26M memory starting at 4M
-  li      a0, 0x400000
-  li      a1, 0x1a00000
+  li      a0, MALLOC_MEM_START
+  li      a1, MALLOC_MEM_SIZE
   call    add_malloc_block
 
   li      a0, 0                  # a0 = argc = 0

@@ -20,6 +20,8 @@
 
 #define CSR_REG_UART0_RX                0x888
 #define CSR_REG_UART0_TX                0x889
+#define CSR_REG_UART0_RX_BAUD           0x88A
+#define CSR_REG_UART0_TX_BAUD           0x88B
 
 #define INTR_ID_TIMER                   0x1
 #define INTR_ID_UART0_TX                0x2
@@ -28,6 +30,11 @@
 #define DEFAULT_UART0_RX_BUFFFER_LOC    0x2000
 #define DEFAULT_UART0_TX_BUFFFER_LOC    0x2000
 
-#define DEFAULT_STACK_START_LOC         0x1FFFFF0
+/* Stack grows down from 32M */
+#define STACK_START_LOC                 0x1FFFFF0
+
+/* Malloc-able memory starts at 4M and is 26M in size */
+#define MALLOC_MEM_START                0x400000
+#define MALLOC_MEM_SIZE                 0x1a00000
 
 #endif

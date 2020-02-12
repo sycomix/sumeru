@@ -21,6 +21,22 @@ uart0_set_tx(unsigned int x)
 
 __attribute__ ((always_inline))
 inline void
+uart0_set_rx_baud(unsigned int x)
+{
+    asm volatile("csrrw x0, %1, %0;" : : "r"(x), "i"(CSR_REG_UART0_RX_BAUD));
+}
+
+
+__attribute__ ((always_inline))
+inline void
+uart0_set_tx_baud(unsigned int x)
+{
+    asm volatile("csrrw x0, %1, %0;" : : "r"(x), "i"(CSR_REG_UART0_TX_BAUD));
+}
+
+
+__attribute__ ((always_inline))
+inline void
 uart0_set_rx(unsigned int x)
 {
     asm volatile("csrrw x0, %1, %0;" : : "r"(x), "i"(CSR_REG_UART0_RX));
