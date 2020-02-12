@@ -62,7 +62,7 @@ write_bootloader_initiate_jmp(GAttrib *attrib)
 {
     write_buf[0] = 'j';
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x25, write_buf, 1, NULL, NULL);
+    write_cmd(attrib, 0x12, write_buf, 1, NULL, NULL);
     write_complete = 1;
 }
 
@@ -81,7 +81,7 @@ write_bootloader_data(GAttrib *attrib)
     write_buf[0] = 'w';
     write_buf[17] = compute_16b_cksum(write_buf+1);
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x25, write_buf, 18, NULL, NULL);
+    write_cmd(attrib, 0x12, write_buf, 18, NULL, NULL);
     write_complete = 1;
 }
 
@@ -92,7 +92,7 @@ write_bootloader_addr(GAttrib *attrib, unsigned int addr)
     write_buf[0] = 'a';
     write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x25, write_buf, 6, NULL, NULL);
+    write_cmd(attrib, 0x12, write_buf, 6, NULL, NULL);
     write_complete = 1;
 }
 
@@ -272,8 +272,7 @@ main(int argc, char **argv)
 
     g_printerr("Status: Connecting.\n");
     chan = gatt_connect(
-                "hci0", "00:25:83:00:52:20",
-                //"hci0", "50:F1:4A:6F:82:F7",
+                "hci0", "B4:99:4C:6E:58:C9",
                 "public", "low", 0, 0,
                 connect_cb, &err);
 

@@ -71,7 +71,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
         /*return true;*/
     } else {
         GAttrib *attrib = user_data;
-        write_cmd(attrib, 0x25, buf, rlen, NULL, NULL);
+        write_cmd(attrib, 0x12, buf, rlen, NULL, NULL);
 #if XXX_NOTYET
         int offset = 0;
         int i;
@@ -81,7 +81,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
                 buf[i] = CARRIAGE_RETURN;
                 buf[i + 1] = LINEFEED;
                 write_cmd(
-                    attrib, 0x25, 
+                    attrib, 0x12, 
                     buf + offset, i - offset + 2, 
                     NULL, NULL);        
 
@@ -93,7 +93,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
 
         if (offset != i)
             write_cmd(
-                    attrib, 0x25,
+                    attrib, 0x12,
                     buf + offset, i - offset,
                     NULL, NULL);
 #endif
@@ -222,8 +222,7 @@ main(int argc, char **argv)
     GError *err = NULL;
 
     chan = gatt_connect(
-                "hci0", "00:25:83:00:52:20",
-                //"hci0", "50:F1:4A:6F:82:F7",
+                "hci0", "B4:99:4C:6E:58:C9",
                 "public", "low", 0, 0,
                 connect_cb, &err);
 
