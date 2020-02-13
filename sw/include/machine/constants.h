@@ -37,4 +37,12 @@
 #define MALLOC_MEM_START                0x400000
 #define MALLOC_MEM_SIZE                 0x1a00000
 
+#define UART0_TX_DRVBUF_START           0x100
+#define UART0_RX_DRVBUF_START           0x200
+#define UART0_RX_STREAMBUF_START        0x300
+#define UART0_RX_STREAMBUF_END          0x1000
+
+#define SUMERU_CACHE_LINE_SIZE          16
+#define SUMERU_CACHE_LINE_MASK          0xFFFFFFF0
+
 #endif

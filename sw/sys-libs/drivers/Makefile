@@ -1,5 +1,7 @@
 CFLAGS += -nostdinc -ffreestanding
-CFLAGS += -g -Wall -Werror -I include -I ../../include
+CFLAGS += -g -Wall -Werror -I ../../include 
+CFLAGS += -I ../../sys-libs/libc/include
+CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -march=rv32im -mabi=ilp32
 
 ASFLAGS += -march=rv32im -mabi=ilp32

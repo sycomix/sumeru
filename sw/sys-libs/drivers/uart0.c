@@ -1,56 +1,108 @@
 #include <machine/constants.h>
 #include <machine/csr.h>
 #include <machine/memctl.h>
+#include <machine/uart0.h>
 
-const unsigned int g_uart0_rx_buffer_loc = DEFAULT_UART0_RX_BUFFFER_LOC;
-const unsigned int g_uart0_tx_buffer_loc = DEFAULT_UART0_TX_BUFFFER_LOC;
+#include <string.h>
 
-volatile unsigned int g_timer_intr_pending;
-volatile unsigned int g_uart0_tx_intr_pending;
-volatile unsigned int g_uart0_rx_intr_pending;
+unsigned char *g_tx_drvbuf_start = (unsigned char*)UART0_TX_DRVBUF_START;
+unsigned char *g_rx_drvbuf_start = (unsigned char*)UART0_RX_DRVBUF_START;
+
+unsigned char *g_rx_streambuf_start = (unsigned char*)UART0_RX_STREAMBUF_START;
+unsigned char *g_rx_streambuf_end = (unsigned char*)UART0_RX_STREAMBUF_END;
+
+static unsigned char *g_rx_streambuf_cons = (unsigned char*)UART0_RX_STREAMBUF_START;
+volatile unsigned char *g_rx_streambuf_prod = (unsigned char*)UART0_RX_STREAMBUF_START;
+
+volatile unsigned int g_uart0_rx_flags = 0;
+volatile unsigned int g_uart0_tx_intr_pending = 0;
+
+
+unsigned char*
+streambuf_incr(unsigned int start, unsigned int x, unsigned int len)
+{
+    unsigned int a;
+    a = (x + len) & 0xfff;
+    if (a < x)
+        a += start;
+    return (unsigned char*)a;
+}
+
+
+int
+uart0_blocking_getchar()
+{
+    unsigned int c;
+
+    while (g_rx_streambuf_prod == g_rx_streambuf_cons)
+        gpio_set_out((rdtime() >> 22) & 1);
+
+    c = *g_rx_streambuf_cons;
+    g_rx_streambuf_cons = 
+        streambuf_incr((unsigned int) g_rx_streambuf_start, 
+                       (unsigned int) g_rx_streambuf_cons, 
+                       1);
+    return c;
+}
+
 
 int
 uart0_blocking_read(unsigned char *buf, unsigned int len)
 {
-    unsigned char *rx_buf = (unsigned char *)g_uart0_rx_buffer_loc;
+    unsigned int a;
+    unsigned char *ptr;
 
-    g_uart0_rx_intr_pending = 1;
-    len &= 0xff;
-    uart0_set_rx(g_uart0_rx_buffer_loc | len);
+    len &= 0xff;        // 255 bytes max allowed, silent truncation, evil ;))
 
-    while (g_uart0_rx_intr_pending == 1)
-        gpio_set_out((rdtime() >> 25) & 1);
+    a = (g_rx_streambuf_prod >= g_rx_streambuf_cons) ?
+            (g_rx_streambuf_prod - g_rx_streambuf_cons) :
+            ((g_rx_streambuf_end - g_rx_streambuf_cons) +
+                (g_rx_streambuf_prod - g_rx_streambuf_start));
 
-    for (unsigned int i = 0; i < len; i++, buf++, rx_buf++) {
-        if ((i & 0xf) == 0) {
-            flush_line(g_uart0_rx_buffer_loc + i);
-        }
-        *buf = *rx_buf;
+    ptr = streambuf_incr(
+            (unsigned int) g_rx_streambuf_start, 
+            (unsigned int) g_rx_streambuf_cons, 
+            len);
+
+    if (len > a) {
+        g_uart0_rx_flags |= UART_FLAG_READ_TIMER;
+        if (g_rx_streambuf_prod < ptr) 
+            while (g_rx_streambuf_prod < ptr)
+                gpio_set_out((rdtime() >> 22) & 1);
+        else
+            while (ptr < g_rx_streambuf_prod)
+                gpio_set_out((rdtime() >> 22) & 1);
+        g_uart0_rx_flags &= ~UART_FLAG_READ_TIMER;
     }
 
-    return 0;
+    if (g_rx_streambuf_cons <= ptr) {
+        //flush_dcache_range(g_rx_streambuf_cons, ptr);
+        memcpy(buf, g_rx_streambuf_cons, len);
+    } else {
+        a = g_rx_streambuf_end - g_rx_streambuf_cons; 
+        //flush_dcache_range(g_rx_streambuf_cons, g_rx_streambuf_end);
+        memcpy(buf, g_rx_streambuf_cons, a);
+        buf = buf + a;
+        a = len - a;
+        //flush_dcache_range(g_rx_streambuf_start, g_rx_streambuf_start + a);
+        memcpy(buf, g_rx_streambuf_start, a);
+    }
+
+    g_rx_streambuf_cons = ptr;
+
+    return len;
 }
 
 
 int
 uart0_blocking_write(const unsigned char *buf, unsigned int len)
 {
-    unsigned char *tx_buf = (unsigned char *)g_uart0_tx_buffer_loc;
+    len &= 0xff;        // 255 bytes max allowed, silent truncation
+    memcpy(g_tx_drvbuf_start, buf, len);
+    flush_dcache_range(g_tx_drvbuf_start, g_tx_drvbuf_start + len);
 
     g_uart0_tx_intr_pending = 1;
-    len &= 0xff;
-
-    for (unsigned int i = 0; i < len; i++, buf++, tx_buf++) {
-        *tx_buf = *buf;
-        if ((i & 0xf) == 0xf) {
-            flush_line(g_uart0_tx_buffer_loc + i);
-        }
-    }
-
-    if ((len & 0xf) != 0)
-        flush_line(((unsigned int)tx_buf) & 0xfffffff0);
-
-    uart0_set_tx(g_uart0_tx_buffer_loc | len);
+    uart0_set_tx(((unsigned int)g_tx_drvbuf_start) | len);
     while (g_uart0_tx_intr_pending == 1)
         gpio_set_out((rdtime() >> 23) & 1);
         
