@@ -27,7 +27,7 @@ uart0_read(unsigned char *buf, unsigned int len)
 
     for (unsigned int i = 0; i < len; ++i, buf++, rx_buf++) {
         if ((i & 0xf) == 0) {
-            flush_line((unsigned int)rx_buf);
+            flush_dcache_line((unsigned int)rx_buf);
         }
         *buf = *rx_buf;
     }
@@ -47,11 +47,11 @@ uart0_write(unsigned char *buf, unsigned int len)
     for (unsigned int i = 0; i < len; ++i, buf++, tx_buf++) {
         *tx_buf = *buf;
         if ((i & 0xf) == 0xf) {
-            flush_line(((unsigned int)tx_buf) & 0xfffffff0);
+            flush_dcache_line(((unsigned int)tx_buf) & 0xfffffff0);
         }
     }
 
-    flush_line(((unsigned int)tx_buf) & 0xfffffff0);
+    flush_dcache_line(((unsigned int)tx_buf) & 0xfffffff0);
 
     uart0_set_tx(g_uart0_tx_buffer_loc | len);
     while (g_uart0_tx_intr_pending == 1)

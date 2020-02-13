@@ -1,7 +1,8 @@
 #ifndef __SUMERU_DRIVERS_UART0_H
 #define __SUMERU_DRIVERS_UART0_H
 
-#define UART_FLAG_READ_TIMER    (1 << 0)
+#define UART_FLAG_RX_ON         (1 << 0)
+#define UART_FLAG_READ_TIMER    (1 << 1)
 
 extern unsigned char *g_tx_drvbuf_start;
 extern unsigned char *g_rx_drvbuf_start;
