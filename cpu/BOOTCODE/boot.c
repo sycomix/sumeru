@@ -72,7 +72,7 @@ main(void)
                 uart0_blocking_read(buf, 17);     /* 16 bytes + 1 checksum */
                 if (compute_16b_cksum(buf) == buf[16]) {
                     memcpy((unsigned char *)mem_ptr, buf, 16);
-                    flush_line(((unsigned int)mem_ptr) & 0xfffffff0);
+                    flush_dcache_line((unsigned int)mem_ptr);
                     mem_ptr += 4;       /* XXX Note increment by 4 as mem_ptr is an integer pointer */
                     buf[0] = 'O';
                 } else {
