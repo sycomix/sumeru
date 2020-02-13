@@ -118,9 +118,11 @@ begin
         if (csr_in.csr_op_valid = '1') then
             case csr_in.csr_op_reg is
                 when CSR_REG_UART0_RX =>
-                    rx_ctrl <= csr_in.csr_op_data(31 downto 8);
-                    rx_buf_len <= csr_in.csr_op_data(7 downto 0);
-                    rx_reset_curpos <= not rx_reset_curpos;
+                    if (csr_in.csr_op_data(31) = '0') then
+                        rx_ctrl <= csr_in.csr_op_data(31 downto 8);
+                        rx_buf_len <= csr_in.csr_op_data(7 downto 0);
+                        rx_reset_curpos <= not rx_reset_curpos;
+                    end if;
                 when CSR_REG_UART0_RX_BAUD =>
                     rx_baud_a <= csr_in.csr_op_data(15 downto 0);
                     rx_baud_b <= csr_in.csr_op_data(31 downto 16);
@@ -250,10 +252,12 @@ begin
                 if (csr_in.csr_op_valid = '1') then
                     case csr_in.csr_op_reg is
                         when CSR_REG_UART0_TX =>
-                            tx_ctrl <= csr_in.csr_op_data(31 downto 8);
-                            tx_buf_len <= csr_in.csr_op_data(7 downto 0);
-                            tx_buf_curpos <= (others => '0');
-                            tx_state <= TX_RUNNING;
+                            if (csr_in.csr_op_data(31) = '0') then
+                                tx_ctrl <= csr_in.csr_op_data(31 downto 8);
+                                tx_buf_len <= csr_in.csr_op_data(7 downto 0);
+                                tx_buf_curpos <= (others => '0');
+                                tx_state <= TX_RUNNING;
+                            end if;
                         when CSR_REG_UART0_TX_BAUD =>
                             tx_baud <= csr_in.csr_op_data(11 downto 0);
                         when others =>
