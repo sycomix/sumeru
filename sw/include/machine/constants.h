@@ -45,4 +45,7 @@
 #define SUMERU_CACHE_LINE_SIZE          16
 #define SUMERU_CACHE_LINE_MASK          0xFFFFFFF0
 
+/* ~218 us @ 75MHz */
+#define UART0_RX_TIMER_TICKS            16384         
+
 #endif

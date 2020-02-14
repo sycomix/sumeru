@@ -100,6 +100,14 @@ gpio_set_out(unsigned int x)
 
 
 __attribute__ ((always_inline))
+inline void
+gpio_dummy_out(unsigned int x)
+{
+    asm volatile("csrrw x0, 0, %0;" : : "r"(x));
+}
+
+
+__attribute__ ((always_inline))
 inline unsigned int
 rdtime()
 {

@@ -35,7 +35,7 @@ uart0_blocking_getchar()
     unsigned int c;
 
     while (g_rx_streambuf_prod == g_rx_streambuf_cons)
-        gpio_set_out((rdtime() >> 22) & 1);
+        gpio_dummy_out((rdtime() >> 22) & 1);
 
     c = *g_rx_streambuf_cons;
     g_rx_streambuf_cons = 
@@ -68,23 +68,20 @@ uart0_blocking_read(unsigned char *buf, unsigned int len)
         g_uart0_rx_flags |= UART_FLAG_READ_TIMER;
         if (g_rx_streambuf_prod < ptr) 
             while (g_rx_streambuf_prod < ptr)
-                gpio_set_out((rdtime() >> 22) & 1);
+                gpio_dummy_out((rdtime() >> 22) & 1);
         else
             while (ptr < g_rx_streambuf_prod)
-                gpio_set_out((rdtime() >> 22) & 1);
+                gpio_dummy_out((rdtime() >> 22) & 1);
         g_uart0_rx_flags &= ~UART_FLAG_READ_TIMER;
     }
 
     if (g_rx_streambuf_cons <= ptr) {
-        //flush_dcache_range(g_rx_streambuf_cons, ptr);
         memcpy(buf, g_rx_streambuf_cons, len);
     } else {
         a = g_rx_streambuf_end - g_rx_streambuf_cons; 
-        //flush_dcache_range(g_rx_streambuf_cons, g_rx_streambuf_end);
         memcpy(buf, g_rx_streambuf_cons, a);
         buf = buf + a;
         a = len - a;
-        //flush_dcache_range(g_rx_streambuf_start, g_rx_streambuf_start + a);
         memcpy(buf, g_rx_streambuf_start, a);
     }
 
@@ -104,7 +101,7 @@ uart0_blocking_write(const unsigned char *buf, unsigned int len)
     g_uart0_tx_intr_pending = 1;
     uart0_set_tx(((unsigned int)g_tx_drvbuf_start) | len);
     while (g_uart0_tx_intr_pending == 1)
-        gpio_set_out((rdtime() >> 23) & 1);
+        gpio_set_out((rdtime() >> 21) & 1);
         
     return 0;
 }

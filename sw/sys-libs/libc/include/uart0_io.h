@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 
+void    uart0_start_rxengine();
+void    uart0_stop_rxengine();
+
 size_t  uart0_blocking_write_multiple(
                 FILE *instance, const char *buf, size_t len);
 

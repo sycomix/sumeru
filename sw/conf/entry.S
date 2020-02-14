@@ -28,6 +28,8 @@ ivec_uart_rx:
 
 asm_handle_interrupt:
     sw sp,4(zero)
+    sw ra,8(zero)
+    li sp,0x2000
     # -- We use the user stack to service interrupts
     sw x5,-4(sp)
     sw x6,-8(sp)
@@ -43,9 +45,11 @@ asm_handle_interrupt:
     sw x29,-48(sp)
     sw x30,-52(sp)
     sw x31,-56(sp)
-    addi sp,sp,-56
-    jal ra,handle_interrupt
-    addi sp,sp,56
+    addi sp,sp,-64
+    call handle_interrupt
+#    la ra, g_uart0_tx_intr_pending
+#    sw zero, 0(ra)
+    addi sp,sp,64
     lw x5,-4(sp)
     lw x6,-8(sp)
     lw x7,-12(sp)
@@ -62,6 +66,7 @@ asm_handle_interrupt:
     lw x31,-56(sp)
 intr_return:
     lw sp,4(zero)
+    lw ra,8(zero)
     csrrsi a0,CSR_REG_CTX_PCSAVE,0
     csrrw  zero,CSR_REG_CTX_PCSWITCH,a0
     lw a0,0(zero)

@@ -4,17 +4,17 @@
 #include <machine/uart0.h>
 #include <string.h>
 
-static unsigned int uart0_rx_pos = 0;
-
+unsigned int g_uart0_rx_pos = 0;
+/*
 static void
 process_rx_data()
 {
     unsigned int pos = uart0_get_rx() & 0xff;
 
-    if (pos > uart0_rx_pos) 
+    if (pos > g_uart0_rx_pos) 
     {
-        unsigned int len = pos - uart0_rx_pos;
-        unsigned char *start = g_rx_drvbuf_start + uart0_rx_pos;
+        unsigned int len = pos - g_uart0_rx_pos;
+        unsigned char *start = g_rx_drvbuf_start + g_uart0_rx_pos;
         unsigned char *nprod = 
             streambuf_incr((unsigned int) g_rx_streambuf_start, 
                            (unsigned int) g_rx_streambuf_prod,
@@ -30,28 +30,41 @@ process_rx_data()
             memcpy(g_rx_streambuf_start, start + x, len - x);
         }
         g_rx_streambuf_prod = nprod;
-        uart0_rx_pos = pos;
+        g_uart0_rx_pos = pos;
     }
-}
-
+}*/
 
 void
 handle_interrupt(int id)
 {
     switch (id) {
         case INTR_ID_TIMER:
-            if (g_uart0_rx_flags & UART_FLAG_READ_TIMER)
+#if 0
+            if (g_uart0_rx_flags & UART_FLAG_READ_TIMER) {
                 process_rx_data();
+            }
+            if (g_uart0_rx_flags & UART_FLAG_RX_ON)
+                timer_set(UART0_RX_TIMER_TICKS | 0x1);
+            else
+                timer_set(0);
+#endif
+            timer_set(0);
             break;
         case INTR_ID_UART0_TX:
             g_uart0_tx_intr_pending = 0;
             break;
+
         case INTR_ID_UART0_RX:
-            if (g_uart0_rx_flags & UART_FLAG_RX_ON) {
-                uart0_set_rx(((unsigned int)g_tx_drvbuf_start) | 255);
-                process_rx_data();
-            }
-            uart0_rx_pos = 0;
+            //process_rx_data();
+            //g_uart0_rx_pos = 0;
+#if 1
+            /* XXX BUG activating nop causes invalid return?? */
+            asm("nop");
+#endif
+            //if (g_uart0_rx_flags & UART_FLAG_RX_ON) {
+                //uart0_set_rx(((unsigned int)g_tx_drvbuf_start) | 255);
+            //}
             break;
+#endif
     }
 }
