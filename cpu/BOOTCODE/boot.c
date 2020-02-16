@@ -94,6 +94,7 @@ main(void)
                 buf[0] = 'O';
                 uart0_blocking_write(buf, 1);
                 asm("fence.i");
+                gpio_set_out(0); /* set led to known state -- on */
                 asm volatile("jalr ra, %0;" : : "r"(mem_ptr));
                 /* XXX - presently not reached, but we may allow returns in the future */
                 break;
