@@ -28,9 +28,36 @@ architecture sim of cpu_tb is
         signal sdram_cke, sdram_clk:    std_logic;
         signal sdram_we, sdram_cs:      std_logic;
 
+        signal uart_rx:                 std_logic := '1';
+
 
 begin
         clk_50m <= not clk_50m after half_period;
+
+--      process
+--      begin
+--          wait for 70 us;
+--          uart_rx <= '0';
+--          wait for 8680 ns;
+--          uart_rx <= '0';
+--          wait for 8680 ns;
+--          uart_rx <= '1';
+--          wait for 8680 ns;
+--          uart_rx <= '0';
+--          wait for 8680 ns;
+--          uart_rx <= '1';
+--          wait for 8680 ns;
+--          uart_rx <= '0';
+--          wait for 8680 ns;
+--          uart_rx <= '1';
+--          wait for 8680 ns;
+--          uart_rx <= '1';
+--          wait for 8680 ns;
+--          uart_rx <= '0';
+--          wait for 8680 ns;
+--          uart_rx <= '1';
+--          wait;
+--      end process;
 
         sdram: entity work.sim_sdram_mt48lc16m16a2
             port map(
@@ -52,7 +79,7 @@ begin
                 led => led,
                
                 -- uart
-                uart0_rx => '0',
+                uart0_rx => uart_rx,
 
                 -- gpio
                 
