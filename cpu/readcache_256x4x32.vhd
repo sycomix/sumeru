@@ -154,6 +154,7 @@ begin
                         meta_wren <= '1';
                     end if;
                 when FLUSH_CACHE =>
+                    meta_data_line_valid <= '0';
                     meta_wren <= '1';
                     if (flush_addr = x"00") then
                         flush_enable <= '0';
