@@ -5,7 +5,7 @@
 #include <string.h>
 
 unsigned int g_uart0_rx_pos = 0;
-/*
+
 static void
 process_rx_data()
 {
@@ -32,7 +32,7 @@ process_rx_data()
         g_rx_streambuf_prod = nprod;
         g_uart0_rx_pos = pos;
     }
-}*/
+}
 
 void
 handle_interrupt(int id)
@@ -40,15 +40,20 @@ handle_interrupt(int id)
     switch (id) {
         case INTR_ID_TIMER:
             timer_set(0);
+            if (g_uart0_rx_flags & UART_FLAG_READ_TIMER)
+                process_rx_data();
+            if (g_uart0_rx_flags & UART_FLAG_RX_ON)
+                timer_set(UART0_RX_TIMER_TICKS | 0x1);
             break;
         case INTR_ID_UART0_TX:
             g_uart0_tx_intr_pending = 0;
             break;
         case INTR_ID_UART0_RX:
-            /* XXX BUG activating nop causes invalid return?? */
-#if 1
-            asm("nop");
-#endif
+            process_rx_data();
+            g_uart0_rx_pos = 0;
+            if (g_uart0_rx_flags & UART_FLAG_RX_ON) {
+                uart0_set_rx(((unsigned int)g_tx_drvbuf_start) | 255);
+            }
             break;
     }
 }
