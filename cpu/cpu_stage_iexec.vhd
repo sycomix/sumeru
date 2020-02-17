@@ -233,6 +233,19 @@ begin
             "1111" when others;
 
     process(clk)
+    begin
+        if (rising_edge(clk)) then
+            if (busy_r = '0' and iexec_in.valid = '1') then
+                if (iexec_in.rs2 = regfile_wraddr and regfile_wren_nz = '1') then
+                    store_data <= rd_write_data;
+                else
+                    store_data <= rs2_read_data;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    process(clk)
         variable br: std_logic;
     begin
         if (rising_edge(clk)) then
@@ -288,12 +301,6 @@ begin
                         op_b <= rd_write_data;
                     else
                         op_b <= rs2_read_data;
-                    end if;
-
-                    if (iexec_in.rs2 = regfile_wraddr) then
-                        store_data <= rd_write_data;
-                    else
-                        store_data <= rs2_read_data;
                     end if;
 
                     cxfer_mux <= not iexec_in.trigger_cxfer;
