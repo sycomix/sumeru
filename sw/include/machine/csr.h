@@ -24,7 +24,7 @@ inline unsigned int
 uart0_get_tx()
 {
     unsigned int v = 0x80000000;
-    unsigned int x = 0x80000000;
+    unsigned int x;
     asm volatile("csrrw %0, %2, %1;" : "=r"(x) : "r"(v), "i"(CSR_REG_UART0_TX));
     return x;
 }
@@ -35,7 +35,7 @@ inline unsigned int
 uart0_get_rx()
 {
     unsigned int v = 0x80000000;
-    unsigned int x = 0x80000000;
+    unsigned int x;
     asm volatile("csrrw %0, %2, %1;" : "=r"(x) : "r"(v), "i"(CSR_REG_UART0_RX));
     return x;
 }
