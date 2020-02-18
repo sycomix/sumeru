@@ -9,7 +9,8 @@ extern unsigned char *g_rx_drvbuf_start;
 extern unsigned char *g_rx_streambuf_start;
 extern unsigned char *g_rx_streambuf_end;
 
-extern volatile unsigned char *g_rx_streambuf_prod;
+extern volatile unsigned char * volatile g_rx_streambuf_prod;
+extern volatile unsigned char * volatile g_rx_streambuf_cons;
 extern volatile unsigned int g_uart0_rx_flags;
 extern volatile unsigned int g_uart0_tx_intr_pending;
 
