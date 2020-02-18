@@ -138,6 +138,10 @@ begin
         rx_datareg_clk <= '0';
         case rxd_state is
             when RXD_IDLE =>
+                if (rx_reset_curpos /= rx_reset_curpos_ack) then
+                    rx_reset_curpos_ack <= not rx_reset_curpos_ack;
+                    rx_buf_curpos <= "00000000";
+                end if;
                 if (rx_shreg_data = x"0000") then
                     -- RX Start Bit
                     rx_counter <= rx_baud_a;
