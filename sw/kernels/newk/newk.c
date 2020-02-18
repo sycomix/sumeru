@@ -9,14 +9,15 @@
 int
 main(int argc, char *argv)
 {
-    //uart0_start_rxengine();
-    //timer_set(0x10000f);
-    //while (1) {
-        //printf("Hello World\n");
-        //printf("Sumeru Edu\n");
-    //}
-    //printf("H");
-    while (1)
-        uart0_blocking_write((unsigned char *)"H",1);
+    char buf[16];
+
+    gpio_set_out(0);
+    gpio_set_dir(1);
+    buf[0] = 'H';
+    uart0_start_rxengine();
+    while (1) {
+        buf[0] = (char)uart0_blocking_getchar();
+        uart0_blocking_write((unsigned char *)buf, 1);
+    }
     return 0;
 }
