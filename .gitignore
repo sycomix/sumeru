@@ -16,4 +16,14 @@ sw/sys-libs/libc/*.a
 sw/kernels/blinky/KERNEL
 sw/kernels/blinky/obj
 sw/kernels/scratch/scratch
+sw/kernels/dhrystone_small/dhrystone
+sw/kernels/dhrystone/dhrystone
+sw/kernels/newk/newk
+sw/kernels/scheme/scheme
 tools/bluetooth/contrib/pygattlib/src/*.o
+sw/sys-libs/drivers/*.o
+sw/sys-libs/drivers/*.a
+sw/vhdl/*/PLLJ*.txt
+sw/vhdl/*/db
+sw/vhdl/*/incremental_db
+sw/vhdl/*/output_files
