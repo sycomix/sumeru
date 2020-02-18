@@ -13,8 +13,8 @@ uart0_start_rxengine()
 {
     g_uart0_rx_pos = 0;
     g_uart0_rx_flags |= UART_FLAG_RX_ON;
-    //uart0_set_rx(((unsigned int)g_tx_drvbuf_start) | 255);
-    //timer_set(UART0_RX_TIMER_TICKS | 0x1);
+    uart0_set_rx(((unsigned int)g_rx_drvbuf_start) | 255);
+    timer_set(UART0_RX_TIMER_TICKS | 0xf);
 }
 
 
