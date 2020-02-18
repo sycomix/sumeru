@@ -29,7 +29,6 @@ ivec_uart_rx:
 asm_handle_interrupt:
     sw sp,4(zero)
     sw ra,8(zero)
-    li sp,0x2000
     # -- We use the user stack to service interrupts
     sw x5,-4(sp)
     sw x6,-8(sp)
