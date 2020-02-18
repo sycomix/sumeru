@@ -133,9 +133,13 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		results[0].seed3=0x66;
 	}
 #if (MEM_METHOD==MEM_STATIC)
-	results[0].memblock[0]=(void *)static_memblk;
-	results[0].size=TOTAL_DATA_SIZE;
-	results[0].err=0;
+        results[0].memblock[0]=(void *)static_memblk;
+        results[0].size=TOTAL_DATA_SIZE;
+        results[0].seed1=results[0].seed1;
+        results[0].seed2=results[0].seed2;
+        results[0].seed3=results[0].seed3;
+        results[0].err=0;
+        results[0].execs=results[0].execs;
 	#if (MULTITHREAD>1)
 	#error "Cannot use a static data area with multiple contexts!"
 	#endif
