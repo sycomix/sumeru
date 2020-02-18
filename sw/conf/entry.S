@@ -103,9 +103,9 @@ _entry:
   call    __libc_init_array       # Run global initialization functions
 
   # Populate malloc pool with 26M memory starting at 4M
-  li      a0, MALLOC_MEM_START
-  li      a1, MALLOC_MEM_SIZE
-  call    add_malloc_block
+#  li      a0, MALLOC_MEM_START
+#  li      a1, MALLOC_MEM_SIZE
+#  call    add_malloc_block
 
   li      a0, 0                  # a0 = argc = 0
   li      a1, 0                  # a1 = argv = NULL
