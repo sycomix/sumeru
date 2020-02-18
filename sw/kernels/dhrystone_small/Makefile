@@ -19,7 +19,7 @@ CFLAGS += -I../../include
 CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
 #CFLAGS += -DTIME
-CFLAGS += -DHZ=85000000
+CFLAGS += -DHZ=75000000
 
 # XXX gc-sections breaks things ... how? investigate :)
 #LDFLAGS += -gc-sections
