@@ -71,4 +71,4 @@ seedcrc          : 0xe9f5
 Correct operation validated. See README.md for run and reporting rules.
 ```
 
-[Coremark Results Website -- explore similar performance CPUs](https://www.eembc.org/coremark/scores.php)
+[Coremark Results Website](https://www.eembc.org/coremark/scores.php)
