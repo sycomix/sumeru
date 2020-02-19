@@ -19,9 +19,6 @@ Original Author: Shay Gal-on
 /* File: core_main.c
 	This file contains the framework to acquire a block of memory, seed initial parameters, tun t he benchmark and report the results.
 */
-#include <machine/constants.h>
-#include <machine/csr.h>
-
 #include "coremark.h"
 
 /* Function: iterate
@@ -133,13 +130,9 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		results[0].seed3=0x66;
 	}
 #if (MEM_METHOD==MEM_STATIC)
-        results[0].memblock[0]=(void *)static_memblk;
-        results[0].size=TOTAL_DATA_SIZE;
-        results[0].seed1=results[0].seed1;
-        results[0].seed2=results[0].seed2;
-        results[0].seed3=results[0].seed3;
-        results[0].err=0;
-        results[0].execs=results[0].execs;
+	results[0].memblock[0]=(void *)static_memblk;
+	results[0].size=TOTAL_DATA_SIZE;
+	results[0].err=0;
 	#if (MULTITHREAD>1)
 	#error "Cannot use a static data area with multiple contexts!"
 	#endif
@@ -291,8 +284,8 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 	}
 	total_errors+=check_data_types();
 	/* and report results */
-	ee_printf("CoreMark Size    : %u\n", (unsigned) results[0].size);
-	ee_printf("Total ticks      : %u\n", (unsigned) total_time);
+	ee_printf("CoreMark Size    : %lu\n", (long unsigned) results[0].size);
+	ee_printf("Total ticks      : %lu\n", (long unsigned) total_time);
 #if HAS_FLOAT
 	ee_printf("Total time (secs): %f\n",time_in_secs(total_time));
 	if (time_in_secs(total_time) > 0)
@@ -307,7 +300,7 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 		total_errors++;
 	}
 
-	ee_printf("Iterations       : %u\n", (unsigned) default_num_contexts*results[0].iterations);
+	ee_printf("Iterations       : %lu\n", (long unsigned) default_num_contexts*results[0].iterations);
 	ee_printf("Compiler version : %s\n",COMPILER_VERSION);
 	ee_printf("Compiler flags   : %s\n",COMPILER_FLAGS);
 #if (MULTITHREAD>1)
@@ -356,9 +349,6 @@ MAIN_RETURN_TYPE main(int argc, char *argv[]) {
 #endif
 	/* And last call any target specific code for finalizing */
 	portable_fini(&(results[0].port));
-
-        while (1)
-            gpio_set_out((rdtime() >> 25) & 1);
 
 	return MAIN_RETURN_VAL;	
 }

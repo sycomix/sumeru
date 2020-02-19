@@ -5,8 +5,11 @@ CFLAGS += -Wall
 CFLAGS += -march=rv32im -mabi=ilp32
 
 #CFLAGS += -DCORE_DEBUG
-CFLAGS += -DITERATIONS=4000 -DMEM_METHOD=MEM_STATIC
+CFLAGS += -DITERATIONS=4000
 CFLAGS += -DCLOCKS_PER_SEC=75000000
+
+CFLAGS += -DCOMPILER_VERSION=\"9.2.0\"
+CFLAGS += -DCOMPILER_FLAGS=\"-O2\"
 
 ASFLAGS += -march=rv32im -mabi=ilp32 -I../../include
 
@@ -26,7 +29,7 @@ CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
 CFLAGS += -DHZ=85000000
 
 # XXX gc-sections breaks things ... how? investigate :)
-#LDFLAGS += -gc-sections
+LDFLAGS += -gc-sections
 LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
@@ -47,7 +50,7 @@ all: $(PROG)
 $(PROG): $(OBJFILES)
 	$(LD) -T../../conf/static-kernel-link.lds $(LDFLAGS) -o $@ $^ $(LDADD)
 	tclsh ${SUMERU_DIR}/tools/isa_check.tcl riscv $@
-	${OBJDUMP} -M no-aliases -d $@
+#	${OBJDUMP} -M no-aliases -d $@
 	${OBJCOPY} -O binary $@ $(@).bin
 # Add a 16 bytes padding to file to help with flush in bootloader firmware
 	dd if=/dev/zero of=$(@).bin oflag=append bs=1 conv=notrunc count=16
