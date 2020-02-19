@@ -44,7 +44,7 @@ $(PROG): $(OBJFILES)
 	(cd ../../sys-libs/libc; make)
 	$(LD) -T../../conf/static-kernel-link.lds $(LDFLAGS) -o $@ $^ $(LDADD)
 	tclsh ${SUMERU_DIR}/tools/isa_check.tcl riscv $@
-	${OBJDUMP} -M no-aliases -d $@
+#	${OBJDUMP} -M no-aliases -d $@
 	${OBJCOPY} -O binary $@ $(@).bin
 # Add a 16 bytes padding to file to help with flush in bootloader firmware
 	dd if=/dev/zero of=$(@).bin oflag=append bs=1 conv=notrunc count=16

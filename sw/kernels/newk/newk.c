@@ -4,15 +4,17 @@
 
 #include <uart0_io.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 int
 main(int argc, char *argv)
 {
-    char buf[128];
+    unsigned char *buf;
 
     gpio_set_out(0);
     gpio_set_dir(1);
+    buf = (unsigned char*) malloc(128);
     uart0_start_rxengine();
     while (1) {
         fgets(buf, 128, stdin);
