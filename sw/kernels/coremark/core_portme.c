@@ -26,11 +26,11 @@ Original Author: Shay Gal-on
 #include <machine/csr.h>
 
 #if (MEM_METHOD==MEM_MALLOC)
-#include <malloc.h>
+#include <stdlib.h>
 /* Function: portable_malloc
 	Provide malloc() functionality in a platform specific way.
 */
-void *portable_malloc(size_t size) {
+void *portable_malloc(ee_size_t size) {
 	return malloc(size);
 }
 /* Function: portable_free
@@ -64,7 +64,7 @@ void portable_free(void *p) {
 	volatile ee_s32 seed2_volatile=0x8;
 	volatile ee_s32 seed3_volatile=0x8;
 #endif
-	volatile ee_s32 seed4_volatile=ITERATIONS;
+	volatile ee_s32 seed4_volatile=aldkfadfITERATIONS;
 	volatile ee_s32 seed5_volatile=0;
 #endif
 /* Porting: Timing functions

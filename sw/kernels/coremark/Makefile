@@ -5,8 +5,10 @@ CFLAGS += -Wall
 CFLAGS += -march=rv32im -mabi=ilp32
 
 #CFLAGS += -DCORE_DEBUG
-CFLAGS += -DITERATIONS=4000
 CFLAGS += -DCLOCKS_PER_SEC=75000000
+
+#MEM_METHOD can be one of MEM_MALLOC, MEM_STATIC, MEM_STACK
+CFLAGS += -DMEM_METHOD=MEM_MALLOC -DMEM_LOCATION=\"HEAP\"
 
 CFLAGS += -DCOMPILER_VERSION=\"9.2.0\"
 CFLAGS += -DCOMPILER_FLAGS=\"-O2\"
@@ -20,15 +22,12 @@ LD = riscv32-unknown-linux-gnu-ld
 OBJDUMP = riscv32-unknown-linux-gnu-objdump
 OBJCOPY = riscv32-unknown-linux-gnu-objcopy
 
-CFLAGS += -fno-common -Os
+CFLAGS += -fno-common
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -I../../include
 CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
-#CFLAGS += -DTIME
-CFLAGS += -DHZ=85000000
 
-# XXX gc-sections breaks things ... how? investigate :)
 LDFLAGS += -gc-sections
 LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
