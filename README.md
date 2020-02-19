@@ -51,6 +51,7 @@ seedcrc          : 0xe9f5
 [0]crcmatrix     : 0x1fd7
 [0]crcstate      : 0x8e3a
 [0]crcfinal      : 0x4983
+Correct operation validated. See README.md for run and reporting rules.
 
 
 2K performance run parameters for coremark.
