@@ -46,6 +46,7 @@ write_cmd(GAttrib *attrib, uint16_t handle, const uint8_t *value,
 
 static gchar pending_buf[TX_MTU + 4];
 static int pending_len = 0;
+static uint16_t BHND = 0x12;
 
 static gboolean 
 write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
@@ -71,7 +72,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
         /*return true;*/
     } else {
         GAttrib *attrib = user_data;
-        write_cmd(attrib, 0x12, buf, rlen, NULL, NULL);
+        write_cmd(attrib, BHND, buf, rlen, NULL, NULL);
 #if XXX_NOTYET
         int offset = 0;
         int i;
@@ -81,7 +82,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
                 buf[i] = CARRIAGE_RETURN;
                 buf[i + 1] = LINEFEED;
                 write_cmd(
-                    attrib, 0x12, 
+                    attrib, BHND, 
                     buf + offset, i - offset + 2, 
                     NULL, NULL);        
 
@@ -93,7 +94,7 @@ write_cb(GIOChannel *source, GIOCondition cond, gpointer user_data)
 
         if (offset != i)
             write_cmd(
-                    attrib, 0x12,
+                    attrib, BHND,
                     buf + offset, i - offset,
                     NULL, NULL);
 #endif
@@ -214,6 +215,7 @@ connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
     g_io_add_watch(wchan, G_IO_IN, write_cb, attrib);
 }
 
+const char *mac = "B4:99:4C:6E:58:C9";
 
 int
 main(int argc, char **argv)
@@ -221,8 +223,16 @@ main(int argc, char **argv)
     GIOChannel *chan = NULL;
     GError *err = NULL;
 
+    if (argc >= 2) {
+        mac = argv[1];
+    }
+
+    if (argc >= 3) {
+        BHND = strtoul(argv[2], 0, 0);
+    }
+
     chan = gatt_connect(
-                "hci0", "B4:99:4C:6E:58:C9",
+                "hci0", mac,
                 "public", "low", 0, 0,
                 connect_cb, &err);
 

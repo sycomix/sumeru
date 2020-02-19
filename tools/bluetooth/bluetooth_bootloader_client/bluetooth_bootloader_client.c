@@ -36,6 +36,7 @@ static unsigned int jmp_addr = 0x10000;
 static gchar *write_filename = "./unknown";
 static GIOChannel *wchan;
 static GAttrib *wattrib;
+static uint16_t BHND = 0x12;
 
 static void
 write_complete_cb(gpointer data)
@@ -62,7 +63,7 @@ write_bootloader_initiate_jmp(GAttrib *attrib)
 {
     write_buf[0] = 'j';
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x12, write_buf, 1, NULL, NULL);
+    write_cmd(attrib, BHND, write_buf, 1, NULL, NULL);
     write_complete = 1;
 }
 
@@ -81,7 +82,7 @@ write_bootloader_data(GAttrib *attrib)
     write_buf[0] = 'w';
     write_buf[17] = compute_16b_cksum(write_buf+1);
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x12, write_buf, 18, NULL, NULL);
+    write_cmd(attrib, BHND, write_buf, 18, NULL, NULL);
     write_complete = 1;
 }
 
@@ -92,7 +93,7 @@ write_bootloader_addr(GAttrib *attrib, unsigned int addr)
     write_buf[0] = 'a';
     write_buf[5] = write_buf[1] ^ write_buf[2] ^ write_buf[3] ^ write_buf[4];
     resp_state = R_EXPECT_OK;
-    write_cmd(attrib, 0x12, write_buf, 6, NULL, NULL);
+    write_cmd(attrib, BHND, write_buf, 6, NULL, NULL);
     write_complete = 1;
 }
 
@@ -257,6 +258,7 @@ connect_cb(GIOChannel *chan, GError *err, gpointer user_data)
     g_printerr("Status: Programming started.\n");
 }
 
+const char *mac = "B4:99:4C:6E:58:C9";
 
 int
 main(int argc, char **argv)
@@ -264,15 +266,21 @@ main(int argc, char **argv)
     GIOChannel *chan = NULL;
     GError *err = NULL;
 
-    if (argc != 2) {
+    if (argc < 2) {
         g_printerr("Usage: %s <filename>\n", argv[0]);
         exit(1);
+    }
+    if (argc >= 3) {
+        mac = argv[2];
+    }
+    if (argc >= 4) {
+        BHND = strtoul(argv[3], 0, 0);
     }
     write_filename = strdup(argv[1]);
 
     g_printerr("Status: Connecting.\n");
     chan = gatt_connect(
-                "hci0", "B4:99:4C:6E:58:C9",
+                "hci0", mac,
                 "public", "low", 0, 0,
                 connect_cb, &err);
 

@@ -18,6 +18,7 @@ sw/kernels/blinky/obj
 sw/kernels/scratch/scratch
 sw/kernels/dhrystone_small/dhrystone
 sw/kernels/dhrystone/dhrystone
+sw/kernels/coremark/coremark
 sw/kernels/newk/newk
 sw/kernels/scheme/scheme
 tools/bluetooth/contrib/pygattlib/src/*.o
