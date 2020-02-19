@@ -1,14 +1,16 @@
 PROG = coremark
 
+#MEM_METHOD can be one of MEM_MALLOC, MEM_STATIC, MEM_STACK
+CFLAGS = -DMEM_METHOD=MEM_MALLOC -DMEM_LOCATION=\"HEAP\"
+#CFLAGS = -DMEM_METHOD=MEM_STATIC -DMEM_LOCATION=\"BSS\"
+#CFLAGS = -DMEM_METHOD=MEM_STACK -DMEM_LOCATION=\"STACK\"
+
 CFLAGS += -O2 -nostdinc -ffreestanding
 CFLAGS += -Wall 
 CFLAGS += -march=rv32im -mabi=ilp32
 
 #CFLAGS += -DCORE_DEBUG
 CFLAGS += -DCLOCKS_PER_SEC=75000000
-
-#MEM_METHOD can be one of MEM_MALLOC, MEM_STATIC, MEM_STACK
-CFLAGS += -DMEM_METHOD=MEM_MALLOC -DMEM_LOCATION=\"HEAP\"
 
 CFLAGS += -DCOMPILER_VERSION=\"9.2.0\"
 CFLAGS += -DCOMPILER_FLAGS=\"-O2\"
@@ -64,8 +66,8 @@ uload: all
 	${SUMERU_DIR}/tools/bootloader_uart_client -f ${PROG}.bin
 
 bload: all
-	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin)
+	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin `grep "^mac" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=` `grep "^whnd" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=`)
 
 terminal:
-	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_le_terminal; ./bluetooth_le_terminal)
+	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_le_terminal; ./bluetooth_le_terminal `grep "^mac" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=` `grep "^whnd" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=`)
 
