@@ -76,7 +76,7 @@ Correct operation validated. See README.md for run and reporting rules.
 *Sumeru @ 75 MHz - 3 stage pipeline - 4K ICACHE 4K DCACHE - MEM STACK - Cyclone IV*
 
 * [Altera NIOS II CycloneIII](https://www.eembc.org/coremark/view.php?benchmark_seq=1535)
-* [Altera Nios II - 80 (apple2apple)](https://www.eembc.org/coremark/view.php?benchmark_seq=1336)
+* [Altera Nios II - 80 MHz (apple2apple)](https://www.eembc.org/coremark/view.php?benchmark_seq=1336)
 * [Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1486)
 * [Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1487)
 * [Altera Nios II/f - 100 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=2483)
