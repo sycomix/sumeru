@@ -3,7 +3,7 @@
 
 ## Coremark Performance
 
-**Summary**
+### Summary
 
 Sumeru @ 75 Mhz - MEM STACK
 
@@ -17,7 +17,7 @@ Compiler Flag | Binary Size | Result
 ** MEM MALLOC and MEM STATIC performance is similar
 
 
-## Detail
+### Detail
 
 ```
 2K performance run parameters for coremark.
