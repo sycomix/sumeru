@@ -71,15 +71,19 @@ seedcrc          : 0xe9f5
 Correct operation validated. See README.md for run and reporting rules.
 ```
 
-[Altera NIOS II CycloneIII](https://www.eembc.org/coremark/view.php?benchmark_seq=1535)
-[Altera Nios II - 80](https://www.eembc.org/coremark/view.php?benchmark_seq=1336)
-[Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1486)
-[Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1487)
-[Altera Nios II/f - 100 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=2483)
+## Commercial soft-core performance 
 
-[Xilinx MicroBlaze v7.20.d in Spartan XC3S700A FPGA, 3-stage pipeline, 2K/2K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1042)
-[Xilinx MicroBlaze v7.20.d in Spartan XC3S700A FPGA, 5-stage pipeline, 4K/4K cache, integer divider, barrel shifter](https://www.eembc.org/coremark/view.php?benchmark_seq=1043)
-[Xilinx MicroBlaze 7.10d in Virtex4-FX20 FPGA, 5-stage pipeline, 16K/16K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1287)
-[Xilinx MicroBlaze v8.20.b in Virtex5 FPGA, 5-stage pipeline, 16K/16K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1345)
+*Sumeru @ 75 MHz - 3 stage pipeline - 4K ICACHE 4K DCACHE - MEM STACK - Cyclone IV*
+
+* [Altera NIOS II CycloneIII](https://www.eembc.org/coremark/view.php?benchmark_seq=1535)
+* [Altera Nios II - 80](https://www.eembc.org/coremark/view.php?benchmark_seq=1336)
+* [Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1486)
+* [Altera Nios II - 200 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=1487)
+* [Altera Nios II/f - 100 MHz](https://www.eembc.org/coremark/view.php?benchmark_seq=2483)
+
+* [Xilinx MicroBlaze v7.20.d in Spartan XC3S700A FPGA, 3-stage pipeline, 2K/2K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1042)
+* [Xilinx MicroBlaze v7.20.d in Spartan XC3S700A FPGA, 5-stage pipeline, 4K/4K cache, integer divider, barrel shifter](https://www.eembc.org/coremark/view.php?benchmark_seq=1043)
+* [Xilinx MicroBlaze 7.10d in Virtex4-FX20 FPGA, 5-stage pipeline, 16K/16K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1287)
+* [Xilinx MicroBlaze v8.20.b in Virtex5 FPGA, 5-stage pipeline, 16K/16K cache](https://www.eembc.org/coremark/view.php?benchmark_seq=1345)
 
 [Coremark Results Website](https://www.eembc.org/coremark/scores.php)
