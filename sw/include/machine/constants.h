@@ -27,8 +27,8 @@
 #define INTR_ID_UART0_TX                0x2
 #define INTR_ID_UART0_RX                0x3
 
-#define DEFAULT_UART0_RX_BUFFFER_LOC    0x2000
-#define DEFAULT_UART0_TX_BUFFFER_LOC    0x2000
+#define BOOTCODE_UART0_RX_BUFFER_LOC    0x2000
+#define BOOTCODE_UART0_TX_BUFFER_LOC    0x2000
 
 /* Stack grows down from 32M */
 #define STACK_START_LOC                 0x1FFFFF0
@@ -41,6 +41,8 @@
 #define UART0_RX_DRVBUF_START           0x200
 #define UART0_RX_STREAMBUF_START        0x300
 #define UART0_RX_STREAMBUF_END          0x1000
+#define UART0_RX_STREAMBUF_START        0x2000
+#define UART0_RX_STREAMBUF_END          0x3000
 
 #define SUMERU_CACHE_LINE_SIZE          16
 #define SUMERU_CACHE_LINE_MASK          0xFFFFFFF0

@@ -4,8 +4,8 @@
 
 #include "util.h"
 
-unsigned char *g_uart0_rx_buffer_loc = (unsigned char *)DEFAULT_UART0_RX_BUFFFER_LOC;
-unsigned char *g_uart0_tx_buffer_loc = (unsigned char *)DEFAULT_UART0_TX_BUFFFER_LOC;
+unsigned char *g_uart0_rx_buffer_loc = (unsigned char *)BOOTCODE_UART0_RX_BUFFER_LOC;
+unsigned char *g_uart0_tx_buffer_loc = (unsigned char *)BOOTCODE_UART0_TX_BUFFER_LOC;
 
 volatile unsigned int g_timer_intr_pending;
 volatile unsigned int g_uart0_tx_intr_pending;
