@@ -2,20 +2,13 @@
 #include <machine/memctl.h>
 #include <machine/uart0.h>
 
+#include "util.h"
+
 extern volatile unsigned int g_timer_intr_pending;
 extern volatile unsigned int g_uart0_tx_intr_pending;
 extern volatile unsigned int g_uart0_rx_intr_pending;
 
 unsigned int *mem_ptr = (unsigned int*)0x10000;
-
-static inline
-void 
-memcpy(unsigned char *dst, unsigned char *src, unsigned int len)
-{
-    while (len--)
-        *dst++ = *src++;
-}
-
 
 int
 compute_16b_cksum(unsigned char *buf)

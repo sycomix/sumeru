@@ -2,20 +2,14 @@
 #include <machine/csr.h>
 #include <machine/memctl.h>
 
+#include "util.h"
+
 unsigned char *g_uart0_rx_buffer_loc = (unsigned char *)DEFAULT_UART0_RX_BUFFFER_LOC;
 unsigned char *g_uart0_tx_buffer_loc = (unsigned char *)DEFAULT_UART0_TX_BUFFFER_LOC;
 
 volatile unsigned int g_timer_intr_pending;
 volatile unsigned int g_uart0_tx_intr_pending;
 volatile unsigned int g_uart0_rx_intr_pending;
-
-__attribute__ ((always_inline))
-inline void
-memcpy(unsigned char *dst, const unsigned char *src, unsigned int len)
-{
-    while (len-- > 0)
-        *dst++ = *src++;
-}
 
 int
 uart0_blocking_read(unsigned char *buf, unsigned int len)
