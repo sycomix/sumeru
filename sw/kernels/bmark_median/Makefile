@@ -13,16 +13,13 @@ LD = riscv32-unknown-linux-gnu-ld
 OBJDUMP = riscv32-unknown-linux-gnu-objdump
 OBJCOPY = riscv32-unknown-linux-gnu-objcopy
 
-CFLAGS += -fno-common -Os
+CFLAGS += -fno-common
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -I../../include
 CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
-#CFLAGS += -DTIME
-CFLAGS += -DHZ=85000000
 
-# XXX gc-sections breaks things ... how? investigate :)
-#LDFLAGS += -gc-sections
+LDFLAGS += -gc-sections
 LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 

@@ -1,6 +1,6 @@
 PROG = scratch
 
-CFLAGS += -O -nostdinc -ffreestanding
+CFLAGS += -O2 -nostdinc -ffreestanding
 CFLAGS += -Wall 
 CFLAGS += -march=rv32im -mabi=ilp32
 
@@ -13,15 +13,14 @@ LD = riscv32-unknown-linux-gnu-ld
 OBJDUMP = riscv32-unknown-linux-gnu-objdump
 OBJCOPY = riscv32-unknown-linux-gnu-objcopy
 
-CFLAGS += -fno-common -Os
+CFLAGS += -fno-common
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -I../../include
 CFLAGS += -I../../sys-libs/libc/include/sumeru_rv32
 CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
 CFLAGS += -DTIME
 
-# XXX gc-sections breaks things ... how? investigate :)
-#LDFLAGS += -gc-sections
+LDFLAGS += -gc-sections
 LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
@@ -50,8 +49,11 @@ clean:
 disa:
 	${OBJDUMP} -d ${PROG} | less
 
-load: all
-	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin)
+uload: all
+	${SUMERU_DIR}/tools/bootloader_uart_client -f ${PROG}.bin
+
+bload: all
+	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_bootloader_client; ./bluetooth_bootloader_client ../../../sw/kernels/${PROG}/${PROG}.bin `grep "^mac" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=` `grep "^whnd" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=`)
 
 terminal:
-	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_le_terminal; ./bluetooth_le_terminal)
+	(cd ${SUMERU_DIR}/tools/bluetooth/bluetooth_le_terminal; ./bluetooth_le_terminal `grep "^mac" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=` `grep "^whnd" ../../../sw/conf/bluetooth.cfg | cut -f2 -d=`)
