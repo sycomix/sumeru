@@ -25,7 +25,7 @@ LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
 CFILES = $(PROG).c
-ASFILES = ../../conf/entry.s
+ASFILES = entry.s
 
 OBJFILES = $(CFILES:.c=.o)
 OBJFILES += $(ASFILES:.s=.o)

@@ -15,7 +15,7 @@ main(int argc, char *argv)
     gpio_set_out(0);
     gpio_set_dir(1);
     buf = (unsigned char*) malloc(128);
-    uart0_start_rxengine();
+    uart0_start_engine();
     while (1) {
         fgets(buf, 128, stdin);
         fputs(buf, stdout);

@@ -33,7 +33,6 @@ OBJFILES += $(ASFILES:.s=.o)
 
 LDADD = ../../sys-libs/drivers/libsumeru_drivers.a
 LDADD += ../../sys-libs/libc/libc.a
-LDADD += ../../sys-libs/drivers/libsumeru_drivers.a
 
 all: $(PROG)
 	

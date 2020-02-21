@@ -41,13 +41,13 @@
 #define UART0_RX_DRVBUF_START           0x200
 #define UART0_RX_STREAMBUF_START        0x300
 #define UART0_RX_STREAMBUF_END          0x1000
-#define UART0_RX_STREAMBUF_START        0x2000
-#define UART0_RX_STREAMBUF_END          0x3000
+#define UART0_TX_STREAMBUF_START        0x2000
+#define UART0_TX_STREAMBUF_END          0x3000
 
 #define SUMERU_CACHE_LINE_SIZE          16
 #define SUMERU_CACHE_LINE_MASK          0xFFFFFFF0
 
 /* ~218 us @ 75MHz */
-#define UART0_RX_TIMER_TICKS            16384         
+#define UART_ENGINE_TIMER_TICKS         16384         
 
 #endif
