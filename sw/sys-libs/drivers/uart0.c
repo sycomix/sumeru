@@ -148,23 +148,19 @@ uart0_blocking_write(const unsigned char *buf, unsigned int len)
         memcpy((unsigned char *)g_tx_streambuf_prod, buf, len);
     } else {
         bytes_free = g_tx_streambuf_end - g_tx_streambuf_prod;        
-        bytes_free = MIN(bytes_free, len);
         memcpy((unsigned char *)g_tx_streambuf_prod, buf, bytes_free);
-        len -= bytes_free;
-        if (len) {
-            memcpy(g_tx_streambuf_start, buf + bytes_free, len);
-        }
+        memcpy(g_tx_streambuf_start, buf + bytes_free, len - bytes_free);
     }
 
     g_tx_streambuf_prod = nptr;
-    return 0;
+    return len;
 }
 
 void
 uart0_start_engine()
 {
     g_uart0_rx_pos = 0;
-    g_uart0_tx_write_len = (uart0_get_tx() & 0xff);
+    g_uart0_tx_active = 0;
     g_uart0_flags |= (UART_FLAG_ENGINE_ON | UART_FLAG_WRITE_TIMER);
     uart0_set_rx(((unsigned int)g_rx_drvbuf_start) | 255);
     timer_set(UART_ENGINE_TIMER_TICKS | 0xf);

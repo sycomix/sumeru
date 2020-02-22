@@ -5,8 +5,10 @@
 
 #include <string.h>
 
-unsigned int g_uart0_rx_pos = 0;
-unsigned int g_uart0_tx_write_len = 0;
+#define MIN(a,b)        (a <= b ? a : b)
+
+volatile unsigned int g_uart0_rx_pos = 0;
+volatile unsigned int g_uart0_tx_active = 0;
 
 static void
 process_rx_data()
@@ -44,7 +46,7 @@ process_tx_data()
     unsigned int wlen = uart0_get_tx() & 0xff;
     unsigned char *nptr;
 
-    if (wlen == g_uart0_tx_write_len) {
+    if (g_uart0_tx_active == 0) {
         if (g_tx_streambuf_cons != g_tx_streambuf_prod) 
         {
             len = (g_tx_streambuf_prod >= g_tx_streambuf_cons) ?
@@ -52,7 +54,7 @@ process_tx_data()
                         ((g_tx_streambuf_end - g_tx_streambuf_cons) +
                             (g_tx_streambuf_prod - g_tx_streambuf_start));
 
-            len &= 0xff;
+            len = MIN(len, 255);
     
             nptr = streambuf_incr(
                         (unsigned int) g_tx_streambuf_start, 
@@ -73,9 +75,9 @@ process_tx_data()
                        len - wlen);
             }
             flush_dcache_range(g_tx_drvbuf_start, g_tx_drvbuf_start + len);
-            g_uart0_tx_write_len = len;
             g_tx_streambuf_cons = nptr;
             uart0_set_tx(((unsigned int)g_tx_drvbuf_start) | len);
+            g_uart0_tx_active = 1;
         }
     }
 }
@@ -95,6 +97,7 @@ handle_interrupt(int id)
                 timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
             break;
         case INTR_ID_UART0_TX:
+            g_uart0_tx_active = 0;
             process_tx_data();
             break;
         case INTR_ID_UART0_RX:

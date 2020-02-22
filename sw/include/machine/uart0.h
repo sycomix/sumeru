@@ -18,8 +18,8 @@ extern volatile unsigned char * volatile g_tx_streambuf_prod;
 extern volatile unsigned char * volatile g_tx_streambuf_cons;
 extern volatile unsigned int g_uart0_flags;
 
-extern unsigned int g_uart0_rx_pos;
-extern unsigned int g_uart0_tx_write_len;
+extern volatile unsigned int g_uart0_rx_pos;
+extern volatile unsigned int g_uart0_tx_active;
 
 unsigned char* streambuf_incr(unsigned int start, unsigned int x, unsigned int len);
 int     uart0_blocking_getchar();
