@@ -175,6 +175,9 @@ secs_ret time_in_secs(CORE_TICKS ticks) {
 
 ee_u32 default_num_contexts=MULTITHREAD;
 
+// Extern sumeru system routine to start I/O (printf, etc..) services
+void uart0_start_engine();
+
 /* Function: portable_init
 	Target specific initialization code 
 	Test for some common mistakes.
@@ -213,6 +216,7 @@ void portable_init(core_portable *p, int *argc, char *argv[])
 	}
 #endif /* sample of potential platform specific init via command line, reset the number of contexts being used if first argument is M<n>*/
 	p->portable_id=1;
+        uart0_start_engine();
 }
 /* Function: portable_fini
 	Target specific final code 
