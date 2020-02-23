@@ -110,8 +110,6 @@ uart0_blocking_read(unsigned char *buf, unsigned int len)
     return len;
 }
 
-void process_tx_data();
-
 int
 uart0_blocking_write(const unsigned char *buf, unsigned int len)
 {
