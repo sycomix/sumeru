@@ -1,4 +1,4 @@
-PROG = newk
+PROG = scratch
 
 CFLAGS += -O2 -nostdinc -ffreestanding
 CFLAGS += -Wall 
