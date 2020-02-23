@@ -20,7 +20,7 @@ main(int argc, char *argv)
     gpio_set_dir(1);
     uart0_start_engine();
     while (1) {
-        printf("Hello World %d", 11);
+        uart0_blocking_write("Hello World", 11);
     }
     return 0;
 }
