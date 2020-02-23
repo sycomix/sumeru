@@ -1,0 +1,127 @@
+diff --git a/cpu/Makefile b/cpu/Makefile
+index 01cc00c..91c97f4 100644
+--- a/cpu/Makefile
++++ b/cpu/Makefile
+@@ -7,6 +7,7 @@ SRCS = sumeru_constants.vhd \
+         pll.vhd \
+         rom_512x16.vhd \
+         rom_1024x16.vhd \
++        rom_2048x16.vhd \
+         ram1p_256x32.vhd \
+         ram1p_256x16.vhd \
+         ram1p_256x36_byteena.vhd \
+@@ -36,7 +37,7 @@ SRCS = sumeru_constants.vhd \
+ 
+ OBJS = $(SRCS:.vhd=.o)
+ 
+-SIM_PERIOD = 200us
++SIM_PERIOD = 400us
+ LIB_DIR = ${SUMERU_DIR}/sw/vhdl/altera-lib
+ 
+ #****************************************************************
+@@ -72,7 +73,7 @@ ${TOPLEVEL}.o: cpu_types.o \
+ 
+ sdram_controller_simlowdelay.o: memory_channel_types.o
+ memory_arbitrator.o: memory_channel_types.o 
+-memory_loader.o: memory_channel_types.o rom_1024x16.o
++memory_loader.o: memory_channel_types.o rom_2048x16.o
+ readcache_256x4x32.o: ram1p_256x32.o ram1p_256x16.o
+ cpu_stage_ifetch.o: cpu_types.o readcache_256x4x32.o sumeru_constants.o
+ cpu_stage_idecode.o: cpu_types.o sumeru_constants.o
+@@ -92,6 +93,9 @@ periph_dma.o: cpu_types.o memory_channel_types.o
+ 
+ 
+ #****************************************************************
++rom_2048x16.o: ${LIBSRC_DIR}/rom_2048x16.vhd
++	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
++
+ rom_1024x16.o: ${LIBSRC_DIR}/rom_1024x16.vhd
+ 	ghdl -a --std=08 -fexplicit --ieee=synopsys -P$(LIB_DIR) $<
+ 
+@@ -144,8 +148,9 @@ clean:
+                 sdram_controller_simlowdelay.vhd \
+                 PLLJ_*.txt obj *.ppf *.cmp *.qdf \ *.vhd.bak
+ 
+-BC_FILE=BOOTCODE/BOOTCODE
++#BC_FILE=BOOTCODE/BOOTCODE
+ #BC_FILE=../sw/riscv-tests/isa/rv32um-p-mulhsu
++BC_FILE=../sw/kernels/newk/newk
+ 
+ disa:
+ 	tclsh /home/r0h17/workspace-vhdl/sumeru/sw/../tools/isa_check.tcl riscv ${BC_FILE}
+diff --git a/cpu/cpu.qsf b/cpu/cpu.qsf
+index f103b10..3ba47cd 100644
+--- a/cpu/cpu.qsf
++++ b/cpu/cpu.qsf
+@@ -35,6 +35,7 @@ set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+ set_global_assignment -name VHDL_FILE pll.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/rom_512x16.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/rom_1024x16.vhd
++set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/rom_2048x16.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x32.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x36_byteena.vhd
+ set_global_assignment -name VHDL_FILE ../sw/vhdl/libsrc/ram1p_256x16.vhd
+diff --git a/cpu/cpu_stage_ifetch.vhd b/cpu/cpu_stage_ifetch.vhd
+index f834e86..0d0b5e0 100644
+--- a/cpu/cpu_stage_ifetch.vhd
++++ b/cpu/cpu_stage_ifetch.vhd
+@@ -22,7 +22,7 @@ end entity;
+ 
+ architecture synth of cpu_stage_ifetch is
+     signal icache_hit:          std_logic;
+-    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
++    signal pc:                  std_logic_vector(31 downto 0) := x"00010000";
+     signal inst:                std_logic_vector(31 downto 0);
+     signal icache_flush:        std_logic := '0';
+     signal icache_flush_ack:    std_logic;
+diff --git a/cpu/csr_misc.vhd b/cpu/csr_misc.vhd
+index 98f7529..8ea5a0e 100644
+--- a/cpu/csr_misc.vhd
++++ b/cpu/csr_misc.vhd
+@@ -18,7 +18,7 @@ end entity;
+ 
+ architecture synth of csr_misc is
+     signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+-    signal ivector_addr_r:      std_logic_vector(31 downto 0) := (others => '0');
++    signal ivector_addr_r:      std_logic_vector(31 downto 0) := x"00010000";
+ begin
+ 
+ ivector_addr <= ivector_addr_r(31 downto 8);
+diff --git a/cpu/memory_loader.vhd b/cpu/memory_loader.vhd
+index d3ece1d..20f288c 100644
+--- a/cpu/memory_loader.vhd
++++ b/cpu/memory_loader.vhd
+@@ -16,7 +16,7 @@ port(
+ end entity;
+ 
+ architecture synth of memory_loader is
+-    signal counter:             std_logic_vector(10 downto 0) := (others => '0');
++    signal counter:             std_logic_vector(11 downto 0) := (others => '0');
+     signal rom_data:            std_logic_vector(15 downto 0);
+     signal op_start:            std_logic := '0';
+ 
+@@ -29,20 +29,20 @@ architecture synth of memory_loader is
+ 
+ 
+ begin
+-    load_done <= counter(10);
+-    mc_in.op_addr <= "00000000000000" & counter(9 downto 0);
++    load_done <= counter(11);
++    mc_in.op_addr <= "0000000010000" & counter(10 downto 0);
+     mc_in.op_start <= op_start;
+     mc_in.op_wren <= '1';
+     mc_in.op_burst <= '0';
+     mc_in.op_dqm <= "00";
+     mc_in.write_data <= rom_data;
+ 
+-    rom: entity work.rom_1024x16
++    rom: entity work.rom_2048x16
+         generic map(
+             DATA_FILE => DATA_FILE)
+         port map(
+             clock => clk,
+-            address => counter(9 downto 0),
++            address => counter(10 downto 0),
+             q => rom_data);
+ 
+     process(clk)
