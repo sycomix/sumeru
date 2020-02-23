@@ -1,0 +1,26 @@
+diff --git a/cpu/cpu_stage_ifetch.vhd b/cpu/cpu_stage_ifetch.vhd
+index f834e86..0d0b5e0 100644
+--- a/cpu/cpu_stage_ifetch.vhd
++++ b/cpu/cpu_stage_ifetch.vhd
+@@ -22,7 +22,7 @@ end entity;
+ 
+ architecture synth of cpu_stage_ifetch is
+     signal icache_hit:          std_logic;
+-    signal pc:                  std_logic_vector(31 downto 0) := (others => '0');
++    signal pc:                  std_logic_vector(31 downto 0) := x"00010000";
+     signal inst:                std_logic_vector(31 downto 0);
+     signal icache_flush:        std_logic := '0';
+     signal icache_flush_ack:    std_logic;
+diff --git a/cpu/memory_loader.vhd b/cpu/memory_loader.vhd
+index d3ece1d..a6062e8 100644
+--- a/cpu/memory_loader.vhd
++++ b/cpu/memory_loader.vhd
+@@ -30,7 +30,7 @@ architecture synth of memory_loader is
+ 
+ begin
+     load_done <= counter(10);
+-    mc_in.op_addr <= "00000000000000" & counter(9 downto 0);
++    mc_in.op_addr <= "00000000100000" & counter(9 downto 0);
+     mc_in.op_start <= op_start;
+     mc_in.op_wren <= '1';
+     mc_in.op_burst <= '0';
