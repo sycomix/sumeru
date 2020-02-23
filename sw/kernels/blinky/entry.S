@@ -1,4 +1,5 @@
 #include "machine/constants.h"
+.section .text.ivector
 .globl _start, main
 _start:
 ivec:
@@ -55,6 +56,7 @@ asm_handle_interrupt:
     j intr_return
 
 1:
+    csrrwi zero,CSR_REG_TIMER_CTRL,0
     la a0,g_timer_intr_pending
     sw zero,0(a0)
     j intr_return
