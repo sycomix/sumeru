@@ -76,7 +76,6 @@ process_tx_data()
                     len - wlen);
         }
         flush_dcache_range(g_tx_drvbuf_start, g_tx_drvbuf_start + len);
-        g_tx_streambuf_cons = nptr;
         uart0_set_tx(((unsigned int)g_tx_drvbuf_start) | len);
         g_uart0_tx_active = 1;
     }
@@ -88,13 +87,14 @@ handle_interrupt(int id)
 {
     switch (id) {
         case INTR_ID_TIMER:
-            timer_set(0);
             if (g_uart0_flags & UART_FLAG_READ_TIMER)
                 process_rx_data();
             if (g_uart0_flags & UART_FLAG_WRITE_TIMER)
                 process_tx_data();
             if (g_uart0_flags & UART_FLAG_ENGINE_ON)
                 timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
+            else
+                timer_set(0);
             break;
         case INTR_ID_UART0_TX:
             g_uart0_tx_active = 0;

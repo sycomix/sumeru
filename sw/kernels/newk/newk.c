@@ -10,17 +10,15 @@
 int
 main(int argc, char *argv)
 {
-    volatile unsigned int i;
-
-    i = 0;
-    while (i++ < 10485760)
-        ;
+    char buf[128];
+    int c = 0;
 
     gpio_set_out(0);
     gpio_set_dir(1);
     uart0_start_engine();
     while (1) {
-        uart0_blocking_write("Hello World", 11);
+        uart0_blocking_read(buf, 1);
+        uart0_blocking_write(buf, 1);
     }
     return 0;
 }

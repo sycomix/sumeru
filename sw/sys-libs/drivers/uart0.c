@@ -49,7 +49,7 @@ uart0_blocking_getchar()
 
     g_uart0_flags |= UART_FLAG_READ_TIMER;
     while (g_rx_streambuf_prod == g_rx_streambuf_cons)
-        gpio_set_dummy((rdtime() >> 22) & 1);
+        gpio_set_out((rdtime() >> 22) & 1);
     g_uart0_flags &= ~UART_FLAG_READ_TIMER;
 
     c = *g_rx_streambuf_cons;
@@ -64,46 +64,48 @@ uart0_blocking_getchar()
 int
 uart0_blocking_read(unsigned char *buf, unsigned int len)
 {
-    unsigned int bytes_avail;
+    unsigned int bytes_free;
     unsigned char *nptr,*prod;
 
     len &= 0xff;                // 255 bytes max allowed, silent truncation, evil ;))
 
     prod = (unsigned char *)g_rx_streambuf_prod; //save once as isr can change this
 
-    bytes_avail = (prod >= g_rx_streambuf_cons) ?
+    bytes_free = (prod >= g_rx_streambuf_cons) ?
                     (prod - g_rx_streambuf_cons) :
                     ((g_rx_streambuf_end - g_rx_streambuf_cons) +
-                    (prod - g_rx_streambuf_start));
+                        (prod - g_rx_streambuf_start));
 
     nptr = streambuf_incr(
-            (unsigned int) g_rx_streambuf_start, 
-            (unsigned int) g_rx_streambuf_cons, 
-            len);
+                (unsigned int) g_rx_streambuf_start, 
+                (unsigned int) prod, 
+                len - bytes_free);
 
-    /* *** SEE the maginificent symmetry between the two while-s below *** */
-    if (len > bytes_avail) {
+    if (len > bytes_free) {
         g_uart0_flags |= UART_FLAG_READ_TIMER;
         if (prod < nptr) {
             while (g_rx_streambuf_prod >= prod &&
                    g_rx_streambuf_prod < nptr)
-                gpio_set_dummy((rdtime() >> 22) & 1);
+                gpio_set_out((rdtime() >> 22) & 1);
         } else {
             while (g_rx_streambuf_prod >= prod || 
                    g_rx_streambuf_prod < nptr)
-                gpio_set_dummy((rdtime() >> 22) & 1);
+                gpio_set_out((rdtime() >> 22) & 1);
         }
         g_uart0_flags &= ~UART_FLAG_READ_TIMER;
     }
 
+    nptr = streambuf_incr((unsigned int) g_rx_streambuf_start, 
+                          (unsigned int) g_rx_streambuf_cons, 
+                          len);
+
     if (g_rx_streambuf_cons <= nptr) {
         memcpy(buf, (unsigned char *)g_rx_streambuf_cons, len);
     } else {
-        bytes_avail = g_rx_streambuf_end - g_rx_streambuf_cons; 
-        memcpy(buf, (unsigned char *)g_rx_streambuf_cons, bytes_avail);
-        buf = buf + bytes_avail;
-        bytes_avail = len - bytes_avail;
-        memcpy(buf, g_rx_streambuf_start, bytes_avail);
+        bytes_free = g_rx_streambuf_end - g_rx_streambuf_cons; 
+        bytes_free = MIN(bytes_free, len);
+        memcpy(buf, (unsigned char *)g_rx_streambuf_cons, bytes_free);
+        memcpy(buf + bytes_free, g_rx_streambuf_start, len - bytes_free);
     }
 
     g_rx_streambuf_cons = nptr;
@@ -132,11 +134,11 @@ uart0_blocking_write(const unsigned char *buf, unsigned int len)
         if (cons < nptr) {
             while (g_tx_streambuf_cons >= cons &&
                    g_tx_streambuf_cons < nptr)
-                gpio_set_dummy((rdtime() >> 21) & 1);
+                gpio_set_out((rdtime() >> 21) & 1);
         } else {
             while (g_tx_streambuf_cons >= cons ||
                    g_tx_streambuf_cons < nptr)
-                gpio_set_dummy((rdtime() >> 21) & 1);
+                gpio_set_out((rdtime() >> 21) & 1);
         }
     }
 
@@ -163,6 +165,7 @@ uart0_start_engine()
     g_uart0_rx_pos = 0;
     g_uart0_tx_active = 0;
     g_uart0_flags |= (UART_FLAG_ENGINE_ON | UART_FLAG_WRITE_TIMER);
+    uart0_set_rx(((unsigned int)g_rx_drvbuf_start) | 255);
     timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
 }
 
