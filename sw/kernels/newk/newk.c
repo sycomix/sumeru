@@ -17,8 +17,8 @@ main(int argc, char *argv)
     gpio_set_dir(1);
     uart0_start_engine();
     while (1) {
-        uart0_blocking_read(buf, 1);
-        uart0_blocking_write(buf, 1);
+        fgets(buf, 128, stdin);
+        fputs(buf, stdin);
     }
     return 0;
 }
