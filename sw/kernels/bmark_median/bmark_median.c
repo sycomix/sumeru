@@ -11,6 +11,7 @@
 
 #include <machine/constants.h>
 #include <machine/csr.h>
+#include <machine/uart0.h>
 
 #include "util.h"
 
@@ -40,6 +41,7 @@ int main( int argc, char* argv[] )
 {
   int results_data[DATA_SIZE];
 
+  uart0_start_engine();
   // Do the filter
   Number_Of_Runs = 1000;
   while (1) {

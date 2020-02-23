@@ -12,6 +12,7 @@
 #include <machine/constants.h>
 #include <machine/csr.h>
 #include <machine/memctl.h>
+#include <machine/uart0.h>
 
 #include "dhrystone.h"
 
@@ -58,6 +59,7 @@ int main (int argc, char** argv)
   /* Arguments */
   Number_Of_Runs = NUMBER_OF_RUNS;
 
+  uart0_start_engine();
   /* Initializations */
 
   Next_Ptr_Glob = (Rec_Pointer) alloca (sizeof (Rec_Type));
