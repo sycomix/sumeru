@@ -61,7 +61,6 @@ process_tx_data()
                     (unsigned int) g_tx_streambuf_cons, 
                     len);
 
-        gpio_set_out(1);
         if (nptr > g_tx_streambuf_cons) {
             memcpy((unsigned char *)g_tx_drvbuf_start, 
                    (unsigned char *)g_tx_streambuf_cons, 
@@ -77,7 +76,6 @@ process_tx_data()
                     len - wlen);
         }
         flush_dcache_range(g_tx_drvbuf_start, g_tx_drvbuf_start + len);
-        gpio_set_out(0);
         g_tx_streambuf_cons = nptr;
         uart0_set_tx(((unsigned int)g_tx_drvbuf_start) | len);
         g_uart0_tx_active = 1;

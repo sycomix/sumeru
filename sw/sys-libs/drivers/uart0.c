@@ -144,7 +144,6 @@ uart0_blocking_write(const unsigned char *buf, unsigned int len)
                           (unsigned int) g_tx_streambuf_prod, 
                           len);
 
-    gpio_set_out(1);
     if (nptr > g_tx_streambuf_prod) {
         memcpy((unsigned char *)g_tx_streambuf_prod, buf, len);
     } else {
@@ -153,7 +152,6 @@ uart0_blocking_write(const unsigned char *buf, unsigned int len)
         memcpy((unsigned char *)g_tx_streambuf_prod, buf, bytes_free);
         memcpy(g_tx_streambuf_start, buf + bytes_free, len - bytes_free);
     }
-    gpio_set_out(0);
 
     g_tx_streambuf_prod = nptr;
     return len;
