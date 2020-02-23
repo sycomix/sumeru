@@ -17,7 +17,8 @@ CFLAGS += -fno-common -Os
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -I. -Iinclude -Iinclude/sumeru_rv32 -Iinclude/gcc
 
-LDFLAGS += -N -EL -gc-sections -nostdlib
+#LDFLAGS += -gc-sections
+LDFLAGS += -N -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
 OBJFILES = $(CFILES:.c=.o)

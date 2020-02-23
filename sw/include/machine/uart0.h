@@ -25,5 +25,9 @@ unsigned char* streambuf_incr(unsigned int start, unsigned int x, unsigned int l
 int     uart0_blocking_getchar();
 int     uart0_blocking_read(unsigned char *buf, unsigned int len);
 int     uart0_blocking_write(const unsigned char *buf, unsigned int len);
+size_t  uart0_blocking_write_multiple(FILE *instance, const char *buf, size_t len);
+size_t  uart0_blocking_read_multiple(FILE *instance, char *buf, size_t len);
+void    uart0_start_engine();
+void    uart0_stop_engine();
 
 #endif

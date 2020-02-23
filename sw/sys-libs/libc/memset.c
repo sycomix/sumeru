@@ -1,16 +1,15 @@
 /*
- * memcpy.c
+ * memset.c
  */
 
 #include <string.h>
 #include <stdint.h>
 
-void *memcpy(void *dst, const void *src, size_t n)
+void *memset(void *dst, int c, size_t n)
 {
-	const char *p = src;
 	char *q = dst;
 	while (n--) {
-		*q++ = *p++;
+		*q++ = c;
 	}
 	return dst;
 }

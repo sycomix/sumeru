@@ -21,7 +21,7 @@ CFLAGS += -I../../sys-libs/libc/include/gcc -I../../sys-libs/libc/include
 #CFLAGS += -DTIME
 CFLAGS += -DHZ=75000000
 
-LDFLAGS += -gc-sections
+#LDFLAGS += -gc-sections
 LDFLAGS += -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
