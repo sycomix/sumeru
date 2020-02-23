@@ -40,7 +40,7 @@ process_rx_data()
     }
 }
 
-void
+static void
 process_tx_data()
 {
     unsigned int len, wlen;
