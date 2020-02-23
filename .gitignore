@@ -28,3 +28,17 @@ sw/vhdl/*/PLLJ*.txt
 sw/vhdl/*/db
 sw/vhdl/*/incremental_db
 sw/vhdl/*/output_files
+sw/kernels/blinky/blinky
+sw/kernels/bmark_median/bmark_median
+cpu/BOOTCODE/BOOTCODE
+cpu/BOOTCODE/BOOTCODE.bin
+cpu/BOOTCODE/BOOTCODE.hex
+cpu/BOOTCODE/BOOTCODE.srec
+cpu/BOOTCODE/obj
+cpu/BOOTCODE/static-kernel-link.lds
+cpu/PLLJ_PLLSPE_INFO.txt
+cpu/db
+cpu/incremental_db
+cpu/output_files
+cpu/pll.qip
+
