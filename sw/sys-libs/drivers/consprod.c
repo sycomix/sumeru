@@ -1,3 +1,4 @@
+#include <machine/csr.h>
 #include <machine/consprod.h>
 
 void

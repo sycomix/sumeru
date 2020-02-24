@@ -9,14 +9,15 @@
 
 #define MIN(a,b)        (a <= b ? a : b)
 
-consprod_t      tx_consprod;
+consprod_t      g_tx_cp;
 
 void
 uart0_start_engine()
 {
-    consprod_init(&tx_consprod, 
+    consprod_init(&g_tx_cp, 
                     (char *)UART0_TX_STREAMBUF_START, 
                     (char *)UART0_TX_STREAMBUF_END);
+    timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
 }
 
 void
@@ -26,13 +27,13 @@ uart0_stop_engine()
 int
 uart0_blocking_write(const char *buf, unsigned int len)
 {
-    return consprod_produce(&tx_consprod, buf, len, 1);
+    return consprod_produce(&g_tx_cp, buf, len, 1);
 }
 
 int
 uart0_blocking_read(char *buf, unsigned int len)
 {
-    return consprod_consume(&tx_consprod, buf, len, 1);
+    return consprod_consume(&g_tx_cp, buf, len, 1);
 }
 
 

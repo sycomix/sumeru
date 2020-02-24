@@ -3,8 +3,8 @@
 
 #include <machine/consprod.h>
 
-extern consprod_t       tx_cp;
-extern consprod_t       rx_cp;
+extern consprod_t       g_tx_cp;
+extern consprod_t       g_rx_cp;
 
 void    uart0_start_engine();
 void    uart0_stop_engine();
