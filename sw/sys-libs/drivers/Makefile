@@ -21,8 +21,6 @@ CFLAGS += -I. -Iinclude -Iinclude/sumeru_rv32 -Iinclude/gcc
 LDFLAGS += -N -EL -nostdlib
 LDFLAGS += -static --section-start=.text=0x10000
 
-OBJFILES = $(CFILES:.c=.o)
-OBJFILES += $(ASFILES:.s=.o)
 CFLAGS += -nostdinc -nostdlib
 CFLAGS += -g -Wall -Werror -I include
 

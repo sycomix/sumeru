@@ -21,7 +21,7 @@ unsigned int            consprod_consume(consprod_t *cp,
                                         unsigned int wait);
 
 unsigned int            consprod_produce(consprod_t *cp, 
-                                        char *buf, 
+                                        const char *buf, 
                                         unsigned int len, 
                                         unsigned int wait);
 

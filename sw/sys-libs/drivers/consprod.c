@@ -45,7 +45,8 @@ consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 }
 
 unsigned int
-consprod_produce(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
+consprod_produce(
+    consprod_t *cp, const char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
 
