@@ -17,8 +17,9 @@ unsigned int
 consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
+    char *p = (char *)cp->prod;
 
-    while (x && (cp->cons != cp->prod)) {
+    while (x && (cp->cons != p)) {
         *buf = *cp->cons;
 
         x--;
@@ -33,7 +34,6 @@ consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 
     if (x > 0) {
         if (wait) {
-            char *p = (char *)cp->prod;
             while (cp->prod == p)
                 ;
             return consprod_consume(cp, buf + (len - x), x, wait);
@@ -50,9 +50,10 @@ consprod_produce(
     consprod_t *cp, const char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
+    char *c = (char *)cp->cons;
 
     while (x && 
-           ((cp->cons != cp->prod) || (cp->cons_gen == cp->prod_gen)))
+           ((c != cp->prod) || (cp->cons_gen == cp->prod_gen)))
     {
         *cp->prod = *buf;
 
@@ -68,7 +69,6 @@ consprod_produce(
 
     if (x > 0) {
         if (wait) {
-            char *c = (char *)cp->cons;
             while (cp->cons == c)
                 ;
             return consprod_produce(cp, buf + (len - x), x, wait);

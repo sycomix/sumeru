@@ -23,7 +23,6 @@ main(int argc, char *argv)
 
     while (1) {
         uart0_blocking_write("0123456789AB\n", 13);
-        gpio_set_out(1);
     }
     return 0;
 }
