@@ -14,21 +14,12 @@ consprod_init(consprod_t *cp, char *buf_start, char *buf_end)
 }
 
 char* 
-buf_next_cons(consprod_t *cp)
+cp_ptr_next(consprod_t *cp, char *ptr)
 {
-    char *c = (char *)cp->cons + 1;
-    if (c == cp->buffer_end)
-        c = cp->buffer_start;
-    return c;
-}
-
-char*
-buf_next_prod(consprod_t *cp)
-{
-    char *p = (char *)cp->prod + 1;
-    if (p == cp->buffer_end)
-        p = cp->buffer_start;
-    return p;
+    char *n = ptr + 1;
+    if (n == cp->buffer_end)
+        n = cp->buffer_start;
+    return n;
 }
 
 unsigned int
@@ -36,14 +27,14 @@ consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
     char *p = (char *)cp->prod;
-    char *c = buf_next_cons(cp);
+    char *c = cp_ptr_next(cp, (char *)cp->cons);
 
     while (x && c != p) {
         *buf = *c;
         x--;
         buf = buf + 1;
         cp->cons = c;
-        c = buf_next_cons(cp);
+        c = cp_ptr_next(cp, c);
     }
 
     if (x > 0) {
@@ -64,17 +55,16 @@ consprod_produce(
     consprod_t *cp, const char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
-    char *p = buf_next_prod(cp);
+    char *p = cp_ptr_next(cp, (char *)cp->prod);
     char *c = (char *)cp->cons;
 
     while (x && p != c)
     {
         *cp->prod = *buf;
-
         x--;
         buf = buf + 1;
         cp->prod = p;
-        p = buf_next_prod(cp);
+        p = cp_ptr_next(cp, p);
     }
 
     if (x > 0) {
