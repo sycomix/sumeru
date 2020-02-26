@@ -41,7 +41,7 @@ consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
         if (wait) {
             while (cp->prod == p)
                 ;
-            return consprod_consume(cp, buf + (len - x), x, wait);
+            return consprod_consume(cp, buf, x, wait);
         } else {
             len = len - x;
         }
@@ -71,7 +71,7 @@ consprod_produce(
         if (wait) {
             while (cp->cons == c)
                 ;
-            return consprod_produce(cp, buf + (len - x), x, wait);
+            return consprod_produce(cp, buf, x, wait);
         } else {
             len = len - x;
         }

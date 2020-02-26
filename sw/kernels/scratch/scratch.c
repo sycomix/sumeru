@@ -17,10 +17,6 @@ main(int argc, char *argv)
     gpio_set_dir(1);
     uart0_start_engine();
 
-    c = 0;
-    while (c++ < 10485760)
-        ;
-
     while (1) {
         uart0_blocking_write("0123456789AB\n", 13);
     }
