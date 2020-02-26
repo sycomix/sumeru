@@ -992,6 +992,10 @@ BEGIN
                         WHEN OTHERS => Bank3_a (Row_index) (Col_index) := Dq(7 downto 0);
                     END CASE;
 
+                END IF;
+
+                IF Dqm(1) = '0' THEN
+
                     Init_mem_b (Bank, Row_index);
 
                     -- Write to Memory
@@ -1007,7 +1011,7 @@ BEGIN
                 Burst_decode;
 
             ELSIF Data_out_enable = '1' THEN
-                IF Dqm_reg0(0) = '0' THEN
+                IF Dqm_reg0(0) = '0' or Dqm_reg0(1) = '0' THEN
                     -- Initialize Memory
                     Init_mem_a (Bank, Row_index);
 
