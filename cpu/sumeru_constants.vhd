@@ -38,12 +38,17 @@ constant CSR_REG_UART0_TX_BAUD: std_logic_vector(11 downto 0) := x"88B";
 -- RX_BAUD_A = (TX_BAUD * 3 - 16) = e.g., 326 * 3 - 16 (0x3C2)
 -- RX_BAUD_B = (TX_BAUD * 2) = e.g., 326 * 2 = 652 (0x28C)
 
--- 115200 settings
+-- 115200 @ 75MHz settings
 constant DEFAULT_UART0_TX_BAUD:   std_logic_vector(11 downto 0) := x"146";
 constant DEFAULT_UART0_RX_BAUD_A: std_logic_vector(15 downto 0) := x"03C2";
 constant DEFAULT_UART0_RX_BAUD_B: std_logic_vector(15 downto 0) := x"028C";
 
--- 9600 settings
+-- 115200 @ 72MHz settings
+-- constant DEFAULT_UART0_TX_BAUD:   std_logic_vector(11 downto 0) := x"139";
+-- constant DEFAULT_UART0_RX_BAUD_A: std_logic_vector(15 downto 0) := x"039B";
+-- constant DEFAULT_UART0_RX_BAUD_B: std_logic_vector(15 downto 0) := x"0272";
+
+-- 9600 @ 75 MHz@ 75MHz settings
 -- constant DEFAULT_UART0_TX_BAUD:   std_logic_vector(11 downto 0) := x"F48";
 -- constant DEFAULT_UART0_RX_BAUD_A: std_logic_vector(15 downto 0) := x"2D18";
 -- constant DEFAULT_UART0_RX_BAUD_B: std_logic_vector(15 downto 0) := x"1E90";
