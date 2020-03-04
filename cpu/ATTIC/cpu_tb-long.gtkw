@@ -1,0 +1,115 @@
+[*]
+[*] GTKWave Analyzer v3.3.98 (w)1999-2019 BSI
+[*] Wed Feb 26 16:59:51 2020
+[*]
+[dumpfile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb-longtest.ghw"
+[dumpfile_mtime] "Wed Feb 26 10:47:02 2020"
+[dumpfile_size] 802245567
+[savefile] "/home/r0h17/workspace-vhdl/sumeru/cpu/cpu_tb-long-sim.gtkw"
+[timestart] 22730569300000
+[size] 1912 1047
+[pos] -51 -26
+*-24.987137 22730516666000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.cpu_tb.
+[treeopen] top.cpu_tb.cpu.
+[treeopen] top.cpu_tb.cpu.idecode.
+[treeopen] top.cpu_tb.cpu.idecode.iexec_in.
+[treeopen] top.cpu_tb.cpu.idecode.iexec_out.
+[treeopen] top.cpu_tb.cpu.iexec.
+[treeopen] top.cpu_tb.cpu.ifetch.
+[treeopen] top.cpu_tb.cpu.ifetch.idecode_in.
+[treeopen] top.cpu_tb.cpu.ifetch.idecode_out.
+[treeopen] top.cpu_tb.cpu.sdram_controller.
+[treeopen] top.cpu_tb.cpu.sdram_controller.mc_in.
+[treeopen] top.cpu_tb.cpu.uart0.
+[sst_width] 300
+[signals_width] 279
+[sst_expanded] 1
+[sst_vpaned_height] 309
+@28
+top.cpu_tb.cpu.clk
+@c00200
+-UART
+@28
+top.cpu_tb.cpu.uart0.uart_rx
+top.cpu_tb.cpu.uart0.uart_tx
+@22
+#{top.cpu_tb.cpu.uart0.txd_byte[7:0]} top.cpu_tb.cpu.uart0.txd_byte[7] top.cpu_tb.cpu.uart0.txd_byte[6] top.cpu_tb.cpu.uart0.txd_byte[5] top.cpu_tb.cpu.uart0.txd_byte[4] top.cpu_tb.cpu.uart0.txd_byte[3] top.cpu_tb.cpu.uart0.txd_byte[2] top.cpu_tb.cpu.uart0.txd_byte[1] top.cpu_tb.cpu.uart0.txd_byte[0]
+@1401200
+-UART
+@c00200
+-SDRAM
+@28
+top.cpu_tb.cpu.sdram_controller.mc_in.op_start
+top.cpu_tb.cpu.sdram_controller.mc_in.op_wren
+top.cpu_tb.cpu.sdram_controller.mc_in.op_burst
+top.cpu_tb.cpu.sdram_controller.mc_out.op_strobe
+@22
+#{top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[23:0]} top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[23] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[22] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[21] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[20] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[19] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[18] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[17] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[16] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[15] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[14] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[13] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[12] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[11] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[10] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[9] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[8] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[7] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[6] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[5] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[4] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[3] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[2] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[1] top.cpu_tb.cpu.sdram_controller.mc_in.op_addr[0]
+@28
+#{top.cpu_tb.cpu.sdram_controller.mc_in.op_dqm[1:0]} top.cpu_tb.cpu.sdram_controller.mc_in.op_dqm[1] top.cpu_tb.cpu.sdram_controller.mc_in.op_dqm[0]
+@22
+#{top.cpu_tb.cpu.sdram_controller.mc_in.write_data[15:0]} top.cpu_tb.cpu.sdram_controller.mc_in.write_data[15] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[14] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[13] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[12] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[11] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[10] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[9] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[8] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[7] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[6] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[5] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[4] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[3] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[2] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[1] top.cpu_tb.cpu.sdram_controller.mc_in.write_data[0]
+#{top.cpu_tb.cpu.sdram_controller.data_out[15:0]} top.cpu_tb.cpu.sdram_controller.data_out[15] top.cpu_tb.cpu.sdram_controller.data_out[14] top.cpu_tb.cpu.sdram_controller.data_out[13] top.cpu_tb.cpu.sdram_controller.data_out[12] top.cpu_tb.cpu.sdram_controller.data_out[11] top.cpu_tb.cpu.sdram_controller.data_out[10] top.cpu_tb.cpu.sdram_controller.data_out[9] top.cpu_tb.cpu.sdram_controller.data_out[8] top.cpu_tb.cpu.sdram_controller.data_out[7] top.cpu_tb.cpu.sdram_controller.data_out[6] top.cpu_tb.cpu.sdram_controller.data_out[5] top.cpu_tb.cpu.sdram_controller.data_out[4] top.cpu_tb.cpu.sdram_controller.data_out[3] top.cpu_tb.cpu.sdram_controller.data_out[2] top.cpu_tb.cpu.sdram_controller.data_out[1] top.cpu_tb.cpu.sdram_controller.data_out[0]
+@420
+top.cpu_tb.cpu.sdram_controller.state
+@22
+#{top.cpu_tb.cpu.sdram_controller.command[3:0]} top.cpu_tb.cpu.sdram_controller.command[3] top.cpu_tb.cpu.sdram_controller.command[2] top.cpu_tb.cpu.sdram_controller.command[1] top.cpu_tb.cpu.sdram_controller.command[0]
+@28
+#{top.cpu_tb.cpu.sdram_controller.sdram_dqm[1:0]} top.cpu_tb.cpu.sdram_controller.sdram_dqm[1] top.cpu_tb.cpu.sdram_controller.sdram_dqm[0]
+#{top.cpu_tb.cpu.sdram_controller.sdram_ba[1:0]} top.cpu_tb.cpu.sdram_controller.sdram_ba[1] top.cpu_tb.cpu.sdram_controller.sdram_ba[0]
+@22
+#{top.cpu_tb.cpu.sdram_controller.sdram_addr[12:0]} top.cpu_tb.cpu.sdram_controller.sdram_addr[12] top.cpu_tb.cpu.sdram_controller.sdram_addr[11] top.cpu_tb.cpu.sdram_controller.sdram_addr[10] top.cpu_tb.cpu.sdram_controller.sdram_addr[9] top.cpu_tb.cpu.sdram_controller.sdram_addr[8] top.cpu_tb.cpu.sdram_controller.sdram_addr[7] top.cpu_tb.cpu.sdram_controller.sdram_addr[6] top.cpu_tb.cpu.sdram_controller.sdram_addr[5] top.cpu_tb.cpu.sdram_controller.sdram_addr[4] top.cpu_tb.cpu.sdram_controller.sdram_addr[3] top.cpu_tb.cpu.sdram_controller.sdram_addr[2] top.cpu_tb.cpu.sdram_controller.sdram_addr[1] top.cpu_tb.cpu.sdram_controller.sdram_addr[0]
+#{top.cpu_tb.cpu.sdram_controller.sdram_data[15:0]} top.cpu_tb.cpu.sdram_controller.sdram_data[15] top.cpu_tb.cpu.sdram_controller.sdram_data[14] top.cpu_tb.cpu.sdram_controller.sdram_data[13] top.cpu_tb.cpu.sdram_controller.sdram_data[12] top.cpu_tb.cpu.sdram_controller.sdram_data[11] top.cpu_tb.cpu.sdram_controller.sdram_data[10] top.cpu_tb.cpu.sdram_controller.sdram_data[9] top.cpu_tb.cpu.sdram_controller.sdram_data[8] top.cpu_tb.cpu.sdram_controller.sdram_data[7] top.cpu_tb.cpu.sdram_controller.sdram_data[6] top.cpu_tb.cpu.sdram_controller.sdram_data[5] top.cpu_tb.cpu.sdram_controller.sdram_data[4] top.cpu_tb.cpu.sdram_controller.sdram_data[3] top.cpu_tb.cpu.sdram_controller.sdram_data[2] top.cpu_tb.cpu.sdram_controller.sdram_data[1] top.cpu_tb.cpu.sdram_controller.sdram_data[0]
+@1401200
+-SDRAM
+@800200
+-IFETCH
+@23
+#{top.cpu_tb.cpu.ifetch.idecode_in.pc[31:0]} top.cpu_tb.cpu.ifetch.idecode_in.pc[31] top.cpu_tb.cpu.ifetch.idecode_in.pc[30] top.cpu_tb.cpu.ifetch.idecode_in.pc[29] top.cpu_tb.cpu.ifetch.idecode_in.pc[28] top.cpu_tb.cpu.ifetch.idecode_in.pc[27] top.cpu_tb.cpu.ifetch.idecode_in.pc[26] top.cpu_tb.cpu.ifetch.idecode_in.pc[25] top.cpu_tb.cpu.ifetch.idecode_in.pc[24] top.cpu_tb.cpu.ifetch.idecode_in.pc[23] top.cpu_tb.cpu.ifetch.idecode_in.pc[22] top.cpu_tb.cpu.ifetch.idecode_in.pc[21] top.cpu_tb.cpu.ifetch.idecode_in.pc[20] top.cpu_tb.cpu.ifetch.idecode_in.pc[19] top.cpu_tb.cpu.ifetch.idecode_in.pc[18] top.cpu_tb.cpu.ifetch.idecode_in.pc[17] top.cpu_tb.cpu.ifetch.idecode_in.pc[16] top.cpu_tb.cpu.ifetch.idecode_in.pc[15] top.cpu_tb.cpu.ifetch.idecode_in.pc[14] top.cpu_tb.cpu.ifetch.idecode_in.pc[13] top.cpu_tb.cpu.ifetch.idecode_in.pc[12] top.cpu_tb.cpu.ifetch.idecode_in.pc[11] top.cpu_tb.cpu.ifetch.idecode_in.pc[10] top.cpu_tb.cpu.ifetch.idecode_in.pc[9] top.cpu_tb.cpu.ifetch.idecode_in.pc[8] top.cpu_tb.cpu.ifetch.idecode_in.pc[7] top.cpu_tb.cpu.ifetch.idecode_in.pc[6] top.cpu_tb.cpu.ifetch.idecode_in.pc[5] top.cpu_tb.cpu.ifetch.idecode_in.pc[4] top.cpu_tb.cpu.ifetch.idecode_in.pc[3] top.cpu_tb.cpu.ifetch.idecode_in.pc[2] top.cpu_tb.cpu.ifetch.idecode_in.pc[1] top.cpu_tb.cpu.ifetch.idecode_in.pc[0]
+@22
+#{top.cpu_tb.cpu.ifetch.idecode_in.inst[31:0]} top.cpu_tb.cpu.ifetch.idecode_in.inst[31] top.cpu_tb.cpu.ifetch.idecode_in.inst[30] top.cpu_tb.cpu.ifetch.idecode_in.inst[29] top.cpu_tb.cpu.ifetch.idecode_in.inst[28] top.cpu_tb.cpu.ifetch.idecode_in.inst[27] top.cpu_tb.cpu.ifetch.idecode_in.inst[26] top.cpu_tb.cpu.ifetch.idecode_in.inst[25] top.cpu_tb.cpu.ifetch.idecode_in.inst[24] top.cpu_tb.cpu.ifetch.idecode_in.inst[23] top.cpu_tb.cpu.ifetch.idecode_in.inst[22] top.cpu_tb.cpu.ifetch.idecode_in.inst[21] top.cpu_tb.cpu.ifetch.idecode_in.inst[20] top.cpu_tb.cpu.ifetch.idecode_in.inst[19] top.cpu_tb.cpu.ifetch.idecode_in.inst[18] top.cpu_tb.cpu.ifetch.idecode_in.inst[17] top.cpu_tb.cpu.ifetch.idecode_in.inst[16] top.cpu_tb.cpu.ifetch.idecode_in.inst[15] top.cpu_tb.cpu.ifetch.idecode_in.inst[14] top.cpu_tb.cpu.ifetch.idecode_in.inst[13] top.cpu_tb.cpu.ifetch.idecode_in.inst[12] top.cpu_tb.cpu.ifetch.idecode_in.inst[11] top.cpu_tb.cpu.ifetch.idecode_in.inst[10] top.cpu_tb.cpu.ifetch.idecode_in.inst[9] top.cpu_tb.cpu.ifetch.idecode_in.inst[8] top.cpu_tb.cpu.ifetch.idecode_in.inst[7] top.cpu_tb.cpu.ifetch.idecode_in.inst[6] top.cpu_tb.cpu.ifetch.idecode_in.inst[5] top.cpu_tb.cpu.ifetch.idecode_in.inst[4] top.cpu_tb.cpu.ifetch.idecode_in.inst[3] top.cpu_tb.cpu.ifetch.idecode_in.inst[2] top.cpu_tb.cpu.ifetch.idecode_in.inst[1] top.cpu_tb.cpu.ifetch.idecode_in.inst[0]
+#{top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[31:0]} top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[31] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[30] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[29] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[28] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[27] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[26] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[25] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[24] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[23] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[22] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[21] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[20] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[19] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[18] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[17] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[16] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[15] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[14] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[13] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[12] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[11] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[10] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[9] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[8] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[7] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[6] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[5] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[4] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[3] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[2] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[1] top.cpu_tb.cpu.ifetch.idecode_out.cxfer_pc[0]
+@28
+top.cpu_tb.cpu.ifetch.idecode_in.valid
+@1000200
+-IFETCH
+@800200
+-IDECODE
+@28
+top.cpu_tb.cpu.idecode.iexec_in.cmd_use_reg
+#{top.cpu_tb.cpu.idecode.iexec_in.cmd[2:0]} top.cpu_tb.cpu.idecode.iexec_in.cmd[2] top.cpu_tb.cpu.idecode.iexec_in.cmd[1] top.cpu_tb.cpu.idecode.iexec_in.cmd[0]
+@22
+#{top.cpu_tb.cpu.idecode.iexec_in.cmd_op[3:0]} top.cpu_tb.cpu.idecode.iexec_in.cmd_op[3] top.cpu_tb.cpu.idecode.iexec_in.cmd_op[2] top.cpu_tb.cpu.idecode.iexec_in.cmd_op[1] top.cpu_tb.cpu.idecode.iexec_in.cmd_op[0]
+@28
+top.cpu_tb.cpu.idecode.iexec_in.trigger_cxfer
+@22
+#{top.cpu_tb.cpu.idecode.iexec_in.imm[31:0]} top.cpu_tb.cpu.idecode.iexec_in.imm[31] top.cpu_tb.cpu.idecode.iexec_in.imm[30] top.cpu_tb.cpu.idecode.iexec_in.imm[29] top.cpu_tb.cpu.idecode.iexec_in.imm[28] top.cpu_tb.cpu.idecode.iexec_in.imm[27] top.cpu_tb.cpu.idecode.iexec_in.imm[26] top.cpu_tb.cpu.idecode.iexec_in.imm[25] top.cpu_tb.cpu.idecode.iexec_in.imm[24] top.cpu_tb.cpu.idecode.iexec_in.imm[23] top.cpu_tb.cpu.idecode.iexec_in.imm[22] top.cpu_tb.cpu.idecode.iexec_in.imm[21] top.cpu_tb.cpu.idecode.iexec_in.imm[20] top.cpu_tb.cpu.idecode.iexec_in.imm[19] top.cpu_tb.cpu.idecode.iexec_in.imm[18] top.cpu_tb.cpu.idecode.iexec_in.imm[17] top.cpu_tb.cpu.idecode.iexec_in.imm[16] top.cpu_tb.cpu.idecode.iexec_in.imm[15] top.cpu_tb.cpu.idecode.iexec_in.imm[14] top.cpu_tb.cpu.idecode.iexec_in.imm[13] top.cpu_tb.cpu.idecode.iexec_in.imm[12] top.cpu_tb.cpu.idecode.iexec_in.imm[11] top.cpu_tb.cpu.idecode.iexec_in.imm[10] top.cpu_tb.cpu.idecode.iexec_in.imm[9] top.cpu_tb.cpu.idecode.iexec_in.imm[8] top.cpu_tb.cpu.idecode.iexec_in.imm[7] top.cpu_tb.cpu.idecode.iexec_in.imm[6] top.cpu_tb.cpu.idecode.iexec_in.imm[5] top.cpu_tb.cpu.idecode.iexec_in.imm[4] top.cpu_tb.cpu.idecode.iexec_in.imm[3] top.cpu_tb.cpu.idecode.iexec_in.imm[2] top.cpu_tb.cpu.idecode.iexec_in.imm[1] top.cpu_tb.cpu.idecode.iexec_in.imm[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.rs1[4:0]} top.cpu_tb.cpu.idecode.iexec_in.rs1[4] top.cpu_tb.cpu.idecode.iexec_in.rs1[3] top.cpu_tb.cpu.idecode.iexec_in.rs1[2] top.cpu_tb.cpu.idecode.iexec_in.rs1[1] top.cpu_tb.cpu.idecode.iexec_in.rs1[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.rs2[4:0]} top.cpu_tb.cpu.idecode.iexec_in.rs2[4] top.cpu_tb.cpu.idecode.iexec_in.rs2[3] top.cpu_tb.cpu.idecode.iexec_in.rs2[2] top.cpu_tb.cpu.idecode.iexec_in.rs2[1] top.cpu_tb.cpu.idecode.iexec_in.rs2[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.rs2[4:0]} top.cpu_tb.cpu.idecode.iexec_in.rs2[4] top.cpu_tb.cpu.idecode.iexec_in.rs2[3] top.cpu_tb.cpu.idecode.iexec_in.rs2[2] top.cpu_tb.cpu.idecode.iexec_in.rs2[1] top.cpu_tb.cpu.idecode.iexec_in.rs2[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.rd[4:0]} top.cpu_tb.cpu.idecode.iexec_in.rd[4] top.cpu_tb.cpu.idecode.iexec_in.rd[3] top.cpu_tb.cpu.idecode.iexec_in.rd[2] top.cpu_tb.cpu.idecode.iexec_in.rd[1] top.cpu_tb.cpu.idecode.iexec_in.rd[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.csr_reg[11:0]} top.cpu_tb.cpu.idecode.iexec_in.csr_reg[11] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[10] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[9] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[8] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[7] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[6] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[5] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[4] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[3] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[2] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[1] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[0]
+#{top.cpu_tb.cpu.idecode.iexec_in.csr_reg[11:0]} top.cpu_tb.cpu.idecode.iexec_in.csr_reg[11] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[10] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[9] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[8] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[7] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[6] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[5] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[4] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[3] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[2] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[1] top.cpu_tb.cpu.idecode.iexec_in.csr_reg[0]
+@28
+top.cpu_tb.cpu.idecode.iexec_in.valid
+@1000200
+-IDECODE
+@800200
+-IEXEC
+@28
+top.cpu_tb.cpu.idecode.iexec_out.busy
+top.cpu_tb.cpu.idecode.iexec_out.cxfer
+@22
+#{top.cpu_tb.cpu.iexec.op_a[31:0]} top.cpu_tb.cpu.iexec.op_a[31] top.cpu_tb.cpu.iexec.op_a[30] top.cpu_tb.cpu.iexec.op_a[29] top.cpu_tb.cpu.iexec.op_a[28] top.cpu_tb.cpu.iexec.op_a[27] top.cpu_tb.cpu.iexec.op_a[26] top.cpu_tb.cpu.iexec.op_a[25] top.cpu_tb.cpu.iexec.op_a[24] top.cpu_tb.cpu.iexec.op_a[23] top.cpu_tb.cpu.iexec.op_a[22] top.cpu_tb.cpu.iexec.op_a[21] top.cpu_tb.cpu.iexec.op_a[20] top.cpu_tb.cpu.iexec.op_a[19] top.cpu_tb.cpu.iexec.op_a[18] top.cpu_tb.cpu.iexec.op_a[17] top.cpu_tb.cpu.iexec.op_a[16] top.cpu_tb.cpu.iexec.op_a[15] top.cpu_tb.cpu.iexec.op_a[14] top.cpu_tb.cpu.iexec.op_a[13] top.cpu_tb.cpu.iexec.op_a[12] top.cpu_tb.cpu.iexec.op_a[11] top.cpu_tb.cpu.iexec.op_a[10] top.cpu_tb.cpu.iexec.op_a[9] top.cpu_tb.cpu.iexec.op_a[8] top.cpu_tb.cpu.iexec.op_a[7] top.cpu_tb.cpu.iexec.op_a[6] top.cpu_tb.cpu.iexec.op_a[5] top.cpu_tb.cpu.iexec.op_a[4] top.cpu_tb.cpu.iexec.op_a[3] top.cpu_tb.cpu.iexec.op_a[2] top.cpu_tb.cpu.iexec.op_a[1] top.cpu_tb.cpu.iexec.op_a[0]
+#{top.cpu_tb.cpu.iexec.op_b[31:0]} top.cpu_tb.cpu.iexec.op_b[31] top.cpu_tb.cpu.iexec.op_b[30] top.cpu_tb.cpu.iexec.op_b[29] top.cpu_tb.cpu.iexec.op_b[28] top.cpu_tb.cpu.iexec.op_b[27] top.cpu_tb.cpu.iexec.op_b[26] top.cpu_tb.cpu.iexec.op_b[25] top.cpu_tb.cpu.iexec.op_b[24] top.cpu_tb.cpu.iexec.op_b[23] top.cpu_tb.cpu.iexec.op_b[22] top.cpu_tb.cpu.iexec.op_b[21] top.cpu_tb.cpu.iexec.op_b[20] top.cpu_tb.cpu.iexec.op_b[19] top.cpu_tb.cpu.iexec.op_b[18] top.cpu_tb.cpu.iexec.op_b[17] top.cpu_tb.cpu.iexec.op_b[16] top.cpu_tb.cpu.iexec.op_b[15] top.cpu_tb.cpu.iexec.op_b[14] top.cpu_tb.cpu.iexec.op_b[13] top.cpu_tb.cpu.iexec.op_b[12] top.cpu_tb.cpu.iexec.op_b[11] top.cpu_tb.cpu.iexec.op_b[10] top.cpu_tb.cpu.iexec.op_b[9] top.cpu_tb.cpu.iexec.op_b[8] top.cpu_tb.cpu.iexec.op_b[7] top.cpu_tb.cpu.iexec.op_b[6] top.cpu_tb.cpu.iexec.op_b[5] top.cpu_tb.cpu.iexec.op_b[4] top.cpu_tb.cpu.iexec.op_b[3] top.cpu_tb.cpu.iexec.op_b[2] top.cpu_tb.cpu.iexec.op_b[1] top.cpu_tb.cpu.iexec.op_b[0]
+@28
+#{top.cpu_tb.cpu.iexec.cmd_result_mux[2:0]} top.cpu_tb.cpu.iexec.cmd_result_mux[2] top.cpu_tb.cpu.iexec.cmd_result_mux[1] top.cpu_tb.cpu.iexec.cmd_result_mux[0]
+top.cpu_tb.cpu.iexec.cxfer_mux
+@22
+#{top.cpu_tb.cpu.iexec.rd_write_data[31:0]} top.cpu_tb.cpu.iexec.rd_write_data[31] top.cpu_tb.cpu.iexec.rd_write_data[30] top.cpu_tb.cpu.iexec.rd_write_data[29] top.cpu_tb.cpu.iexec.rd_write_data[28] top.cpu_tb.cpu.iexec.rd_write_data[27] top.cpu_tb.cpu.iexec.rd_write_data[26] top.cpu_tb.cpu.iexec.rd_write_data[25] top.cpu_tb.cpu.iexec.rd_write_data[24] top.cpu_tb.cpu.iexec.rd_write_data[23] top.cpu_tb.cpu.iexec.rd_write_data[22] top.cpu_tb.cpu.iexec.rd_write_data[21] top.cpu_tb.cpu.iexec.rd_write_data[20] top.cpu_tb.cpu.iexec.rd_write_data[19] top.cpu_tb.cpu.iexec.rd_write_data[18] top.cpu_tb.cpu.iexec.rd_write_data[17] top.cpu_tb.cpu.iexec.rd_write_data[16] top.cpu_tb.cpu.iexec.rd_write_data[15] top.cpu_tb.cpu.iexec.rd_write_data[14] top.cpu_tb.cpu.iexec.rd_write_data[13] top.cpu_tb.cpu.iexec.rd_write_data[12] top.cpu_tb.cpu.iexec.rd_write_data[11] top.cpu_tb.cpu.iexec.rd_write_data[10] top.cpu_tb.cpu.iexec.rd_write_data[9] top.cpu_tb.cpu.iexec.rd_write_data[8] top.cpu_tb.cpu.iexec.rd_write_data[7] top.cpu_tb.cpu.iexec.rd_write_data[6] top.cpu_tb.cpu.iexec.rd_write_data[5] top.cpu_tb.cpu.iexec.rd_write_data[4] top.cpu_tb.cpu.iexec.rd_write_data[3] top.cpu_tb.cpu.iexec.rd_write_data[2] top.cpu_tb.cpu.iexec.rd_write_data[1] top.cpu_tb.cpu.iexec.rd_write_data[0]
+@1000200
+-IEXEC
+[pattern_trace] 1
+[pattern_trace] 0
