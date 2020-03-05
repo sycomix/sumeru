@@ -18,7 +18,8 @@ main(int argc, char *argv)
     uart0_start_engine();
 
     while (1) {
-        uart0_blocking_write("0123456789AB\n", 13);
+        fgets(buf, 128, stdin);
+        fputs(buf, stdout);
     }
     return 0;
 }
