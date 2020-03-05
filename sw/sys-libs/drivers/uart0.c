@@ -9,31 +9,43 @@
 
 #define MIN(a,b)        (a <= b ? a : b)
 
-consprod_t      g_tx_cp;
+consprod_t      g_uart0_tx_cp;
+consprod_t      g_uart0_rx_cp;
+unsigned int    g_uart0_flags = 0;
 
 void
 uart0_start_engine()
 {
-    consprod_init(&g_tx_cp, 
+    consprod_init(&g_uart0_tx_cp, 
                     (char *)UART0_TX_STREAMBUF_START, 
                     (char *)UART0_TX_STREAMBUF_END);
+
+    consprod_init(&g_uart0_rx_cp, 
+                    (char *)UART0_RX_STREAMBUF_START, 
+                    (char *)UART0_RX_STREAMBUF_END);
+
+    g_uart0_flags = UART0_ENGINE_ON;
     timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
+    uart0_set_rx(UART0_RX_DRVBUF_START | 255);
 }
 
 void
 uart0_stop_engine()
-{ }
+{
+    g_uart0_flags = 0;
+    uart0_set_rx(UART0_RX_DRVBUF_START);
+}
 
 int
 uart0_blocking_write(const char *buf, unsigned int len)
 {
-    return consprod_produce(&g_tx_cp, buf, len, 1);
+    return consprod_produce(&g_uart0_tx_cp, buf, len, 1);
 }
 
 int
 uart0_blocking_read(char *buf, unsigned int len)
 {
-    return consprod_consume(&g_tx_cp, buf, len, 1);
+    return consprod_consume(&g_uart0_rx_cp, buf, len, 1);
 }
 
 
@@ -59,7 +71,7 @@ uart0_blocking_read_multiple(FILE *instance, char *buf, size_t len)
 
     while (r < len) {
         count = MIN(255, len - r);
-        //uart0_blocking_read(buf + r, count);
+        uart0_blocking_read(buf + r, count);
         r += count;
     }
     return r;
