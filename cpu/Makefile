@@ -27,7 +27,6 @@ SRCS = sumeru_constants.vhd \
         csr_gpio.vhd \
         csr_timer.vhd \
         csr_counters.vhd \
-        csr_misc.vhd \
         csr_uart_rs232.vhd \
         intr_controller.vhd \
 	${TOPLEVEL}.vhd \
@@ -66,7 +65,6 @@ ${TOPLEVEL}.o: cpu_types.o \
         csr_gpio.o \
         csr_timer.o \
         csr_counters.o \
-        csr_misc.o \
         csr_uart_rs232.o \
         intr_controller.o
 
@@ -81,7 +79,6 @@ cpu_shift.o: cpu_types.o
 csr_gpio.o: cpu_types.o sumeru_constants.o
 csr_timer.o: cpu_types.o sumeru_constants.o
 csr_counters.o: cpu_types.o sumeru_constants.o
-csr_misc.o: cpu_types.o sumeru_constants.o
 csr_uart_rs232.o: cpu_types.o sumeru_constants.o periph_dma.o
 cpu_muldiv.o: cpu_types.o cpu_mult.o cpu_div.o
 cpu_mult.o: cpu_types.o

@@ -19,15 +19,10 @@ port(
     csr_sel_result:             inout std_logic_vector(31 downto 0);
     clk_instret:                out std_logic;
     intr_out:                   in intr_channel_out_t;
-    intr_reset:                 out std_logic;
-    ivector_addr:               in std_logic_vector(23 downto 0);
-    ctx_pc_save:                out std_logic_vector(31 downto 0);
-    ctx_pc_switch:              in std_logic_vector(31 downto 0)
-    );
+    intr_reset:                 out std_logic);
 end entity;
 
 architecture synth of cpu_stage_iexec is
-    signal ctx_pc_save_r:       std_logic_vector(31 downto 0);
     signal regfile_wren:        std_logic := '0';
     signal regfile_wren_nz:     std_logic;
     signal regfile_wraddr:      std_logic_vector(4 downto 0) := (others => '0');
@@ -112,9 +107,12 @@ architecture synth of cpu_stage_iexec is
         return std_logic_vector(resize(unsigned(x), n));
     end function;
 
+    signal ctx_pc_save_r:       std_logic_vector(31 downto 0) := (others => '0');
+    signal ctx_pc_switch_r:     std_logic_vector(31 downto 0) := (others => '0');
+    signal ivector_addr_r:      std_logic_vector(31 downto 0) := (others => '0');
+
 begin
     clk_instret <= clk_instret_r;
-    ctx_pc_save <= ctx_pc_save_r;
     intr_reset <= intr_reset_r;
 
     regfile_a: entity work.ram2p_simp_32x32
@@ -309,7 +307,7 @@ begin
                     elsif (iexec_in.cmd = CMD_CSR) then
                         if (iexec_in.csr_reg = CSR_REG_SWITCH) then
                             trigger_cxfer <= '1';
-                            cxfer_pc <= ctx_pc_switch;
+                            cxfer_pc <= ctx_pc_switch_r;
                             intr_reset_r <= '1';
                         else
                             trigger_cxfer <= '0';
@@ -319,7 +317,7 @@ begin
                     elsif (intr_out.intr_trigger /= intr_trigger_save) then
                         intr_trigger_save <= not intr_trigger_save;
                         trigger_cxfer <= '1';
-                        cxfer_pc <= ivector_addr & intr_out.intr_vec & "0000";
+                        cxfer_pc <= ivector_addr_r(31 downto 8) & intr_out.intr_vec & "0000";
                         ctx_pc_save_r <= iexec_in.intr_nextpc;
                     else
                         trigger_cxfer <= '0';
@@ -407,5 +405,24 @@ begin
             end if;
         end if;
     end process;
+
+csr_sel_result <=
+    ctx_pc_save_r when csr_in.csr_sel_reg = CSR_REG_CTX_PCSAVE else
+    "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+
+process(clk)
+begin
+    if (rising_edge(clk)) then
+        if (csr_in.csr_op_valid = '1') then
+            case csr_in.csr_op_reg is 
+                when CSR_REG_IVECTOR_ADDR =>
+                    ivector_addr_r <= csr_in.csr_op_data;
+                when CSR_REG_CTX_PCSWITCH =>
+                    ctx_pc_switch_r <= csr_in.csr_op_data;
+                when others =>
+            end case;
+        end if;
+    end if;
+end process;
 
 end architecture;

@@ -78,16 +78,11 @@ architecture synth of cpu is
     signal clk_cycle:           std_logic;
     signal clk_instret:         std_logic;
 
-    signal ctx_pc_save:         std_logic_vector(31 downto 0);
-    signal ctx_pc_switch:       std_logic_vector(31 downto 0);
-
     signal intr_out:            intr_channel_out_t;
     signal intr_reset:          std_logic;
     signal timer_intr_trigger:  std_logic;
     signal uart0_tx_intr_toggle: std_logic;
     signal uart0_rx_intr_toggle: std_logic;
-
-    signal ivector_addr:        std_logic_vector(23 downto 0);
 
     signal pdma_in:             periph_dma_channel_in_t := ('0', (others => '0'), '0', (others => '0'), (others => '0'));
     signal pdma_out:            periph_dma_channel_out_t := ('0', (others => '0'), '0');
@@ -209,10 +204,7 @@ iexec: entity work.cpu_stage_iexec
         csr_sel_result => csr_sel_result,
         clk_instret => clk_instret,
         intr_out => intr_out,
-        intr_reset => intr_reset,
-        ivector_addr => ivector_addr,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
+        intr_reset => intr_reset
         );
 
 csr_gpio: entity work.csr_gpio
@@ -239,16 +231,6 @@ csr_counters: entity work.csr_counters
         csr_sel_result => csr_sel_result,
         clk_cycle => clk_cycle,
         clk_instret => clk_instret
-        );
-
-csr_misc: entity work.csr_misc
-    port map(
-        clk => clk,
-        csr_in => csr_in,
-        csr_sel_result => csr_sel_result,
-        ivector_addr => ivector_addr,
-        ctx_pc_save => ctx_pc_save,
-        ctx_pc_switch => ctx_pc_switch
         );
 
 intr_controller: entity work.intr_controller
