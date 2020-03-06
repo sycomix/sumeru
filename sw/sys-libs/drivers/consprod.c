@@ -8,10 +8,8 @@ consprod_init(consprod_t *cp, char *buf_start, char *buf_end)
     cp->buffer_end = buf_end;
     cp->prod = buf_start + 1;
     cp->cons = buf_start;
-    cp->prod_gen = 0;
-    cp->cons_gen = 0;
-    cp->flags = 0;
 }
+
 
 char* 
 cp_ptr_next(consprod_t *cp, char *ptr)
@@ -22,8 +20,10 @@ cp_ptr_next(consprod_t *cp, char *ptr)
     return n;
 }
 
+
 unsigned int
-consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
+consprod_consume(
+    consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 {
     unsigned int x = len;
     char *p = (char *)cp->prod;
@@ -49,6 +49,7 @@ consprod_consume(consprod_t *cp, char *buf, unsigned int len, unsigned int wait)
 
     return len;
 }
+
 
 unsigned int
 consprod_produce(

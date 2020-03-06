@@ -11,7 +11,9 @@
 
 consprod_t      g_uart0_tx_cp;
 consprod_t      g_uart0_rx_cp;
-unsigned int    g_uart0_flags = 0;
+volatile unsigned int g_uart0_flags = 0;
+volatile unsigned int g_uart0_rx_lastpos = 0;
+volatile unsigned int g_uart0_rx_timer_enable = 0;
 
 void
 uart0_start_engine()
@@ -25,8 +27,9 @@ uart0_start_engine()
                     (char *)UART0_RX_STREAMBUF_END);
 
     g_uart0_flags = UART0_ENGINE_ON;
-    timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
+    g_uart0_rx_lastpos = 0;
     uart0_set_rx(UART0_RX_DRVBUF_START | 255);
+    timer_set(UART_ENGINE_TIMER_TICKS | 0xf);
 }
 
 void

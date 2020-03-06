@@ -6,9 +6,6 @@ typedef struct consprod {
     char                        *buffer_end;
     volatile char               * volatile prod;
     volatile char               * volatile cons;
-    unsigned int                prod_gen;
-    unsigned int                cons_gen;
-    unsigned int                flags;
 } consprod_t;
 
 void                    consprod_init(consprod_t *cp, 
