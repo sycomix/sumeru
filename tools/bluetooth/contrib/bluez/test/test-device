@@ -26,47 +26,47 @@ parser = OptionParser(option_list=option_list)
 (options, args) = parser.parse_args()
 
 if (len(args) < 1):
-	print("Usage: %s <command>" % (sys.argv[0]))
-	print("")
-	print("  list")
-	print("  create <address>")
-	print("  remove <address|path>")
-	print("  connect <address> [profile]")
-	print("  disconnect <address> [profile]")
-	print("  class <address>")
-	print("  name <address>")
-	print("  alias <address> [alias]")
-	print("  trusted <address> [yes/no]")
-	print("  blocked <address> [yes/no]")
-	sys.exit(1)
+  print(f"Usage: {sys.argv[0]} <command>")
+  print("")
+  print("  list")
+  print("  create <address>")
+  print("  remove <address|path>")
+  print("  connect <address> [profile]")
+  print("  disconnect <address> [profile]")
+  print("  class <address>")
+  print("  name <address>")
+  print("  alias <address> [alias]")
+  print("  trusted <address> [yes/no]")
+  print("  blocked <address> [yes/no]")
+  sys.exit(1)
 
 if (args[0] == "list"):
-	adapter = bluezutils.find_adapter(options.dev_id)
-	adapter_path = adapter.object_path
+  adapter = bluezutils.find_adapter(options.dev_id)
+  adapter_path = adapter.object_path
 
-	om = dbus.Interface(bus.get_object("org.bluez", "/"),
-					"org.freedesktop.DBus.ObjectManager")
-	objects = om.GetManagedObjects()
+  om = dbus.Interface(bus.get_object("org.bluez", "/"),
+  				"org.freedesktop.DBus.ObjectManager")
+  objects = om.GetManagedObjects()
 
-	for path, interfaces in objects.iteritems():
-		if "org.bluez.Device1" not in interfaces:
-			continue
-		properties = interfaces["org.bluez.Device1"]
-		if properties["Adapter"] != adapter_path:
-			continue;
-		print("%s %s" % (properties["Address"], properties["Alias"]))
+  for path, interfaces in objects.iteritems():
+    if "org.bluez.Device1" not in interfaces:
+    	continue
+    properties = interfaces["org.bluez.Device1"]
+    if properties["Adapter"] != adapter_path:
+    	continue;
+    print(f'{properties["Address"]} {properties["Alias"]}')
 
-	sys.exit(0)
+  sys.exit(0)
 
 def create_device_reply(device):
-	print("New device (%s)" % device)
-	mainloop.quit()
-	sys.exit(0)
+  print(f"New device ({device})")
+  mainloop.quit()
+  sys.exit(0)
 
 def create_device_error(error):
-	print("Creating device failed: %s" % error)
-	mainloop.quit()
-	sys.exit(1)
+  print(f"Creating device failed: {error}")
+  mainloop.quit()
+  sys.exit(1)
 
 if (args[0] == "create"):
 	if (len(args) < 2):

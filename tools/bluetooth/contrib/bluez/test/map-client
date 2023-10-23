@@ -22,23 +22,23 @@ MESSAGE_INTERFACE = 'org.bluez.obex.Message1'
 TRANSFER_INTERFACE = 'org.bluez.obex.Transfer1'
 
 def unwrap(x):
-    """Hack to unwrap D-Bus values, so that they're easier to read when
+  """Hack to unwrap D-Bus values, so that they're easier to read when
     printed. Taken from d-feet """
 
-    if isinstance(x, list):
-        return map(unwrap, x)
+  if isinstance(x, list):
+      return map(unwrap, x)
 
-    if isinstance(x, tuple):
-        return tuple(map(unwrap, x))
+  if isinstance(x, tuple):
+      return tuple(map(unwrap, x))
 
-    if isinstance(x, dict):
-        return dict([(unwrap(k), unwrap(v)) for k, v in x.iteritems()])
+  if isinstance(x, dict):
+      return dict([(unwrap(k), unwrap(v)) for k, v in x.iteritems()])
 
-    for t in [unicode, str, long, int, float, bool]:
-        if isinstance(x, t):
-            return t(x)
-
-    return x
+  return next(
+      (t(x)
+       for t in [unicode, str, long, int, float, bool] if isinstance(x, t)),
+      x,
+  )
 
 def parse_options():
 	parser.add_option("-d", "--device", dest="device",
@@ -89,11 +89,10 @@ class MapClient:
 			path_keyword="path")
 
 	def create_transfer_reply(self, path, properties):
-		self.transfer_path = path
-		self.props[path] = properties
-		if self.verbose:
-			print("Transfer created: %s (file %s)" % (path,
-							properties["Filename"]))
+	  self.transfer_path = path
+	  self.props[path] = properties
+	  if self.verbose:
+	    print(f'Transfer created: {path} (file {properties["Filename"]})')
 
 	def generic_reply(self):
 		if self.verbose:
@@ -104,50 +103,50 @@ class MapClient:
 		mainloop.quit()
 
 	def transfer_complete(self, path):
-		if self.verbose:
-			print("Transfer finished")
-		properties = self.props.get(path)
-		if properties == None:
-			return
-		f = open(properties["Filename"], "r")
-		os.remove(properties["Filename"])
-		print(f.readlines())
+	  if self.verbose:
+	  	print("Transfer finished")
+	  properties = self.props.get(path)
+	  if properties is None:
+	    return
+	  f = open(properties["Filename"], "r")
+	  os.remove(properties["Filename"])
+	  print(f.readlines())
 
 	def transfer_error(self, path):
-		print("Transfer %s error" % path)
-		mainloop.quit()
+	  print(f"Transfer {path} error")
+	  mainloop.quit()
 
 	def properties_changed(self, interface, properties, invalidated, path):
-		req = self.props.get(path)
-		if req == None:
-			return
+	  req = self.props.get(path)
+	  if req is None:
+	    return
 
-		if properties['Status'] == 'complete':
-			self.transfer_complete(path)
-			return
+	  if properties['Status'] == 'complete':
+	  	self.transfer_complete(path)
+	  	return
 
-		if properties['Status'] == 'error':
-			self.transfer_error(path)
-			return
+	  if properties['Status'] == 'error':
+	  	self.transfer_error(path)
+	  	return
 
 	def set_folder(self, new_dir):
 		self.map.SetFolder(new_dir)
 
 	def list_folders(self):
-		for i in self.map.ListFolders(dict()):
-			print("%s/" % (i["Name"]))
+	  for i in self.map.ListFolders(dict()):
+	    print(f'{i["Name"]}/')
 
 	def list_messages(self, folder):
 		ret = self.map.ListMessages(folder, dict())
 		print(pformat(unwrap(ret)))
 
 	def get_message(self, handle):
-		self.map.ListMessages("", dict())
-		path = self.path + "/message" + handle
-		obj = bus.get_object(BUS_NAME, path)
-		msg = dbus.Interface(obj, MESSAGE_INTERFACE)
-		msg.Get("", True, reply_handler=self.create_transfer_reply,
-						error_handler=self.error)
+	  self.map.ListMessages("", dict())
+	  path = f"{self.path}/message{handle}"
+	  obj = bus.get_object(BUS_NAME, path)
+	  msg = dbus.Interface(obj, MESSAGE_INTERFACE)
+	  msg.Get("", True, reply_handler=self.create_transfer_reply,
+	  				error_handler=self.error)
 
 	def push_message(self, filename):
 		self.map.PushMessage(filename, "telecom/msg/outbox", dict(),
@@ -155,19 +154,19 @@ class MapClient:
 				error_handler=self.error)
 
 	def get_message_properties(self, handle):
-		self.map.ListMessages("", dict())
-		path = self.path + "/message" + handle
-		obj = bus.get_object(BUS_NAME, path)
-		msg = dbus.Interface(obj, "org.freedesktop.DBus.Properties")
-		ret = msg.GetAll(MESSAGE_INTERFACE)
-		print(pformat(unwrap(ret)))
+	  self.map.ListMessages("", dict())
+	  path = f"{self.path}/message{handle}"
+	  obj = bus.get_object(BUS_NAME, path)
+	  msg = dbus.Interface(obj, "org.freedesktop.DBus.Properties")
+	  ret = msg.GetAll(MESSAGE_INTERFACE)
+	  print(pformat(unwrap(ret)))
 
 	def set_message_property(self, handle, prop, flag):
-		self.map.ListMessages("", dict())
-		path = self.path + "/message" + handle
-		obj = bus.get_object(BUS_NAME, path)
-		msg = dbus.Interface(obj, MESSAGE_INTERFACE)
-		msg.SetProperty (prop, flag);
+	  self.map.ListMessages("", dict())
+	  path = f"{self.path}/message{handle}"
+	  obj = bus.get_object(BUS_NAME, path)
+	  msg = dbus.Interface(obj, MESSAGE_INTERFACE)
+	  msg.SetProperty (prop, flag);
 
 	def update_inbox(self):
 		self.map.UpdateInbox()

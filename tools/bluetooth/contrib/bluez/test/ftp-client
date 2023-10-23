@@ -60,10 +60,10 @@ class FtpClient:
 			path_keyword="path")
 
 	def create_transfer_reply(self, path, properties):
-		self.transfer_path = path
-		self.transfer_size = properties["Size"]
-		if self.verbose:
-			print("Transfer created: %s" % path)
+	  self.transfer_path = path
+	  self.transfer_size = properties["Size"]
+	  if self.verbose:
+	    print(f"Transfer created: {path}")
 
 	def generic_reply(self):
 		if self.verbose:
@@ -74,37 +74,35 @@ class FtpClient:
 		mainloop.quit()
 
 	def properties_changed(self, interface, properties, invalidated, path):
-		if path != self.transfer_path:
-			return
+	  if path != self.transfer_path:
+	  	return
 
-		if "Status" in properties and \
-				(properties['Status'] == 'complete' or \
-				properties['Status'] == 'error'):
-			if self.verbose:
-				print("Transfer %s" % properties['Status'])
-			mainloop.quit()
-			return
+	  if "Status" in properties and properties['Status'] in ['complete', 'error']:
+	    if self.verbose:
+	      print(f"Transfer {properties['Status']}")
+	    mainloop.quit()
+	    return
 
-		if "Transferred" not in properties:
-			return
+	  if "Transferred" not in properties:
+	  	return
 
-		value = properties["Transferred"]
-		speed = (value - self.transferred) / 1000
-		print("Transfer progress %d/%d at %d kBps" % (value,
-							self.transfer_size,
-							speed))
-		self.transferred = value
+	  value = properties["Transferred"]
+	  speed = (value - self.transferred) / 1000
+	  print("Transfer progress %d/%d at %d kBps" % (value,
+	  					self.transfer_size,
+	  					speed))
+	  self.transferred = value
 
 	def change_folder(self, new_dir):
 		for node in new_dir.split("/"):
 			self.ftp.ChangeFolder(node)
 
 	def list_folder(self):
-		for i in self.ftp.ListFolder():
-			if i["Type"] == "folder":
-				print("%s/" % (i["Name"]))
-			else:
-				print("%s" % (i["Name"]))
+	  for i in self.ftp.ListFolder():
+	    if i["Type"] == "folder":
+	      print(f'{i["Name"]}/')
+	    else:
+	      print(f'{i["Name"]}')
 
 	def put_file(self, filename):
 		self.ftp.PutFile(os.path.abspath(filename),

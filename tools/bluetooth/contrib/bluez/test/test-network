@@ -22,18 +22,14 @@ parser = OptionParser(option_list=option_list)
 (options, args) = parser.parse_args()
 
 if (len(args) < 1):
-	print("Usage: %s <address> [service]" % (sys.argv[0]))
+	print(f"Usage: {sys.argv[0]} <address> [service]")
 	sys.exit(1)
 
 # Fix-up in case of "connect" invocation that other scripts use
 if args[0] == "connect":
 	del args[:1]
 
-if (len(args) < 2):
-	service = "panu"
-else:
-	service = args[1]
-
+service = "panu" if (len(args) < 2) else args[1]
 device = bluezutils.find_device(args[0], options.dev_id)
 
 network = dbus.Interface(bus.get_object("org.bluez", device.object_path),
@@ -41,7 +37,7 @@ network = dbus.Interface(bus.get_object("org.bluez", device.object_path),
 
 iface = network.Connect(service)
 
-print("Connected to %s service %s, interface %s" % (args[0], service, iface))
+print(f"Connected to {args[0]} service {service}, interface {iface}")
 
 print("Press CTRL-C to disconnect")
 

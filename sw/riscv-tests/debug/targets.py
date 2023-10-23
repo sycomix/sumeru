@@ -41,9 +41,11 @@ class Hart:
 
     def extensionSupported(self, letter):
         # target.misa is set by testlib.ExamineTarget
-        if self.misa:
-            return self.misa & (1 << (ord(letter.upper()) - ord('A')))
-        return False
+        return (
+            self.misa & (1 << (ord(letter.upper()) - ord('A')))
+            if self.misa
+            else False
+        )
 
 class Target:
     # pylint: disable=too-many-instance-attributes
@@ -100,7 +102,7 @@ class Target:
             self.name = type(self).__name__
         # Default OpenOCD config file to <name>.cfg
         if not self.openocd_config_path:
-            self.openocd_config_path = "%s.cfg" % self.name
+            self.openocd_config_path = f"{self.name}.cfg"
         self.openocd_config_path = os.path.join(self.directory,
                 self.openocd_config_path)
         for i, hart in enumerate(self.harts):
@@ -111,7 +113,7 @@ class Target:
                 hart.name = "%s-%d" % (self.name, i)
             # Default link script to <name>.lds
             if not hart.link_script_path:
-                hart.link_script_path = "%s.lds" % self.name
+                hart.link_script_path = f"{self.name}.lds"
             hart.link_script_path = os.path.join(self.directory,
                     hart.link_script_path)
 
@@ -130,8 +132,7 @@ class Target:
                 os.path.basename(os.path.splitext(sources[0])[0]),
                 hart.xlen)
         if Target.isolate:
-            self.temporary_binary = tempfile.NamedTemporaryFile(
-                    prefix=binary_name + "_")
+            self.temporary_binary = tempfile.NamedTemporaryFile(prefix=f"{binary_name}_")
             binary_name = self.temporary_binary.name
             Target.temporary_files.append(self.temporary_binary)
 
@@ -154,7 +155,7 @@ class Target:
             for letter in "fdc":
                 if hart.extensionSupported(letter):
                     march += letter
-            args.append("-march=%s" % march)
+            args.append(f"-march={march}")
             if hart.xlen == 32:
                 args.append("-mabi=ilp32")
             else:
@@ -199,7 +200,7 @@ def target(parsed):
             "targets.Target" % parsed.target
 
     t = found[0](parsed.target, parsed)
-    assert t.harts, "%s doesn't have any harts defined!" % t.name
+    assert t.harts, f"{t.name} doesn't have any harts defined!"
     if parsed.xlen > 0:
         for h in t.harts:
             if h.xlen == 0:

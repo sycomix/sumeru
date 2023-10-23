@@ -31,23 +31,22 @@ class Agent(dbus.service.Object):
 	@dbus.service.method(AGENT_INTERFACE, in_signature="o",
 							out_signature="s")
 	def AuthorizePush(self, path):
-		transfer = dbus.Interface(bus.get_object(BUS_NAME, path),
-					'org.freedesktop.DBus.Properties')
-		properties = transfer.GetAll(TRANSFER_INTERFACE);
+	  transfer = dbus.Interface(bus.get_object(BUS_NAME, path),
+	  			'org.freedesktop.DBus.Properties')
+	  properties = transfer.GetAll(TRANSFER_INTERFACE);
 
-		self.pending_auth = True
-		auth = ask("Authorize (%s, %s) (Y/n):" % (path,
-							properties['Name']))
+	  self.pending_auth = True
+	  auth = ask(f"Authorize ({path}, {properties['Name']}) (Y/n):")
 
-		if auth == "n" or auth == "N":
-			self.pending_auth = False
-			raise dbus.DBusException(
-					"org.bluez.obex.Error.Rejected: "
-					"Not Authorized")
+	  if auth in ["n", "N"]:
+	    self.pending_auth = False
+	    raise dbus.DBusException(
+	    		"org.bluez.obex.Error.Rejected: "
+	    		"Not Authorized")
 
-		self.pending_auth = False
+	  self.pending_auth = False
 
-		return properties['Name']
+	  return properties['Name']
 
 	@dbus.service.method(AGENT_INTERFACE, in_signature="",
 							out_signature="")

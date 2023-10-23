@@ -40,53 +40,52 @@ class PbapClient:
 			path_keyword="path")
 
 	def register(self, path, properties, transfer):
-		transfer.path = path
-		transfer.filename = properties["Filename"]
-		self.props[path] = transfer
-		print("Transfer created: %s (file %s)" % (path,
-							transfer.filename))
+	  transfer.path = path
+	  transfer.filename = properties["Filename"]
+	  self.props[path] = transfer
+	  print(f"Transfer created: {path} (file {transfer.filename})")
 
 	def error(self, err):
 		print(err)
 		mainloop.quit()
 
 	def transfer_complete(self, path):
-		req = self.props.get(path)
-		if req == None:
-			return
-		self.transfers -= 1
-		print("Transfer %s complete" % path)
-		try:
-			f = open(req.filename, "r")
-			os.remove(req.filename)
-			lines = f.readlines()
-			del self.props[path]
-			req.callback_func(lines)
-		except:
-			pass
+	  req = self.props.get(path)
+	  if req is None:
+	    return
+	  self.transfers -= 1
+	  print(f"Transfer {path} complete")
+	  try:
+	  	f = open(req.filename, "r")
+	  	os.remove(req.filename)
+	  	lines = f.readlines()
+	  	del self.props[path]
+	  	req.callback_func(lines)
+	  except:
+	  	pass
 
-		if (len(self.props) == 0) and (self.transfers == 0):
-			if self.flush_func != None:
-				f = self.flush_func
-				self.flush_func = None
-				f()
+	  if (len(self.props) == 0) and (self.transfers == 0):
+	  	if self.flush_func != None:
+	  		f = self.flush_func
+	  		self.flush_func = None
+	  		f()
 
 	def transfer_error(self, path):
-		print("Transfer %s error" % path)
-		mainloop.quit()
+	  print(f"Transfer {path} error")
+	  mainloop.quit()
 
 	def properties_changed(self, interface, properties, invalidated, path):
-		req = self.props.get(path)
-		if req == None:
-			return
+	  req = self.props.get(path)
+	  if req is None:
+	    return
 
-		if properties['Status'] == 'complete':
-			self.transfer_complete(path)
-			return
+	  if properties['Status'] == 'complete':
+	  	self.transfer_complete(path)
+	  	return
 
-		if properties['Status'] == 'error':
-			self.transfer_error(path)
-			return
+	  if properties['Status'] == 'error':
+	  	self.transfer_error(path)
+	  	return
 
 	def pull(self, vcard, params, func):
 		req = Transfer(func)
@@ -137,38 +136,38 @@ if  __name__ == '__main__':
 		print
 
 	def test_paths(paths):
-		if len(paths) == 0:
-			print
-			print("FINISHED")
-			mainloop.quit()
-			return
+	  if len(paths) == 0:
+	  	print
+	  	print("FINISHED")
+	  	mainloop.quit()
+	  	return
 
-		path = paths[0]
+	  path = paths[0]
 
-		print("\n--- Select Phonebook %s ---\n" % (path))
-		pbap_client.interface().Select("int", path)
+	  print("\n--- Select Phonebook %s ---\n" % (path))
+	  pbap_client.interface().Select("int", path)
 
-		print("\n--- GetSize ---\n")
-		ret = pbap_client.interface().GetSize()
-		print("Size = %d\n" % (ret))
+	  print("\n--- GetSize ---\n")
+	  ret = pbap_client.interface().GetSize()
+	  print("Size = %d\n" % (ret))
 
-		print("\n--- List vCard ---\n")
-		try:
-			ret = pbap_client.interface().List(dbus.Dictionary())
-		except:
-			ret = []
+	  print("\n--- List vCard ---\n")
+	  try:
+	  	ret = pbap_client.interface().List(dbus.Dictionary())
+	  except:
+	  	ret = []
 
-		params = dbus.Dictionary({ "Format" : "vcard30",
-						"Fields" : ["PHOTO"] })
-		for item in ret:
-			print("%s : %s" % (item[0], item[1]))
-			pbap_client.pull(item[0], params,
-					lambda x: process_result(x, None))
+	  params = dbus.Dictionary({ "Format" : "vcard30",
+	  				"Fields" : ["PHOTO"] })
+	  for item in ret:
+	    print(f"{item[0]} : {item[1]}")
+	    pbap_client.pull(item[0], params,
+	    		lambda x: process_result(x, None))
 
-		pbap_client.pull_all(params, lambda x: process_result(x,
-							"\n--- PullAll ---\n"))
+	  pbap_client.pull_all(params, lambda x: process_result(x,
+	  					"\n--- PullAll ---\n"))
 
-		pbap_client.flush_transfers(lambda: test_paths(paths[1:]))
+	  pbap_client.flush_transfers(lambda: test_paths(paths[1:]))
 
 	test_paths(["PB", "ICH", "OCH", "MCH", "CCH", "SPD", "FAV"])
 

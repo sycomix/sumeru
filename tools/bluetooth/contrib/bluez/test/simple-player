@@ -67,8 +67,8 @@ class Player(dbus.service.Object):
 	@dbus.service.method("org.freedesktop.DBus.Properties",
 					in_signature="ssv", out_signature="")
 	def Set(self, interface, key, value):
-		print("Set (%s, %s)" % (key, value), file=sys.stderr)
-		return
+	  print(f"Set ({key}, {value})", file=sys.stderr)
+	  return
 
 	@dbus.service.signal("org.freedesktop.DBus.Properties",
 							signature="sa{sv}as")
@@ -85,9 +85,9 @@ class Player(dbus.service.Object):
 		help(self.__class__.__dict__[func])
 
 	def properties_changed(self, interface, properties, invalidated):
-		print("properties_changed(%s, %s)" % (properties, invalidated))
+	  print(f"properties_changed({properties}, {invalidated})")
 
-		self.PropertiesChanged(interface, properties, invalidated)
+	  self.PropertiesChanged(interface, properties, invalidated)
 
 class InputHandler:
 	commands = { 'PropertiesChanged': '(interface, properties)',

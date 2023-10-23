@@ -134,7 +134,7 @@ class Advertisement(dbus.service.Object):
                          in_signature='',
                          out_signature='')
     def Release(self):
-        print('%s: Released!' % self.path)
+      print(f'{self.path}: Released!')
 
 class TestAdvertisement(Advertisement):
 
@@ -154,20 +154,20 @@ def register_ad_cb():
 
 
 def register_ad_error_cb(error):
-    print('Failed to register advertisement: ' + str(error))
-    mainloop.quit()
+  print(f'Failed to register advertisement: {str(error)}')
+  mainloop.quit()
 
 
 def find_adapter(bus):
-    remote_om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'),
-                               DBUS_OM_IFACE)
-    objects = remote_om.GetManagedObjects()
+  remote_om = dbus.Interface(bus.get_object(BLUEZ_SERVICE_NAME, '/'),
+                             DBUS_OM_IFACE)
+  objects = remote_om.GetManagedObjects()
 
-    for o, props in objects.items():
-        if LE_ADVERTISING_MANAGER_IFACE in props:
-            return o
-
-    return None
+  return next(
+      (o for o, props in objects.items()
+       if LE_ADVERTISING_MANAGER_IFACE in props),
+      None,
+  )
 
 
 def main():

@@ -41,13 +41,12 @@ class Application(dbus.service.Object):
 
     @dbus.service.method(DBUS_OM_IFACE, out_signature='a{oa{sa{sv}}}')
     def GetManagedObjects(self):
-        response = {}
-        print('GetManagedObjects')
+      print('GetManagedObjects')
 
-        for profile in self.profiles:
-            response[profile.get_path()] = profile.get_properties()
-
-        return response
+      return {
+          profile.get_path(): profile.get_properties()
+          for profile in self.profiles
+      }
 
 
 class Profile(dbus.service.Object):
@@ -91,8 +90,8 @@ def register_app_cb():
 
 
 def register_app_error_cb(error):
-    print('Failed to register application: ' + str(error))
-    mainloop.quit()
+  print(f'Failed to register application: {str(error)}')
+  mainloop.quit()
 
 if __name__ == '__main__':
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)

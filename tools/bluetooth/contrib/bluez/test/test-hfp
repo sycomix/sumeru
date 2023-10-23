@@ -75,61 +75,61 @@ class HfpConnection:
 		self.slc_complete = True
 
 	def slc_next_cmd(self, cmd):
-		if not cmd:
-			self.send_cmd("AT+BRSF=%u" % (HF_FEATURES))
-		elif (cmd.startswith("AT+BRSF")):
-			if (self.features & AG_CODEC_NEGOTIATION and
-					HF_FEATURES & HF_CODEC_NEGOTIATION):
-				self.send_cmd("AT+BAC=%s" % (AVAIL_CODECS))
-			else:
-				self.send_cmd("AT+CIND=?")
-		elif (cmd.startswith("AT+BAC")):
-			self.send_cmd("AT+CIND=?")
-		elif (cmd.startswith("AT+CIND=?")):
-			self.send_cmd("AT+CIND?")
-		elif (cmd.startswith("AT+CIND?")):
-			self.send_cmd("AT+CMER=3,0,0,1")
-		elif (cmd.startswith("AT+CMER=")):
-			if (HF_FEATURES & HF_3WAY and self.features & AG_3WAY):
-				self.send_cmd("AT+CHLD=?")
-			else:
-				self.slc_completed()
-		elif (cmd.startswith("AT+CHLD=?")):
-			self.slc_completed()
-		else:
-			print("Unknown SLC command completed: %s" % (cmd))
+	  if not cmd:
+	    self.send_cmd("AT+BRSF=%u" % (HF_FEATURES))
+	  elif (cmd.startswith("AT+BRSF")):
+	    if (self.features & AG_CODEC_NEGOTIATION and
+	    HF_FEATURES & HF_CODEC_NEGOTIATION):
+	      self.send_cmd(f"AT+BAC={AVAIL_CODECS}")
+	    else:
+	      self.send_cmd("AT+CIND=?")
+	  elif (cmd.startswith("AT+BAC")):
+	  	self.send_cmd("AT+CIND=?")
+	  elif (cmd.startswith("AT+CIND=?")):
+	  	self.send_cmd("AT+CIND?")
+	  elif (cmd.startswith("AT+CIND?")):
+	  	self.send_cmd("AT+CMER=3,0,0,1")
+	  elif (cmd.startswith("AT+CMER=")):
+	  	if (HF_FEATURES & HF_3WAY and self.features & AG_3WAY):
+	  		self.send_cmd("AT+CHLD=?")
+	  	else:
+	  		self.slc_completed()
+	  elif (cmd.startswith("AT+CHLD=?")):
+	  	self.slc_completed()
+	  else:
+	    print(f"Unknown SLC command completed: {cmd}")
 
 	def io_cb(self, fd, cond):
-		buf = os.read(fd, BUF_SIZE)
-		buf = buf.strip()
+	  buf = os.read(fd, BUF_SIZE)
+	  buf = buf.strip()
 
-		print("Received: %s" % (buf))
+	  print(f"Received: {buf}")
 
-		if (buf == "OK" or buf == "ERROR"):
-			cmd = self.pending
-			self.pending = None
+	  if buf in ["OK", "ERROR"]:
+	    cmd = self.pending
+	    self.pending = None
 
-			if (not self.slc_complete):
-				self.slc_next_cmd(cmd)
+	    if (not self.slc_complete):
+	    	self.slc_next_cmd(cmd)
 
-			return True
+	    return True
 
-		parts = buf.split(':')
+	  parts = buf.split(':')
 
-		if (parts[0] == "+BRSF"):
-			self.features = int(parts[1])
+	  if (parts[0] == "+BRSF"):
+	  	self.features = int(parts[1])
 
-		return True
+	  return True
 
 	def send_cmd(self, cmd):
-		if (self.pending):
-			print("ERROR: Another command is pending")
-			return
+	  if (self.pending):
+	  	print("ERROR: Another command is pending")
+	  	return
 
-		print("Sending: %s" % (cmd))
+	  print(f"Sending: {cmd}")
 
-		os.write(self.fd, cmd + "\r\n")
-		self.pending = cmd
+	  os.write(self.fd, cmd + "\r\n")
+	  self.pending = cmd
 
 	def __init__(self, fd, version, features):
 		self.fd = fd
@@ -148,8 +148,8 @@ class HfpProfile(dbus.service.Object):
 	conns = {}
 
 	def sco_cb(self, sock, cond):
-		(sco, peer) = sock.accept()
-		print("New SCO connection from %s" % (peer))
+	  (sco, peer) = sock.accept()
+	  print(f"New SCO connection from {peer}")
 
 	def init_sco(self, sock):
 		self.sco_socket = sock

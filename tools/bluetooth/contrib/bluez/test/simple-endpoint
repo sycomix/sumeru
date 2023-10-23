@@ -68,71 +68,71 @@ class Endpoint(dbus.service.Object):
 	@dbus.service.method("org.bluez.MediaEndpoint1",
 					in_signature="o", out_signature="")
 	def ClearConfiguration(self, transport):
-		print("ClearConfiguration (%s)" % (transport))
+	  print(f"ClearConfiguration ({transport})")
 
 	@dbus.service.method("org.bluez.MediaEndpoint1",
 					in_signature="oay", out_signature="")
 	def SetConfiguration(self, transport, config):
-		print("SetConfiguration (%s, %s)" % (transport, config))
-		return
+	  print(f"SetConfiguration ({transport}, {config})")
+	  return
 
 	@dbus.service.method("org.bluez.MediaEndpoint1",
 					in_signature="ay", out_signature="ay")
 	def SelectConfiguration(self, caps):
-		print("SelectConfiguration (%s)" % (caps))
-		return self.configuration
+	  print(f"SelectConfiguration ({caps})")
+	  return self.configuration
 
 if __name__ == '__main__':
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+  dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-	bus = dbus.SystemBus()
+  bus = dbus.SystemBus()
 
-	if len(sys.argv) > 1:
-		path = bluezutils.find_adapter(sys.argv[1]).object_path
-	else:
-		path = bluezutils.find_adapter().object_path
+  if len(sys.argv) > 1:
+  	path = bluezutils.find_adapter(sys.argv[1]).object_path
+  else:
+  	path = bluezutils.find_adapter().object_path
 
-	media = dbus.Interface(bus.get_object("org.bluez", path),
-						"org.bluez.Media1")
+  media = dbus.Interface(bus.get_object("org.bluez", path),
+  					"org.bluez.Media1")
 
-	path = "/test/endpoint"
-	endpoint = Endpoint(bus, path)
-	mainloop = GObject.MainLoop()
+  path = "/test/endpoint"
+  endpoint = Endpoint(bus, path)
+  mainloop = GObject.MainLoop()
 
-	properties = dbus.Dictionary({ "UUID" : A2DP_SOURCE_UUID,
-					"Codec" : SBC_CODEC,
-					"DelayReporting" : True,
-					"Capabilities" : SBC_CAPABILITIES })
+  properties = dbus.Dictionary({ "UUID" : A2DP_SOURCE_UUID,
+  				"Codec" : SBC_CODEC,
+  				"DelayReporting" : True,
+  				"Capabilities" : SBC_CAPABILITIES })
 
-	if len(sys.argv) > 2:
-		if sys.argv[2] == "sbcsink":
-			properties = dbus.Dictionary({ "UUID" : A2DP_SINK_UUID,
-							"Codec" : SBC_CODEC,
-							"DelayReporting" : True,
-							"Capabilities" : SBC_CAPABILITIES })
-		if sys.argv[2] == "mp3source":
-			properties = dbus.Dictionary({ "UUID" : A2DP_SOURCE_UUID,
-							"Codec" : MP3_CODEC,
-							"Capabilities" : MP3_CAPABILITIES })
-			endpoint.default_configuration(MP3_CONFIGURATION)
-		if sys.argv[2] == "mp3sink":
-			properties = dbus.Dictionary({ "UUID" : A2DP_SINK_UUID,
-							"Codec" : MP3_CODEC,
-							"Capabilities" : MP3_CAPABILITIES })
-			endpoint.default_configuration(MP3_CONFIGURATION)
-		if sys.argv[2] == "hfpag" or sys.argv[2] == "hspag":
-			properties = dbus.Dictionary({ "UUID" : HFP_AG_UUID,
-							"Codec" : PCM_CODEC,
-							"Capabilities" :  PCM_CONFIGURATION })
-			endpoint.default_configuration(dbus.Array([]))
-		if sys.argv[2] == "hfphf":
-			properties = dbus.Dictionary({ "UUID" : HFP_HF_UUID,
-							"Codec" : CVSD_CODEC,
-							"Capabilities" :  PCM_CONFIGURATION })
-			endpoint.default_configuration(dbus.Array([]))
+  if len(sys.argv) > 2:
+    if sys.argv[2] == "sbcsink":
+    	properties = dbus.Dictionary({ "UUID" : A2DP_SINK_UUID,
+    					"Codec" : SBC_CODEC,
+    					"DelayReporting" : True,
+    					"Capabilities" : SBC_CAPABILITIES })
+    if sys.argv[2] == "mp3source":
+    	properties = dbus.Dictionary({ "UUID" : A2DP_SOURCE_UUID,
+    					"Codec" : MP3_CODEC,
+    					"Capabilities" : MP3_CAPABILITIES })
+    	endpoint.default_configuration(MP3_CONFIGURATION)
+    if sys.argv[2] == "mp3sink":
+    	properties = dbus.Dictionary({ "UUID" : A2DP_SINK_UUID,
+    					"Codec" : MP3_CODEC,
+    					"Capabilities" : MP3_CAPABILITIES })
+    	endpoint.default_configuration(MP3_CONFIGURATION)
+    if sys.argv[2] in ["hfpag", "hspag"]:
+      properties = dbus.Dictionary({ "UUID" : HFP_AG_UUID,
+      				"Codec" : PCM_CODEC,
+      				"Capabilities" :  PCM_CONFIGURATION })
+      endpoint.default_configuration(dbus.Array([]))
+    if sys.argv[2] == "hfphf":
+    	properties = dbus.Dictionary({ "UUID" : HFP_HF_UUID,
+    					"Codec" : CVSD_CODEC,
+    					"Capabilities" :  PCM_CONFIGURATION })
+    	endpoint.default_configuration(dbus.Array([]))
 
-	print(properties)
+  print(properties)
 
-	media.RegisterEndpoint(path, properties)
+  media.RegisterEndpoint(path, properties)
 
-	mainloop.run()
+  mainloop.run()

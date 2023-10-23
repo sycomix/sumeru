@@ -61,13 +61,10 @@ def srec_parse(line):
         # header
         return 0, 0, 0
     elif typ == b'S3':
-        # data with 32-bit address
-        # Any higher bits were chopped off.
-        address = int(line[4:12], 16)
         for i in range(6, count+1):
             data += "%c" % int(line[2*i:2*i+2], 16)
         # Ignore the checksum.
-        return 3, address, data
+        return 3, int(line[4:12], 16), data
     elif typ == b'S7':
         # ignore execution start field
         return 7, 0, 0
@@ -82,15 +79,15 @@ class SimpleRegisterTest(GdbTest):
         a = random.randrange(1<<self.hart.xlen)
         b = random.randrange(1<<self.hart.xlen)
         self.gdb.p("$%s=0x%x" % (name, a))
-        assertEqual(self.gdb.p("$%s" % alias), a)
+        assertEqual(self.gdb.p(f"${alias}"), a)
         self.gdb.stepi()
-        assertEqual(self.gdb.p("$%s" % name), a)
-        assertEqual(self.gdb.p("$%s" % alias), a)
+        assertEqual(self.gdb.p(f"${name}"), a)
+        assertEqual(self.gdb.p(f"${alias}"), a)
         self.gdb.p("$%s=0x%x" % (alias, b))
-        assertEqual(self.gdb.p("$%s" % name), b)
+        assertEqual(self.gdb.p(f"${name}"), b)
         self.gdb.stepi()
-        assertEqual(self.gdb.p("$%s" % name), b)
-        assertEqual(self.gdb.p("$%s" % alias), b)
+        assertEqual(self.gdb.p(f"${name}"), b)
+        assertEqual(self.gdb.p(f"${alias}"), b)
 
     def setup(self):
         # 0x13 is nop
@@ -126,25 +123,25 @@ class SimpleF18Test(SimpleRegisterTest):
             a = random.random()
             b = random.random()
             self.gdb.p_fpr("$%s=%f" % (name, a))
-            assertLess(abs((self.gdb.p_fpr("$%s" % alias)) - a), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${alias}") - a), .001)
             self.gdb.stepi()
-            assertLess(abs((self.gdb.p_fpr("$%s" % name)) - a), .001)
-            assertLess(abs((self.gdb.p_fpr("$%s" % alias)) - a), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${name}") - a), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${alias}") - a), .001)
             self.gdb.p_fpr("$%s=%f" % (alias, b))
-            assertLess(abs((self.gdb.p_fpr("$%s" % name)) - b), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${name}") - b), .001)
             self.gdb.stepi()
-            assertLess(abs((self.gdb.p_fpr("$%s" % name)) - b), .001)
-            assertLess(abs((self.gdb.p_fpr("$%s" % alias)) - b), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${name}") - b), .001)
+            assertLess(abs(self.gdb.p_fpr(f"${alias}") - b), .001)
 
-            size = self.gdb.p("sizeof($%s)" % name)
+            size = self.gdb.p(f"sizeof(${name})")
             if self.hart.extensionSupported('D'):
                 assertEqual(size, 8)
             else:
                 assertEqual(size, 4)
         else:
-            output = self.gdb.p_raw("$" + name)
+            output = self.gdb.p_raw(f"${name}")
             assertRegex(output, r"void|Could not fetch register.*")
-            output = self.gdb.p_raw("$" + alias)
+            output = self.gdb.p_raw(f"${alias}")
             assertRegex(output, r"void|Could not fetch register.*")
 
     def test(self):
@@ -157,12 +154,16 @@ class CustomRegisterTest(SimpleRegisterTest):
     def check_custom(self, magic):
         regs = {k: v for k, v in self.gdb.info_registers("all").items()
                 if k.startswith("custom")}
-        assertEqual(set(regs.keys()),
-                set(("custom1",
-                    "custom12345",
-                    "custom12346",
-                    "custom12347",
-                    "custom12348")))
+        assertEqual(
+            set(regs.keys()),
+            {
+                "custom1",
+                "custom12345",
+                "custom12346",
+                "custom12347",
+                "custom12348",
+            },
+        )
         for name, value in regs.items():
             number = int(name[6:])
             if number % 2:
@@ -196,7 +197,7 @@ class SimpleNoExistTest(GdbTest):
 
 class SimpleMemoryTest(GdbTest):
     def access_test(self, size, data_type):
-        assertEqual(self.gdb.p("sizeof(%s)" % data_type), size)
+        assertEqual(self.gdb.p(f"sizeof({data_type})"), size)
         a = 0x86753095555aaaa & ((1<<(size*8))-1)
         b = 0xdeadbeef12345678 & ((1<<(size*8))-1)
         addrA = self.hart.ram
@@ -262,9 +263,11 @@ class MemTestBlockReadInvalid(GdbTest):
                          self.zero_values)
 
         # read across start of memory
-        self.memory_test(self.hart.ram - 8,
-                         self.hart.ram + 8,
-                         self.zero_values + " " + self.real_values)
+        self.memory_test(
+            self.hart.ram - 8,
+            self.hart.ram + 8,
+            f"{self.zero_values} {self.real_values}",
+        )
 
         # read after start of memory
         self.memory_test(self.hart.ram,
@@ -282,9 +285,11 @@ class MemTestBlockReadInvalid(GdbTest):
                          self.real_values)
 
         # read across end of memory
-        self.memory_test(self.hart.ram + self.hart.ram_size - 8,
-                         self.hart.ram + self.hart.ram_size + 8,
-                         self.real_values + " " + self.zero_values)
+        self.memory_test(
+            self.hart.ram + self.hart.ram_size - 8,
+            self.hart.ram + self.hart.ram_size + 8,
+            f"{self.real_values} {self.zero_values}",
+        )
 
         # read after end of memory
         self.memory_test(self.hart.ram + self.hart.ram_size,
@@ -295,7 +300,7 @@ class MemTestBlockReadInvalid(GdbTest):
         dump = tempfile.NamedTemporaryFile(suffix=".simdata")
         self.gdb.command("dump verilog memory %s 0x%x 0x%x" %
                 (dump.name, start_addr, end_addr))
-        self.gdb.command("shell cat %s" % dump.name)
+        self.gdb.command(f"shell cat {dump.name}")
         line = dump.readline()
         line = dump.readline()
         assertEqual(line.strip(), expected_values)
@@ -319,23 +324,23 @@ class MemTestBlock(GdbTest):
         a = tempfile.NamedTemporaryFile(suffix=".ihex")
         data = self.write(a)
 
-        self.gdb.command("shell cat %s" % a.name)
+        self.gdb.command(f"shell cat {a.name}")
         self.gdb.command("monitor riscv reset_delays 50")
         self.gdb.command("restore %s 0x%x" % (a.name, self.hart.ram))
         increment = 19 * 4
         for offset in list(range(0, self.length, increment)) + [self.length-4]:
             value = self.gdb.p("*((int*)0x%x)" % (self.hart.ram + offset))
             written = ord(data[offset]) | \
-                    (ord(data[offset+1]) << 8) | \
-                    (ord(data[offset+2]) << 16) | \
-                    (ord(data[offset+3]) << 24)
+                        (ord(data[offset+1]) << 8) | \
+                        (ord(data[offset+2]) << 16) | \
+                        (ord(data[offset+3]) << 24)
             assertEqual(value, written)
 
         b = tempfile.NamedTemporaryFile(suffix=".srec")
         self.gdb.command("monitor riscv reset_delays 100")
         self.gdb.command("dump srec memory %s 0x%x 0x%x" % (b.name,
             self.hart.ram, self.hart.ram + self.length), ops=self.length / 32)
-        self.gdb.command("shell cat %s" % b.name)
+        self.gdb.command(f"shell cat {b.name}")
         highest_seen = 0
         for line in b:
             record_type, address, line_data = srec_parse(line)
@@ -484,7 +489,7 @@ class DebugChangeString(DebugTest):
         text = "This little piggy went to the market."
         self.gdb.b("main:start")
         self.gdb.c()
-        self.gdb.p('fox = "%s"' % text)
+        self.gdb.p(f'fox = "{text}"')
         self.exit(0x43b497b8)
 
 class DebugTurbostep(DebugTest):
@@ -571,7 +576,7 @@ class Hwbp2(DebugTest):
             output = self.gdb.c()
             self.gdb.p("$pc")
             assertRegex(output, r"[bB]reakpoint")
-            assertIn("%s " % expected, output)
+            assertIn(f"{expected} ", output)
         self.gdb.command("delete")
         self.gdb.b("_exit")
         self.exit()
@@ -1026,8 +1031,6 @@ class TriggerDmode(TriggerTest):
     def check_triggers(self, tdata1_lsbs, tdata2):
         dmode = 1 << (self.hart.xlen-5)
 
-        triggers = []
-
         if self.hart.xlen == 32:
             xlen_type = 'int'
         elif self.hart.xlen == 64:
@@ -1052,7 +1055,7 @@ class TriggerDmode(TriggerTest):
         assertGreater(i, 1)
         assertEqual(dmode_count, 1)
 
-        return triggers
+        return []
 
     def test(self):
         # If we want this test to run from flash, we can't have any software
@@ -1158,7 +1161,7 @@ class DownloadTest(GdbTest):
 
         self.binary = self.target.compile(self.hart, self.download_c.name,
                 "programs/checksum.c")
-        self.gdb.global_command("file %s" % self.binary)
+        self.gdb.global_command(f"file {self.binary}")
 
     def test(self):
         self.gdb.load()

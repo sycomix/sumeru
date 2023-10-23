@@ -32,8 +32,7 @@ def find_file(path):
 def compile(args): # pylint: disable=redefined-builtin
     cmd = ["riscv64-unknown-elf-gcc", "-g"]
     for arg in args:
-        found = find_file(arg)
-        if found:
+        if found := find_file(arg):
             cmd.append(found)
         else:
             cmd.append(arg)
@@ -66,11 +65,7 @@ class Spike:
         self.support_hasel = support_hasel
         self.support_haltgroups = support_haltgroups
 
-        if target.harts:
-            harts = target.harts
-        else:
-            harts = [target]
-
+        harts = target.harts if target.harts else [target]
         cmd = self.command(target, harts, halted, timeout, with_jtag_gdb)
         self.infinite_loop = target.compile(harts[0],
                 "programs/checksum.c", "programs/tiny-malloc.c",
@@ -89,9 +84,10 @@ class Spike:
         if with_jtag_gdb:
             self.port = None
             for _ in range(30):
-                m = re.search(r"Listening for remote bitbang connection on "
-                        r"port (\d+).", open(self.logname).read())
-                if m:
+                if m := re.search(
+                    r"Listening for remote bitbang connection on " r"port (\d+).",
+                    open(self.logname).read(),
+                ):
                     self.port = int(m.group(1))
                     os.environ['REMOTE_BITBANG_PORT'] = m.group(1)
                     break
@@ -104,32 +100,25 @@ class Spike:
     # pylint: disable=too-many-branches
     def command(self, target, harts, halted, timeout, with_jtag_gdb):
         # pylint: disable=no-self-use
-        if target.sim_cmd:
-            cmd = shlex.split(target.sim_cmd)
-        else:
-            cmd = ["spike"]
-
+        cmd = shlex.split(target.sim_cmd) if target.sim_cmd else ["spike"]
         cmd += ["-p%d" % len(harts)]
 
-        assert len(set(t.xlen for t in harts)) == 1, \
-                "All spike harts must have the same XLEN"
+        assert (
+            len({t.xlen for t in harts}) == 1
+        ), "All spike harts must have the same XLEN"
 
-        if self.isa:
-            isa = self.isa
-        else:
-            isa = "RV%dG" % harts[0].xlen
-
+        isa = self.isa if self.isa else "RV%dG" % harts[0].xlen
         cmd += ["--isa", isa]
         cmd += ["--dm-auth"]
 
-        if not self.progbufsize is None:
+        if self.progbufsize is not None:
             cmd += ["--dm-progsize", str(self.progbufsize)]
             cmd += ["--dm-sba", "32"]
 
-        if not self.dmi_rti is None:
+        if self.dmi_rti is not None:
             cmd += ["--dmi-rti", str(self.dmi_rti)]
 
-        if not self.abstract_rti is None:
+        if self.abstract_rti is not None:
             cmd += ["--dm-abstract-rti", str(self.abstract_rti)]
 
         if not self.support_abstract_csr:
@@ -141,10 +130,12 @@ class Spike:
         if not self.support_haltgroups:
             cmd.append("--dm-no-halt-groups")
 
-        assert len(set(t.ram for t in harts)) == 1, \
-                "All spike harts must have the same RAM layout"
-        assert len(set(t.ram_size for t in harts)) == 1, \
-                "All spike harts must have the same RAM layout"
+        assert (
+            len({t.ram for t in harts}) == 1
+        ), "All spike harts must have the same RAM layout"
+        assert (
+            len({t.ram_size for t in harts}) == 1
+        ), "All spike harts must have the same RAM layout"
         os.environ['WORK_AREA'] = '0x%x' % harts[0].ram
         cmd += ["-m0x%x:0x%x" % (harts[0].ram, harts[0].ram_size)]
 
@@ -175,13 +166,10 @@ class VcsSim:
     logname = logfile.name
 
     def __init__(self, sim_cmd=None, debug=False, timeout=300):
-        if sim_cmd:
-            cmd = shlex.split(sim_cmd)
-        else:
-            cmd = ["simv"]
+        cmd = shlex.split(sim_cmd) if sim_cmd else ["simv"]
         cmd += ["+jtag_vpi_enable"]
         if debug:
-            cmd[0] = cmd[0] + "-debug"
+            cmd[0] = f"{cmd[0]}-debug"
             cmd += ["+vcdplusfile=output/gdbserver.vpd"]
 
         logfile = open(self.logname, "w")
@@ -206,8 +194,7 @@ class VcsSim:
             line = listenfile.readline()
             if not line:
                 time.sleep(1)
-            match = re.match(r"^Listening on port (\d+)$", line)
-            if match:
+            if match := re.match(r"^Listening on port (\d+)$", line):
                 done = True
                 self.port = int(match.group(1))
                 os.environ['JTAG_VPI_PORT'] = str(self.port)
@@ -268,9 +255,15 @@ class Openocd:
         env_entries = ("REMOTE_BITBANG_HOST", "REMOTE_BITBANG_PORT",
                 "WORK_AREA")
         env_entries = [key for key in env_entries if key in os.environ]
-        logfile.write("+ %s%s\n" % (
-            "".join("%s=%s " % (key, os.environ[key]) for key in env_entries),
-            " ".join(map(pipes.quote, cmd))))
+        logfile.write(
+            (
+                "+ %s%s\n"
+                % (
+                    "".join(f"{key}={os.environ[key]} " for key in env_entries),
+                    " ".join(map(pipes.quote, cmd)),
+                )
+            )
+        )
         logfile.flush()
 
         self.gdb_ports = []
@@ -291,14 +284,14 @@ class Openocd:
             while True:
                 line = fd.readline()
                 if not line:
-                    if not process.poll() is None:
+                    if process.poll() is not None:
                         raise Exception("OpenOCD exited early.")
                     time.sleep(0.1)
                     continue
 
-                m = re.search(r"Listening on port (\d+) for gdb connections",
-                        line)
-                if m:
+                if m := re.search(
+                    r"Listening on port (\d+) for gdb connections", line
+                ):
                     self.gdb_ports.append(int(m.group(1)))
 
                 if "telnet server disabled" in line:
@@ -330,10 +323,7 @@ class Openocd:
     def smp(self):
         """Return true iff OpenOCD internally sees the harts as part of an SMP
         group."""
-        for line in open(self.config_file, "r"):
-            if "target smp" in line:
-                return True
-        return False
+        return any("target smp" in line for line in open(self.config_file, "r"))
 
 class OpenocdCli:
     def __init__(self, port=4444):
@@ -349,15 +339,13 @@ class OpenocdCli:
         return self.child.before.strip("\t\r\n \0").decode("utf-8")
 
     def reg(self, reg=''):
-        output = self.command("reg %s" % reg)
+        output = self.command(f"reg {reg}")
         matches = re.findall(r"(\w+) \(/\d+\): (0x[0-9A-F]+)", output)
         values = {r: int(v, 0) for r, v in matches}
-        if reg:
-            return values[reg]
-        return values
+        return values[reg] if reg else values
 
     def load_image(self, image):
-        output = self.command("load_image %s" % image)
+        output = self.command(f"load_image {image}")
         if 'invalid ELF file, only 32bits files are supported' in output:
             raise TestNotApplicable(output)
 
@@ -380,7 +368,7 @@ def parse_rhs(text):
     if text.startswith("{") and text.endswith("}"):
         inner = text[1:-1]
         parsed = [parse_rhs(t) for t in inner.split(", ")]
-        if all([isinstance(p, dict) for p in parsed]):
+        if all(isinstance(p, dict) for p in parsed):
             dictionary = {}
             for p in parsed:
                 for k, v in p.items():
@@ -445,19 +433,15 @@ class Gdb:
             self.command("set remotetimeout %d" % self.timeout)
             self.command("target extended-remote localhost:%d" % port, ops=10)
             if self.binary:
-                self.command("file %s" % self.binary)
+                self.command(f"file {self.binary}")
             threads = self.threads()
             for t in threads:
                 hartid = None
                 if t.name:
-                    m = re.search(r"Hart (\d+)", t.name)
-                    if m:
+                    if m := re.search(r"Hart (\d+)", t.name):
                         hartid = int(m.group(1))
                 if hartid is None:
-                    if self.harts:
-                        hartid = max(self.harts) + 1
-                    else:
-                        hartid = 0
+                    hartid = max(self.harts) + 1 if self.harts else 0
                 # solo: True iff this is the only thread on this child
                 self.harts[hartid] = {'child': child,
                         'thread': t,
@@ -480,7 +464,7 @@ class Gdb:
         h = self.harts[hart.id]
         self.select_child(h['child'])
         if not h['solo']:
-            output = self.command("thread %s" % h['thread'].id, ops=5)
+            output = self.command(f"thread {h['thread'].id}", ops=5)
             assert "Unknown" not in output
 
     def push_state(self):
@@ -520,18 +504,15 @@ class Gdb:
         In multi-gdb mode, this command will just go to the current gdb, so
         will only resume one hart.
         """
-        if sync:
-            sync = ""
-        else:
-            sync = "&"
+        sync = "" if sync else "&"
         if wait:
-            output = self.command("c%s" % sync, ops=ops)
+            output = self.command(f"c{sync}", ops=ops)
             if checkOutput:
                 assert "Continuing" in output
                 assert "Could not insert hardware" not in output
             return output
         else:
-            self.active_child.sendline("c%s" % sync)
+            self.active_child.sendline(f"c{sync}")
             self.active_child.expect("Continuing", timeout=ops * self.timeout)
             return ""
 
@@ -567,45 +548,37 @@ class Gdb:
             self.interrupt()
 
     def x(self, address, size='w'):
-        output = self.command("x/%s %s" % (size, address))
-        value = int(output.split(':')[1].strip(), 0)
-        return value
+        output = self.command(f"x/{size} {address}")
+        return int(output.split(':')[1].strip(), 0)
 
     def p_raw(self, obj):
-        output = self.command("p %s" % obj)
-        m = re.search("Cannot access memory at address (0x[0-9a-f]+)", output)
-        if m:
+        output = self.command(f"p {obj}")
+        if m := re.search("Cannot access memory at address (0x[0-9a-f]+)", output):
             raise CannotAccess(int(m.group(1), 0))
         return output.split('=', 1)[-1].strip()
 
     def p(self, obj, fmt="/x", ops=1):
-        output = self.command("p%s %s" % (fmt, obj), ops=ops).splitlines()[-1]
-        m = re.search("Cannot access memory at address (0x[0-9a-f]+)", output)
-        if m:
+        output = self.command(f"p{fmt} {obj}", ops=ops).splitlines()[-1]
+        if m := re.search("Cannot access memory at address (0x[0-9a-f]+)", output):
             raise CannotAccess(int(m.group(1), 0))
-        m = re.search(r"Could not fetch register \"(\w+)\"; (.*)$", output)
-        if m:
+        if m := re.search(r"Could not fetch register \"(\w+)\"; (.*)$", output):
             raise CouldNotFetch(m.group(1), m.group(2))
         rhs = output.split('=', 1)[-1]
         return parse_rhs(rhs)
 
     def p_fpr(self, obj, ops=1):
         result = self.p(obj, fmt="", ops=ops)
-        if isinstance(result, dict):
-            return result['double']
-        return result
+        return result['double'] if isinstance(result, dict) else result
 
     def p_string(self, obj):
-        output = self.command("p %s" % obj)
-        value = shlex.split(output.split('=')[-1].strip())[1]
-        return value
+        output = self.command(f"p {obj}")
+        return shlex.split(output.split('=')[-1].strip())[1]
 
     def info_registers(self, group):
-        output = self.command("info registers %s" % group, ops=5)
+        output = self.command(f"info registers {group}", ops=5)
         result = {}
         for line in output.splitlines():
-            m = re.match(r"(\w+)\s+({.*})\s+(\(.*\))", line)
-            if m:
+            if m := re.match(r"(\w+)\s+({.*})\s+(\(.*\))", line):
                 parts = m.groups()
             else:
                 parts = line.split()
@@ -617,8 +590,7 @@ class Gdb:
         return result
 
     def stepi(self):
-        output = self.command("stepi", ops=10)
-        return output
+        return self.command("stepi", ops=10)
 
     def load(self):
         output = self.command("load", ops=1000)
@@ -629,7 +601,7 @@ class Gdb:
         assert "MIS" not in output
 
     def b(self, location):
-        output = self.command("b %s" % location, ops=5)
+        output = self.command(f"b {location}", ops=5)
         assert "not defined" not in output
         assert "Breakpoint" in output
         m = re.search(r"Breakpoint (\d+),? ", output)
@@ -637,13 +609,13 @@ class Gdb:
         return int(m.group(1))
 
     def hbreak(self, location):
-        output = self.command("hbreak %s" % location, ops=5)
+        output = self.command(f"hbreak {location}", ops=5)
         assert "not defined" not in output
         assert "Hardware assisted breakpoint" in output
         return output
 
     def watch(self, expr):
-        output = self.command("watch %s" % expr, ops=5)
+        output = self.command(f"watch {expr}", ops=5)
         assert "not defined" not in output
         assert "atchpoint" in output
         return output
@@ -651,7 +623,7 @@ class Gdb:
     def swatch(self, expr):
         self.command("show can-use-hw-watchpoints")
         self.command("set can-use-hw-watchpoints 0")
-        output = self.command("watch %s" % expr, ops=5)
+        output = self.command(f"watch {expr}", ops=5)
         assert "not defined" not in output
         assert "atchpoint" in output
         self.command("set can-use-hw-watchpoints 1")
@@ -661,11 +633,12 @@ class Gdb:
         output = self.command("info threads", ops=100)
         threads = []
         for line in output.splitlines():
-            m = re.match(
-                    r"[\s\*]*(\d+)\s*"
-                    r"(Remote target|Thread (\d+)\s*\(Name: ([^\)]+))"
-                    r"\s*(.*)", line)
-            if m:
+            if m := re.match(
+                r"[\s\*]*(\d+)\s*"
+                r"(Remote target|Thread (\d+)\s*\(Name: ([^\)]+))"
+                r"\s*(.*)",
+                line,
+            ):
                 threads.append(Thread(*m.groups()))
         assert threads
         #>>>if not threads:
@@ -673,7 +646,7 @@ class Gdb:
         return threads
 
     def thread(self, thread):
-        return self.command("thread %s" % thread.id)
+        return self.command(f"thread {thread.id}")
 
     def where(self):
         return self.command("where 1")
@@ -731,16 +704,18 @@ def run_all_tests(module, target, parsed):
 
     return print_results(results)
 
-good_results = set(('pass', 'not_applicable'))
+good_results = {'pass', 'not_applicable'}
 def run_tests(parsed, target, todo):
     results = {}
     count = 0
 
     for name, definition, hart in todo:
-        log_name = os.path.join(parsed.logs, "%s-%s-%s.log" %
-                (time.strftime("%Y%m%d-%H%M%S"), type(target).__name__, name))
+        log_name = os.path.join(
+            parsed.logs,
+            f'{time.strftime("%Y%m%d-%H%M%S")}-{type(target).__name__}-{name}.log',
+        )
         log_fd = open(log_name, 'w')
-        print("[%s] Starting > %s" % (name, log_name))
+        print(f"[{name}] Starting > {log_name}")
         instance = definition(target, hart)
         sys.stdout.flush()
         log_fd.write("Test: %s\n" % name)
@@ -777,7 +752,7 @@ def print_results(results):
         if key not in good_results:
             result = 1
             for name, log_name in value:
-                print("   %s > %s" % (name, log_name))
+                print(f"   {name} > {log_name}")
 
     return result
 
@@ -806,7 +781,7 @@ def header(title, dash='-', length=78):
         dashes = dash * (length - 4 - len(title))
         before = dashes[:len(dashes)//2]
         after = dashes[len(dashes)//2:]
-        print("%s[ %s ]%s" % (before, title, after))
+        print(f"{before}[ {title} ]{after}")
     else:
         print(dash * length)
 
@@ -824,10 +799,7 @@ class BaseTest:
 
     def __init__(self, target, hart=None):
         self.target = target
-        if hart:
-            self.hart = hart
-        else:
-            self.hart = random.choice(target.harts)
+        self.hart = hart if hart else random.choice(target.harts)
         self.server = None
         self.target_process = None
         self.binary = None
@@ -895,10 +867,7 @@ class BaseTest:
         except TestNotApplicable:
             result = "not_applicable"
         except Exception as e: # pylint: disable=broad-except
-            if isinstance(e, TestFailed):
-                result = "fail"
-            else:
-                result = "exception"
+            result = "fail" if isinstance(e, TestFailed) else "exception"
             if isinstance(e, TestFailed):
                 # pylint: disable=no-member
                 header("Message")
@@ -914,11 +883,7 @@ class BaseTest:
             return result
 
         finally:
-            # Get handles to logs before the files are deleted.
-            logs = []
-            for log in self.logs:
-                logs.append((log, open(log, "r")))
-
+            logs = [(log, open(log, "r")) for log in self.logs]
             self.classTeardown()
             for name, handle in logs:
                 print_log_handle(name, handle)
@@ -1022,7 +987,7 @@ class TestFailed(Exception):
         Exception.__init__(self)
         self.message = message
         if comment:
-            self.message += ": %s" % comment
+            self.message += f": {comment}"
 
 class TestNotApplicable(Exception):
     def __init__(self, message=""):

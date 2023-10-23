@@ -23,7 +23,7 @@ def connect_disconnect_by_client(sap):
         return 1
 
     except BluetoothError as e:
-        print("Error " + str(e))
+        print(f"Error {str(e)}")
 
 
 def connect_disconnect_by_server_gracefully(sap, timeout=0):
@@ -43,7 +43,7 @@ def connect_disconnect_by_server_gracefully(sap, timeout=0):
         return 1
 
     except BluetoothError as e:
-        print("Error " + str(e))
+        print(f"Error {str(e)}")
 
 
 def connect_txAPDU_disconnect_by_client(sap):
@@ -79,7 +79,7 @@ def connect_txAPDU_disconnect_by_client(sap):
         return 1
 
     except BluetoothError as e:
-        print("Error " + str(e))
+        print(f"Error {str(e)}")
 
 def connect_rfcomm_only_and_wait_for_close_by_server(sap):
 
@@ -120,27 +120,23 @@ def power_sim_off_on(sap):
         return 1
 
     except BluetoothError as e:
-        print("Error " + str(e))
+        print(f"Error {str(e)}")
 
 
 if __name__ == "__main__":
 
     host = None  # server bd_addr
-    port = 8  # sap server port
-
     if (len(sys.argv) < 2):
-        print("Usage: %s <address> [port]" % (sys.argv[0]))
+        print(f"Usage: {sys.argv[0]} <address> [port]")
         sys.exit(1)
 
     host = sys.argv[1]
 
-    if (len(sys.argv) == 3):
-        port = sys.argv[2]
-
+    port = sys.argv[2] if (len(sys.argv) == 3) else 8
     try:
         s = SAPClient(host, port)
     except BluetoothError as e:
-        print("Error: " + str(e))
+        print(f"Error: {str(e)}")
         sys.exit(1)
 
     connect_disconnect_by_client(s)

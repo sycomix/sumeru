@@ -23,7 +23,7 @@ adapter = dbus.Interface(bus.get_object("org.bluez", adapter_path),
 					"org.freedesktop.DBus.Properties")
 
 if (len(args) < 1):
-	print("Usage: %s <command>" % (sys.argv[0]))
+	print(f"Usage: {sys.argv[0]} <command>")
 	print("")
 	print("  address")
 	print("  list")
@@ -64,7 +64,7 @@ if (args[0] == "list"):
 			if "org.bluez.Adapter1" not in interfaces:
 				continue
 
-			print(" [ %s ]" % (path))
+			print(f" [ {path} ]")
 
 			props = interfaces["org.bluez.Adapter1"]
 
@@ -72,7 +72,7 @@ if (args[0] == "list"):
 				if (key == "Class"):
 					print("    %s = 0x%06x" % (key, value))
 				else:
-					print("    %s = %s" % (key, value))
+					print(f"    {key} = {value}")
 			print()
 	sys.exit(0)
 

@@ -98,8 +98,7 @@ class SAPParam_MaxMsgSize(SAPParam):
         self.__validate()
 
     def __validate(self):
-        if self.value > 0xFFFF:
-             self.value = 0xFFFF
+        self.value = min(self.value, 0xFFFF)
 
     def serialize(self):
         a = array('B', '\00\00\00\00')
@@ -298,13 +297,7 @@ class SAPMessage:
         self.buf = array('B')
 
     def _basicCheck(self,  buf):
-        if len(buf) < 4 or (len(buf) % 4) != 0 :
-            return False
-
-        if buf[0] != self.id:
-            return False
-
-        return True
+        return False if len(buf) < 4 or (len(buf) % 4) != 0 else buf[0] == self.id
 
     def getID(self):
         return self.id
@@ -377,9 +370,8 @@ class SAPMessage_CONNECT_RESP(SAPMessage):
                 if self.params[0].getValue() ==  0x02:
                     if len(self.params) == 2:
                         return True
-                else:
-                    if len(self.params) == 1:
-                        return True
+                elif len(self.params) == 1:
+                    return True
         return False
 
     def deserialize(self,  buf):
@@ -444,7 +436,10 @@ class SAPMessage_TRANSFER_APDU_REQ(SAPMessage):
 
     def _validate(self):
         if len(self.params) == 1:
-            if self.params[0].getID() == SAPParam.CommandAPDU or self.params[0].getID() == SAPParam.CommandAPDU7816:
+            if self.params[0].getID() in [
+                SAPParam.CommandAPDU,
+                SAPParam.CommandAPDU7816,
+            ]:
                 return True
         return False
 
@@ -478,9 +473,8 @@ class SAPMessage_TRANSFER_APDU_RESP(SAPMessage):
                 if self.params[0].getValue() == 0x00:
                     if len(self.params) == 2:
                         return True
-                else:
-                    if len(self.params) == 1:
-                        return True
+                elif len(self.params) == 1:
+                    return True
         return False
 
     def deserialize(self,  buf):
@@ -520,9 +514,8 @@ class SAPMessage_TRANSFER_ATR_RESP(SAPMessage):
                 if self.params[0].getValue() == 0x00:
                     if len(self.params) == 2:
                         return True
-                else:
-                    if len(self.params) == 1:
-                        return True
+                elif len(self.params) == 1:
+                    return True
         return False
 
     def deserialize(self,  buf):
@@ -636,9 +629,8 @@ class SAPMessage_TRANSFER_CARD_READER_STATUS_RESP(SAPMessage):
                 if self.params[0].getValue() == 0x00:
                     if len(self.params) == 2:
                         return True
-                else:
-                    if len(self.params) == 1:
-                        return True
+                elif len(self.params) == 1:
+                    return True
         return False
 
     def deserialize(self,  buf):
@@ -711,10 +703,7 @@ class SAPClient:
         if host is None or is_valid_address(host):
             self.host = host
         else:
-            raise BluetoothError ("%s is not a valid BT address." % host)
-            self.host = None
-            return
-
+            raise BluetoothError(f"{host} is not a valid BT address.")
         if port is None:
             self.__discover()
         else:
@@ -939,5 +928,3 @@ class SAPClient:
             print "Error. " +str(e)
             return False
 
-if __name__ == "__main__":
-    pass

@@ -29,18 +29,14 @@ server = dbus.Interface(bus.get_object("org.bluez", adapter_path),
 
 service = "nap"
 
-if (len(args) < 1):
-	bridge = "tether"
-else:
-	bridge = args[0]
-
+bridge = "tether" if (len(args) < 1) else args[0]
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 mainloop = GObject.MainLoop()
 
 server.Register(service, bridge)
 
-print("Server for %s registered for %s" % (service, bridge))
+print(f"Server for {service} registered for {bridge}")
 
 print("Press CTRL-C to disconnect")
 
